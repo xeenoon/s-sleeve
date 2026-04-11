@@ -1,7 +1,9 @@
 #include "net/http_service.h"
+#include "data/json.h"
 #include "support/test.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef struct {
@@ -10,17 +12,47 @@ typedef struct {
 
 static int test_state_handler(void *context, const ng_http_request_t *request, ng_http_response_t *response) {
   test_http_context_t *test_context = (test_http_context_t *)context;
+  json_data *root;
+  char *json_text;
   (void)request;
-  ng_http_response_set_format(response, "{\"value\":%d}", test_context->value);
+  root = init_json_object();
+  if (root == NULL || json_object_add_number(root, "value", test_context->value) != 0) {
+    if (root != NULL) {
+      json_free(root);
+    }
+    return 1;
+  }
+  json_text = json_tostring(root);
+  json_free(root);
+  if (json_text == NULL) {
+    return 1;
+  }
+  ng_http_response_set_text(response, json_text);
+  free(json_text);
   return 0;
 }
 
 static int test_post_handler(void *context, const ng_http_request_t *request, ng_http_response_t *response) {
   test_http_context_t *test_context = (test_http_context_t *)context;
+  json_data *root;
+  char *json_text;
   if (strstr(request->body, "42") != NULL) {
     test_context->value = 42;
   }
-  ng_http_response_set_format(response, "{\"value\":%d}", test_context->value);
+  root = init_json_object();
+  if (root == NULL || json_object_add_number(root, "value", test_context->value) != 0) {
+    if (root != NULL) {
+      json_free(root);
+    }
+    return 1;
+  }
+  json_text = json_tostring(root);
+  json_free(root);
+  if (json_text == NULL) {
+    return 1;
+  }
+  ng_http_response_set_text(response, json_text);
+  free(json_text);
   return 0;
 }
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "data/json.h"
 #include "data/json_utils.h"
 #include "net/http_service.h"
 #include "net/http_server.h"
@@ -21,12 +22,20 @@ static int helper_state_handler(void *context, const ng_http_request_t *request,
 
   json_text = ng_build_runtime_json(server->runtime, keys, sizeof(keys) / sizeof(keys[0]));
   if (json_text == NULL) {
+    json_data *error_root = init_json_object();
+    char *error_text = NULL;
     response->status_code = 500;
-    strcpy(response->body, "{\"error\":\"json build failed\"}");
+    if (error_root != NULL) {
+      json_object_add_string(error_root, "error", "json build failed");
+      error_text = json_tostring(error_root);
+      json_free(error_root);
+    }
+    ng_http_response_set_text(response, error_text != NULL ? error_text : "{}");
+    free(error_text);
     return 0;
   }
 
-  snprintf(response->body, sizeof(response->body), "%s", json_text);
+  ng_http_response_set_text(response, json_text);
   free(json_text);
   return 0;
 }
@@ -35,7 +44,7 @@ static int helper_value_handler(void *context, const ng_http_request_t *request,
   helper_server_t *server = (helper_server_t *)context;
   (void)request;
   strcpy(response->content_type, "text/plain");
-  snprintf(response->body, sizeof(response->body), "%d", ng_runtime_get_int(server->runtime, "reading", 0));
+  ng_http_response_set_format(response, "%d", ng_runtime_get_int(server->runtime, "reading", 0));
   return 0;
 }
 

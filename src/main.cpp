@@ -2,8 +2,10 @@
 #include <Preferences.h>
 #include <WebServer.h>
 #include <WiFi.h>
+#include <stdlib.h>
 
 #include "generated/web_runtime_generated.h"
+#include "json.h"
 #include "rehab_metrics.h"
 #include "rehab_types.h"
 #include "sample_history.h"
@@ -56,6 +58,26 @@ int64_t epoch_offset_ms = 0;
 void save_history();
 void save_variables();
 
+String json_string_from_root(json_data *root) {
+  char *json_text;
+  String out;
+
+  if (root == nullptr) {
+    return "{}";
+  }
+
+  json_text = json_tostring(root);
+  if (json_text != nullptr) {
+    out = String(json_text);
+    free(json_text);
+  } else {
+    out = "{}";
+  }
+
+  json_free(root);
+  return out;
+}
+
 uint64_t current_epoch_ms(void *) {
   if (!time_synced) {
     return 0;
@@ -71,71 +93,58 @@ void refresh_live_summary() {
 }
 
 String build_live_json() {
-  String json;
-  json.reserve(320);
-  json += "{";
-  json += "\"reading\":";
-  json += String(live.raw_reading);
-  json += ",\"percentStraight\":";
-  json += String(live.percent_straight, 1);
-  json += ",\"angleDeg\":";
-  json += String(live.knee_angle_deg, 1);
-  json += ",\"speed\":";
-  json += String(live.speed_percent_per_sec, 1);
-  json += ",\"accel\":";
-  json += String(live.accel_percent_per_sec2, 1);
-  json += ",\"inStep\":";
-  json += live.in_step ? "true" : "false";
-  json += ",\"lastScore\":";
-  json += String(live.last_score, 1);
-  json += ",\"stepCount\":";
-  json += String(live.step_count);
-  json += ",\"todayAverage\":";
-  json += String(rehab_today_average_score(&storage, time_synced, current_epoch_ms(nullptr), timezone_offset_minutes), 1);
-  json += ",\"goal\":";
-  json += String(DAILY_GOAL_SCORE);
-  json += ",\"timeSynced\":";
-  json += time_synced ? "true" : "false";
-  json += "}";
-  return json;
+  json_data *root = init_json_object();
+
+  if (root == nullptr) {
+    return "{}";
+  }
+
+  json_object_add_number(root, "reading", live.raw_reading);
+  json_object_add_number(root, "percentStraight", live.percent_straight);
+  json_object_add_number(root, "angleDeg", live.knee_angle_deg);
+  json_object_add_number(root, "speed", live.speed_percent_per_sec);
+  json_object_add_number(root, "accel", live.accel_percent_per_sec2);
+  json_object_add_boolean(root, "inStep", live.in_step);
+  json_object_add_number(root, "lastScore", live.last_score);
+  json_object_add_number(root, "stepCount", live.step_count);
+  json_object_add_number(
+      root,
+      "todayAverage",
+      rehab_today_average_score(&storage, time_synced, current_epoch_ms(nullptr), timezone_offset_minutes));
+  json_object_add_number(root, "goal", DAILY_GOAL_SCORE);
+  json_object_add_boolean(root, "timeSynced", time_synced);
+  return json_string_from_root(root);
 }
 
 String build_variables_json() {
-  String json;
-  json.reserve(480);
-  json += "{";
-  json += "\"minReading\":";
-  json += String(rehab_config.min_reading);
-  json += ",\"maxReading\":";
-  json += String(rehab_config.max_reading);
-  json += ",\"bentAngle\":";
-  json += String(rehab_config.bent_angle, 2);
-  json += ",\"straightAngle\":";
-  json += String(rehab_config.straight_angle, 2);
-  json += ",\"sampleIntervalMs\":";
-  json += String(rehab_config.sample_interval_ms);
-  json += ",\"filterAlpha\":";
-  json += String(rehab_config.filter_alpha, 3);
-  json += ",\"motionThreshold\":";
-  json += String(rehab_config.motion_threshold, 3);
-  json += ",\"stepRangeThreshold\":";
-  json += String(rehab_config.step_range_threshold, 3);
-  json += ",\"startReadyThreshold\":";
-  json += String(rehab_config.start_ready_threshold, 3);
-  json += ",\"returnMargin\":";
-  json += String(rehab_config.return_margin, 3);
-  json += ",\"maxStepDurationMs\":";
-  json += String(rehab_config.max_step_duration_ms);
-  json += ",\"sampleHistoryEnabled\":";
-  json += ENABLE_SAMPLE_HISTORY ? "true" : "false";
-  json += "}";
-  return json;
+  json_data *root = init_json_object();
+
+  if (root == nullptr) {
+    return "{}";
+  }
+
+  json_object_add_number(root, "minReading", rehab_config.min_reading);
+  json_object_add_number(root, "maxReading", rehab_config.max_reading);
+  json_object_add_number(root, "bentAngle", rehab_config.bent_angle);
+  json_object_add_number(root, "straightAngle", rehab_config.straight_angle);
+  json_object_add_number(root, "sampleIntervalMs", rehab_config.sample_interval_ms);
+  json_object_add_number(root, "filterAlpha", rehab_config.filter_alpha);
+  json_object_add_number(root, "motionThreshold", rehab_config.motion_threshold);
+  json_object_add_number(root, "stepRangeThreshold", rehab_config.step_range_threshold);
+  json_object_add_number(root, "startReadyThreshold", rehab_config.start_ready_threshold);
+  json_object_add_number(root, "returnMargin", rehab_config.return_margin);
+  json_object_add_number(root, "maxStepDurationMs", rehab_config.max_step_duration_ms);
+  json_object_add_boolean(root, "sampleHistoryEnabled", ENABLE_SAMPLE_HISTORY);
+  return json_string_from_root(root);
 }
 
 String build_history_json() {
   DaySummary summaries[14] = {};
   size_t summary_count = 0;
-  String json;
+  json_data *root = init_json_object();
+  json_data *history = init_json_array(0);
+  json_data *daily_averages = init_json_array(0);
+  size_t i;
 
   for (int i = static_cast<int>(storage.count) - 1; i >= 0; --i) {
     const int64_t key = rehab_local_day_key(storage.records[i].timestamp_ms, timezone_offset_minutes);
@@ -159,77 +168,62 @@ String build_history_json() {
     }
   }
 
-  json.reserve(22000);
-  json += "{";
-  json += "\"goal\":";
-  json += String(DAILY_GOAL_SCORE);
-  json += ",\"history\":[";
-  for (int i = static_cast<int>(storage.count) - 1; i >= 0; --i) {
-    const StepRecord &record = storage.records[i];
-    if (i != static_cast<int>(storage.count) - 1) {
-      json += ",";
-    }
-    json += "{";
-    json += "\"id\":";
-    json += String(record.id);
-    json += ",\"timestampMs\":";
-    json += String(static_cast<unsigned long long>(record.timestamp_ms));
-    json += ",\"score\":";
-    json += String(record.score, 1);
-    json += ",\"shakiness\":";
-    json += String(record.shakiness_penalty, 1);
-    json += ",\"uncontrolledDescent\":";
-    json += String(record.descent_penalty, 1);
-    json += ",\"compensation\":";
-    json += String(record.compensation_penalty, 1);
-    json += ",\"durationMs\":";
-    json += String(record.duration_ms, 0);
-    json += ",\"descentMs\":";
-    json += String(record.descent_ms, 0);
-    json += ",\"ascentMs\":";
-    json += String(record.ascent_ms, 0);
-    json += ",\"range\":";
-    json += String(record.range, 1);
-    json += ",\"startPercent\":";
-    json += String(record.start_percent, 1);
-    json += ",\"endPercent\":";
-    json += String(record.end_percent, 1);
-    json += ",\"minPercent\":";
-    json += String(record.min_percent, 1);
-    json += ",\"maxPercent\":";
-    json += String(record.max_percent, 1);
-    json += ",\"descentAvgSpeed\":";
-    json += String(record.descent_avg_speed, 1);
-    json += ",\"ascentAvgSpeed\":";
-    json += String(record.ascent_avg_speed, 1);
-    json += ",\"descentPeakSpeed\":";
-    json += String(record.descent_peak_speed, 1);
-    json += ",\"ascentPeakSpeed\":";
-    json += String(record.ascent_peak_speed, 1);
-    json += ",\"oscillations\":";
-    json += String(record.oscillation_count);
-    json += "}";
+  if (root == nullptr || history == nullptr || daily_averages == nullptr) {
+    json_free(root);
+    json_free(history);
+    json_free(daily_averages);
+    return "{}";
   }
-  json += "],\"dailyAverages\":[";
-  for (size_t i = 0; i < summary_count; ++i) {
+
+  json_object_add_number(root, "goal", DAILY_GOAL_SCORE);
+  for (int history_index = static_cast<int>(storage.count) - 1; history_index >= 0; --history_index) {
+    const StepRecord &record = storage.records[history_index];
+    json_data *entry = init_json_object();
+    if (entry == nullptr) {
+      continue;
+    }
+
+    json_object_add_number(entry, "id", record.id);
+    json_object_add_number(entry, "timestampMs", static_cast<double>(record.timestamp_ms));
+    json_object_add_number(entry, "score", record.score);
+    json_object_add_number(entry, "shakiness", record.shakiness_penalty);
+    json_object_add_number(entry, "uncontrolledDescent", record.descent_penalty);
+    json_object_add_number(entry, "compensation", record.compensation_penalty);
+    json_object_add_number(entry, "durationMs", record.duration_ms);
+    json_object_add_number(entry, "descentMs", record.descent_ms);
+    json_object_add_number(entry, "ascentMs", record.ascent_ms);
+    json_object_add_number(entry, "range", record.range);
+    json_object_add_number(entry, "startPercent", record.start_percent);
+    json_object_add_number(entry, "endPercent", record.end_percent);
+    json_object_add_number(entry, "minPercent", record.min_percent);
+    json_object_add_number(entry, "maxPercent", record.max_percent);
+    json_object_add_number(entry, "descentAvgSpeed", record.descent_avg_speed);
+    json_object_add_number(entry, "ascentAvgSpeed", record.ascent_avg_speed);
+    json_object_add_number(entry, "descentPeakSpeed", record.descent_peak_speed);
+    json_object_add_number(entry, "ascentPeakSpeed", record.ascent_peak_speed);
+    json_object_add_number(entry, "oscillations", record.oscillation_count);
+    json_array_add_object(history, entry);
+  }
+
+  for (i = 0; i < summary_count; ++i) {
+    json_data *summary = init_json_object();
     const int64_t day_start_utc_ms =
         summaries[i].key * 86400000LL + static_cast<int64_t>(timezone_offset_minutes) * 60000LL;
     const float average =
         summaries[i].total / static_cast<float>(summaries[i].count > 0 ? summaries[i].count : 1);
-    if (i != 0) {
-      json += ",";
+    if (summary == nullptr) {
+      continue;
     }
-    json += "{";
-    json += "\"dayStartMs\":";
-    json += String(static_cast<long long>(day_start_utc_ms));
-    json += ",\"averageScore\":";
-    json += String(average, 1);
-    json += ",\"count\":";
-    json += String(summaries[i].count);
-    json += "}";
+
+    json_object_add_number(summary, "dayStartMs", static_cast<double>(day_start_utc_ms));
+    json_object_add_number(summary, "averageScore", average);
+    json_object_add_number(summary, "count", summaries[i].count);
+    json_array_add_object(daily_averages, summary);
   }
-  json += "]}";
-  return json;
+
+  json_object_add_array(root, "history", history);
+  json_object_add_array(root, "dailyAverages", daily_averages);
+  return json_string_from_root(root);
 }
 
 void load_variables() {
@@ -360,7 +354,12 @@ void handle_variables_update() {
       updated.start_ready_threshold < 0.0f || updated.start_ready_threshold > 1.0f ||
       updated.return_margin < 0.0f || updated.return_margin > 1.0f ||
       updated.max_step_duration_ms < 250) {
-    server.send(400, "application/json", "{\"ok\":false,\"message\":\"Invalid variable values\"}");
+    json_data *root = init_json_object();
+    if (root != nullptr) {
+      json_object_add_boolean(root, "ok", false);
+      json_object_add_string(root, "message", "Invalid variable values");
+    }
+    server.send(400, "application/json", json_string_from_root(root));
     return;
   }
 
@@ -389,7 +388,11 @@ void handle_time_sync() {
     timezone_offset_minutes = server.arg("offsetMinutes").toInt();
   }
 
-  server.send(200, "application/json", "{\"ok\":true}");
+  json_data *root = init_json_object();
+  if (root != nullptr) {
+    json_object_add_boolean(root, "ok", true);
+  }
+  server.send(200, "application/json", json_string_from_root(root));
 }
 
 void handle_not_found() {

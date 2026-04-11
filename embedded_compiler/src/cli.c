@@ -21,6 +21,8 @@ typedef struct {
   int has_component_file;
   int has_html_file;
   int has_css_file;
+  ast_component_file_t component_ast;
+  file_buffer_t component_buffer;
   file_buffer_t html_buffer;
   file_buffer_t css_buffer;
 } cli_context_t;
@@ -105,7 +107,10 @@ static int tokenize_file(const char *path, void *context) {
 
   if (ast.kind == PARSER_FILE_COMPONENT) {
     LOG_TRACE("tokenize_file capture component path=%s bytes=%zu\n", path, buffer.size);
+    cli_context->component_ast = ast.data.component;
+    cli_context->component_buffer = buffer;
     cli_context->has_component_file = 1;
+    memset(&buffer, 0, sizeof(buffer));
   } else if (strstr(path, "app.component.html") != NULL) {
     LOG_TRACE("tokenize_file capture html path=%s bytes=%zu\n", path, buffer.size);
     cli_context->html_buffer = buffer;
@@ -143,6 +148,7 @@ static int cli_generate_outputs(cli_context_t *context) {
 
   if (generator_generate_embedded_bundle(context->output_dir,
                                          context->input_dir,
+                                         &context->component_ast,
                                          context->html_buffer.data,
                                          context->css_buffer.data) != 0) {
     log_errorf("failed to generate embedded bundle into %s\n", context->output_dir);
@@ -157,6 +163,7 @@ static int cli_generate_outputs(cli_context_t *context) {
 }
 
 static void cli_free_context_buffers(cli_context_t *context) {
+  file_buffer_free(&context->component_buffer);
   file_buffer_free(&context->html_buffer);
   file_buffer_free(&context->css_buffer);
 }

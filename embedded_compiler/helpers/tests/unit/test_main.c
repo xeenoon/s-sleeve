@@ -5,6 +5,7 @@ void test_ng_math(ng_test_context_t *context);
 void test_number_format(ng_test_context_t *context);
 void test_fetch_runtime(ng_test_context_t *context);
 void test_app_runtime(ng_test_context_t *context);
+void test_observable(ng_test_context_t *context);
 void test_json_utils(ng_test_context_t *context);
 void test_http_service(ng_test_context_t *context);
 
@@ -30,6 +31,7 @@ int main(void) {
   failed |= run_test("number_format", test_number_format, &assertion_total);
   failed |= run_test("fetch_runtime", test_fetch_runtime, &assertion_total);
   failed |= run_test("app_runtime", test_app_runtime, &assertion_total);
+  failed |= run_test("observable", test_observable, &assertion_total);
   failed |= run_test("json_utils", test_json_utils, &assertion_total);
   failed |= run_test("http_service", test_http_service, &assertion_total);
 

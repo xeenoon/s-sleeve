@@ -8,6 +8,7 @@
 #define AST_MAX_MEMBERS 64
 #define AST_MAX_METHOD_PARAMS 8
 #define AST_MAX_METHOD_BODY 4096
+#define AST_MAX_FIELD_INITIALIZER 1024
 
 typedef enum {
   AST_MEMBER_FIELD = 0,
@@ -18,9 +19,11 @@ typedef struct {
   char name[128];
   ast_member_kind_t kind;
   int uses_external_fetch;
+  int is_observable;
   char params[AST_MAX_METHOD_PARAMS][64];
   size_t param_count;
   char body[AST_MAX_METHOD_BODY];
+  char initializer[AST_MAX_FIELD_INITIALIZER];
 } ast_member_t;
 
 typedef struct {

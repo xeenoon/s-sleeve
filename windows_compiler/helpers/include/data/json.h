@@ -2,6 +2,10 @@
 #define JSON_H
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum jsondatatype
 {
     JSON_STRING,
@@ -70,9 +74,29 @@ json_data *init_json_string(const char *str);
 json_data *init_json_array(int count, ...);
 json_data *init_json_number(double num);
 json_data *init_json_boolean(bool boolean);
+json_data *init_json_null(void);
 json_data *init_json_object_populated(int count, ...);
-json_data *get_value(json_data *obj, char *key);
+json_data *get_value(json_data *obj, const char *key);
 void json_push_arr(json_data *arr, json_data *data);
 
+int json_object_add(json_data *obj, const char *key, json_data *value);
+int json_object_add_string(json_data *obj, const char *key, const char *value);
+int json_object_add_number(json_data *obj, const char *key, double value);
+int json_object_add_boolean(json_data *obj, const char *key, bool value);
+int json_object_add_null(json_data *obj, const char *key);
+int json_object_add_object(json_data *obj, const char *key, json_data *value);
+int json_object_add_array(json_data *obj, const char *key, json_data *value);
+
+int json_array_add(json_data *arr, json_data *value);
+int json_array_add_string(json_data *arr, const char *value);
+int json_array_add_number(json_data *arr, double value);
+int json_array_add_boolean(json_data *arr, bool value);
+int json_array_add_null(json_data *arr);
+int json_array_add_object(json_data *arr, json_data *value);
+int json_array_add_array(json_data *arr, json_data *value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

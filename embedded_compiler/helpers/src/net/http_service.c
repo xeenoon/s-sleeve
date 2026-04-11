@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+
+#include "data/json.h"
 
 #ifndef NG_HTTP_TRACE_ENABLED
 #define NG_HTTP_TRACE_ENABLED 1
@@ -20,8 +23,29 @@
 #endif
 
 static void ng_http_service_write_error(ng_http_response_t *response, int status_code, const char *message) {
+  json_data *root;
+  char *json_text;
+
   response->status_code = status_code;
-  snprintf(response->body, sizeof(response->body), "{\"error\":\"%s\"}", message);
+  root = init_json_object();
+  if (root == NULL ||
+      json_object_add_string(root, "error", message != NULL ? message : "response build failure") != 0) {
+    ng_http_response_set_text(response, "{}");
+    if (root != NULL) {
+      json_free(root);
+    }
+    return;
+  }
+
+  json_text = json_tostring(root);
+  json_free(root);
+  if (json_text == NULL) {
+    ng_http_response_set_text(response, "{}");
+    return;
+  }
+
+  ng_http_response_set_text(response, json_text);
+  free(json_text);
 }
 
 void ng_http_service_init(ng_http_service_t *service,
@@ -51,21 +75,27 @@ static int ng_http_service_try_static_asset(const ng_http_service_t *service,
   if (strcmp(request->path, "/") == 0) {
     NG_HTTP_TRACE("[service] serving html\n");
     strcpy(response->content_type, "text/html; charset=utf-8");
-    snprintf(response->body, sizeof(response->body), "%s", service->html_page != NULL ? service->html_page : "");
+    if (ng_http_response_set_text(response, service->html_page != NULL ? service->html_page : "") != 0) {
+      ng_http_service_write_error(response, 500, "html too large");
+    }
     return 1;
   }
 
   if (strcmp(request->path, "/styles.css") == 0) {
     NG_HTTP_TRACE("[service] serving css\n");
     strcpy(response->content_type, "text/css; charset=utf-8");
-    snprintf(response->body, sizeof(response->body), "%s", service->css_text != NULL ? service->css_text : "");
+    if (ng_http_response_set_text(response, service->css_text != NULL ? service->css_text : "") != 0) {
+      ng_http_service_write_error(response, 500, "css too large");
+    }
     return 1;
   }
 
   if (strcmp(request->path, "/app.js") == 0) {
     NG_HTTP_TRACE("[service] serving js\n");
     strcpy(response->content_type, "application/javascript; charset=utf-8");
-    snprintf(response->body, sizeof(response->body), "%s", service->js_text != NULL ? service->js_text : "");
+    if (ng_http_response_set_text(response, service->js_text != NULL ? service->js_text : "") != 0) {
+      ng_http_service_write_error(response, 500, "js too large");
+    }
     return 1;
   }
 

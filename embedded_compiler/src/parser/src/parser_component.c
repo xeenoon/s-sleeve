@@ -64,6 +64,8 @@ static void append_member_if_missing(ast_component_file_t *component,
       component->members[index].kind = kind;
       component->members[index].uses_external_fetch =
           component->members[index].uses_external_fetch || uses_external_fetch;
+      component->members[index].is_observable =
+          component->members[index].is_observable || strchr(name, '$') != NULL;
       return;
     }
   }
@@ -75,8 +77,10 @@ static void append_member_if_missing(ast_component_file_t *component,
   memcpy(component->members[component->member_count].name, name, sizeof(name));
   component->members[component->member_count].kind = kind;
   component->members[component->member_count].uses_external_fetch = uses_external_fetch;
+  component->members[component->member_count].is_observable = strchr(name, '$') != NULL;
   component->members[component->member_count].param_count = 0;
   component->members[component->member_count].body[0] = '\0';
+  component->members[component->member_count].initializer[0] = '\0';
   component->member_count += 1;
 }
 
@@ -164,6 +168,49 @@ static void parser_capture_method_body(ast_member_t *member,
   member->body[length] = '\0';
 }
 
+static void parser_capture_field_initializer(ast_member_t *member,
+                                             const parser_state_t *state,
+                                             size_t equals_index) {
+  size_t index;
+  const char *start;
+  const char *end;
+  size_t length;
+
+  if (equals_index >= state->count) {
+    member->initializer[0] = '\0';
+    return;
+  }
+
+  start = state->tokens[equals_index].start + state->tokens[equals_index].length;
+  end = start;
+
+  for (index = equals_index + 1; index < state->count; ++index) {
+    const token_t *token = &state->tokens[index];
+
+    if (!token_is_significant(token)) {
+      continue;
+    }
+
+    if (token->kind == TOKEN_PUNCTUATION && token_matches_text(token, ";")) {
+      end = token->start;
+      break;
+    }
+  }
+
+  if (end <= start) {
+    member->initializer[0] = '\0';
+    return;
+  }
+
+  length = (size_t)(end - start);
+  if (length >= sizeof(member->initializer)) {
+    length = sizeof(member->initializer) - 1;
+  }
+
+  memcpy(member->initializer, start, length);
+  member->initializer[length] = '\0';
+}
+
 int parser_parse_component(parser_state_t *state, ast_file_t *out_file) {
   size_t index;
   int inside_class_body = 0;
@@ -238,6 +285,9 @@ int parser_parse_component(parser_state_t *state, ast_file_t *out_file) {
 
     if (token->kind == TOKEN_IDENTIFIER &&
         !(previous_token != NULL && token_is_identifier_text(previous_token, "async")) &&
+        !(previous_token != NULL &&
+          previous_token->kind == TOKEN_PUNCTUATION &&
+          token_matches_text(previous_token, ".")) &&
         ((next_token->kind == TOKEN_PUNCTUATION && token_matches_text(next_token, "=")) ||
          (next_token->kind == TOKEN_PUNCTUATION && token_matches_text(next_token, "(")))) {
       append_member_if_missing(&out_file->data.component,
@@ -265,6 +315,14 @@ int parser_parse_component(parser_state_t *state, ast_file_t *out_file) {
               class_depth = 1;
             }
           }
+        }
+      } else if (token_matches_text(next_token, "=")) {
+        ast_member_t *member;
+
+        copy_token_text(member_name, sizeof(member_name), token);
+        member = find_member(&out_file->data.component, member_name);
+        if (member != NULL) {
+          parser_capture_field_initializer(member, state, next_index);
         }
       }
       continue;

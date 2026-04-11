@@ -36,16 +36,16 @@ char *ng_build_runtime_json(const ng_runtime_t *runtime, const char *const *keys
 
     switch (slot->type) {
       case NG_RUNTIME_VALUE_INT:
-        json_push(root, init_kvp(key, init_json_number(slot->data.int_value)));
+        json_object_add_number(root, key, slot->data.int_value);
         break;
       case NG_RUNTIME_VALUE_DOUBLE:
-        json_push(root, init_kvp(key, init_json_number(slot->data.double_value)));
+        json_object_add_number(root, key, slot->data.double_value);
         break;
       case NG_RUNTIME_VALUE_BOOL:
-        json_push(root, init_kvp(key, init_json_boolean(slot->data.bool_value)));
+        json_object_add_boolean(root, key, slot->data.bool_value);
         break;
       case NG_RUNTIME_VALUE_STRING:
-        json_push(root, init_kvp(key, init_json_string(slot->data.string_value)));
+        json_object_add_string(root, key, slot->data.string_value);
         break;
       case NG_RUNTIME_VALUE_EMPTY:
       default:

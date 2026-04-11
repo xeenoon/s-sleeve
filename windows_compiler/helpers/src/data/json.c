@@ -336,27 +336,58 @@ json_data *init_json_boolean(bool boolean)
     return j;
 }
 
+json_data *init_json_null(void)
+{
+    json_data *j = malloc(sizeof(json_data));
+    if (!j)
+        return NULL;
+    j->type = JSON_NULL;
+    return j;
+}
+
 json_kvp *init_kvp(const char *key, json_data *value) // ASSUMES NON MALLOCED STRING
 {
+    if (!key || !value)
+        return NULL;
 
     json_kvp *j = malloc(sizeof(json_kvp));
+    if (!j)
+        return NULL;
     j->key = safestr(key);
+    if (!j->key)
+    {
+        free(j);
+        return NULL;
+    }
     j->value = value;
     return j;
 }
 
 void json_push(json_data *obj, json_kvp *kvp)
 {
+    json_kvp **pairs;
+
+    if (!obj || obj->type != JSON_OBJECT || !kvp)
+        return;
+
     obj->as.object.len++;
 
     if (!obj->as.object.pairs)
     {
-        obj->as.object.pairs = malloc(sizeof(json_kvp *));
+        pairs = malloc(sizeof(json_kvp *));
     }
     else
     {
-        obj->as.object.pairs = realloc(obj->as.object.pairs, sizeof(json_kvp *) * obj->as.object.len);
+        pairs = realloc(obj->as.object.pairs, sizeof(json_kvp *) * obj->as.object.len);
     }
+
+    if (!pairs)
+    {
+        obj->as.object.len--;
+        return;
+    }
+
+    obj->as.object.pairs = pairs;
     obj->as.object.pairs[obj->as.object.len - 1] = kvp;
 }
 
@@ -390,7 +421,7 @@ void json_push_arr(json_data *arr, json_data *data)
 }
 
 
-json_data *get_value(json_data *obj, char *key)
+json_data *get_value(json_data *obj, const char *key)
 {
     if(obj->type != JSON_OBJECT)
     {
@@ -406,4 +437,90 @@ json_data *get_value(json_data *obj, char *key)
         }
     }
     return NULL;
+}
+
+int json_object_add(json_data *obj, const char *key, json_data *value)
+{
+    json_kvp *pair;
+
+    if (!obj || obj->type != JSON_OBJECT || !key || !value)
+        return 1;
+
+    pair = init_kvp(key, value);
+    if (!pair)
+    {
+        json_free(value);
+        return 1;
+    }
+
+    json_push(obj, pair);
+    return 0;
+}
+
+int json_object_add_string(json_data *obj, const char *key, const char *value)
+{
+    return json_object_add(obj, key, init_json_string(value != NULL ? value : ""));
+}
+
+int json_object_add_number(json_data *obj, const char *key, double value)
+{
+    return json_object_add(obj, key, init_json_number(value));
+}
+
+int json_object_add_boolean(json_data *obj, const char *key, bool value)
+{
+    return json_object_add(obj, key, init_json_boolean(value));
+}
+
+int json_object_add_null(json_data *obj, const char *key)
+{
+    return json_object_add(obj, key, init_json_null());
+}
+
+int json_object_add_object(json_data *obj, const char *key, json_data *value)
+{
+    return json_object_add(obj, key, value);
+}
+
+int json_object_add_array(json_data *obj, const char *key, json_data *value)
+{
+    return json_object_add(obj, key, value);
+}
+
+int json_array_add(json_data *arr, json_data *value)
+{
+    if (!arr || arr->type != JSON_ARRAY || !value)
+        return 1;
+    json_push_arr(arr, value);
+    return 0;
+}
+
+int json_array_add_string(json_data *arr, const char *value)
+{
+    return json_array_add(arr, init_json_string(value != NULL ? value : ""));
+}
+
+int json_array_add_number(json_data *arr, double value)
+{
+    return json_array_add(arr, init_json_number(value));
+}
+
+int json_array_add_boolean(json_data *arr, bool value)
+{
+    return json_array_add(arr, init_json_boolean(value));
+}
+
+int json_array_add_null(json_data *arr)
+{
+    return json_array_add(arr, init_json_null());
+}
+
+int json_array_add_object(json_data *arr, json_data *value)
+{
+    return json_array_add(arr, value);
+}
+
+int json_array_add_array(json_data *arr, json_data *value)
+{
+    return json_array_add(arr, value);
 }

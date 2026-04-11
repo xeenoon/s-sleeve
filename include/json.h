@@ -1,5 +1,6 @@
 #ifndef JSON_H
 #define JSON_H
+
 #include <stdbool.h>
 
 #ifdef __cplusplus
@@ -69,7 +70,7 @@ void json_free(json_data *root);
 json_kvp *init_kvp(const char *key, json_data *value);
 void json_push(json_data *obj, json_kvp *kvp);
 
-json_data *init_json_object();
+json_data *init_json_object(void);
 json_data *init_json_string(const char *str);
 json_data *init_json_array(int count, ...);
 json_data *init_json_number(double num);
