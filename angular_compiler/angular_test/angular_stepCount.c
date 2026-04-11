@@ -1,9 +1,9 @@
-#include "angular_stepHistory.h"
+#include "angular_stepCount.h"
 #include "helpers/include/math/number_utils.h"
 
-const angular_stepHistory_header_t angular_stepHistory_header = {
+const angular_stepCount_header_t angular_stepCount_header = {
   "AppComponent",
-  "stepHistory",
+  "stepCount",
   "field",
   "generic-field",
   "opaque generated field",
@@ -11,5 +11,5 @@ const angular_stepHistory_header_t angular_stepHistory_header = {
   0
 };
 
-void angular_stepHistory_generated_stub(void) {
+void angular_stepCount_generated_stub(void) {
 }

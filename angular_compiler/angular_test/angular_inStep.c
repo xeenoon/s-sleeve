@@ -1,9 +1,9 @@
-#include "angular_latestStep.h"
+#include "angular_inStep.h"
 #include "helpers/include/math/number_utils.h"
 
-const angular_latestStep_header_t angular_latestStep_header = {
+const angular_inStep_header_t angular_inStep_header = {
   "AppComponent",
-  "latestStep",
+  "inStep",
   "field",
   "generic-field",
   "opaque generated field",
@@ -11,5 +11,5 @@ const angular_latestStep_header_t angular_latestStep_header = {
   0
 };
 
-void angular_latestStep_generated_stub(void) {
+void angular_inStep_generated_stub(void) {
 }

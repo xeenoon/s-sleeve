@@ -10,24 +10,26 @@ TARGET := $(BIN_DIR)/generated_demo.exe
 SOURCES := \
 	angular_selectedView.c \
 	angular_goal.c \
-	angular_live.c \
-	angular_latestStep.c \
-	angular_stepHistory.c \
-	angular_dailyAverages.c \
+	angular_reading.c \
+	angular_percentStraight.c \
+	angular_speed.c \
+	angular_lastScore.c \
+	angular_stepCount.c \
+	angular_todayAverage.c \
+	angular_timeSynced.c \
+	angular_inStep.c \
+	angular_shaky.c \
+	angular_uncontrolledDescent.c \
+	angular_compensation.c \
 	angular_lowerLegX2.c \
 	angular_lowerLegY2.c \
 	angular_ankleX.c \
 	angular_ankleY.c \
 	angular_ngOnInit.c \
 	angular_switchView.c \
-	angular_syncClock.c \
 	angular_clamp.c \
 	angular_mapPercentToAngle.c \
 	angular_updateKnee.c \
-	angular_refreshLive.c \
-	angular_refreshHistory.c \
-	angular_formatTimestamp.c \
-	angular_scoreClass.c \
 	angular_http_service.c \
 	angular_generated_demo.c \
 	helpers/src/data/json.c \

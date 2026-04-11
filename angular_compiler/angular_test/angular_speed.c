@@ -1,9 +1,9 @@
-#include "angular_dailyAverages.h"
+#include "angular_speed.h"
 #include "helpers/include/math/number_utils.h"
 
-const angular_dailyAverages_header_t angular_dailyAverages_header = {
+const angular_speed_header_t angular_speed_header = {
   "AppComponent",
-  "dailyAverages",
+  "speed",
   "field",
   "generic-field",
   "opaque generated field",
@@ -11,5 +11,5 @@ const angular_dailyAverages_header_t angular_dailyAverages_header = {
   0
 };
 
-void angular_dailyAverages_generated_stub(void) {
+void angular_speed_generated_stub(void) {
 }

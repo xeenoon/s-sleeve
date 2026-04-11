@@ -1,9 +1,9 @@
-#include "angular_live.h"
+#include "angular_shaky.h"
 #include "helpers/include/math/number_utils.h"
 
-const angular_live_header_t angular_live_header = {
+const angular_shaky_header_t angular_shaky_header = {
   "AppComponent",
-  "live",
+  "shaky",
   "field",
   "generic-field",
   "opaque generated field",
@@ -11,5 +11,5 @@ const angular_live_header_t angular_live_header = {
   0
 };
 
-void angular_live_generated_stub(void) {
+void angular_shaky_generated_stub(void) {
 }

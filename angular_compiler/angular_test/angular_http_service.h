@@ -7,7 +7,7 @@
 typedef struct {
   ng_runtime_t *runtime;
   ng_http_service_t service;
-  ng_http_route_t routes[6];
+  ng_http_route_t routes[8];
 } angular_http_service_t;
 
 void angular_http_service_init(angular_http_service_t *service,
