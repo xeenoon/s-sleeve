@@ -1,0 +1,63 @@
+<div class="shell">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Mobility Monitor</p>
+      <h1>Recovery Dashboard</h1>
+      <p class="lede">Track live extension quality and recent step performance from the ESP32 stream.</p>
+    </div>
+    <div class="goal-card">
+      <span>Daily Goal</span>
+      <strong>{{ goal }}</strong>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button [class.active]="selectedView === 'live'" (click)="switchView('live')">Live</button>
+    <button [class.active]="selectedView === 'history'" (click)="switchView('history')">History</button>
+  </nav>
+
+  <section class="grid">
+    <article class="panel meter-panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Knee Position</p>
+          <h2>{{ live.percentStraight }}% straight</h2>
+        </div>
+        <span class="status" [class.synced]="live.timeSynced">SYNC</span>
+      </div>
+
+      <svg viewBox="0 0 280 320" aria-label="Knee joint animation">
+        <line class="guide" x1="140" y1="64" x2="140" y2="174"></line>
+        <g id="leg">
+          <line class="limb" x1="140" y1="64" x2="140" y2="174"></line>
+          <line class="limb" id="lower-leg" x1="140" y1="174" [attr.x2]="lowerLegX2" [attr.y2]="lowerLegY2"></line>
+          <circle class="joint" cx="140" cy="64" r="14"></circle>
+          <circle class="joint" cx="140" cy="174" r="16"></circle>
+          <circle class="joint" id="ankle" [attr.cx]="ankleX" [attr.cy]="ankleY" r="14"></circle>
+        </g>
+      </svg>
+    </article>
+
+    <article class="panel">
+      <p class="eyebrow">Live Signal</p>
+      <div class="stats">
+        <div>
+          <span>Reading</span>
+          <strong>{{ live.reading }}</strong>
+        </div>
+        <div>
+          <span>Angle</span>
+          <strong>{{ live.angleDeg }}</strong>
+        </div>
+        <div>
+          <span>Steps</span>
+          <strong>{{ live.stepCount }}</strong>
+        </div>
+        <div>
+          <span>Score</span>
+          <strong>{{ live.lastScore }}</strong>
+        </div>
+      </div>
+    </article>
+  </section>
+</div>

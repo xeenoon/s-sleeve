@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Knee Position Monitor</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main>
+    <div class="layout">
+      <div class="meter">
+        <p>Knee Position</p>
+        <svg viewBox="0 0 280 320" aria-label="Knee joint animation">
+          <line class="guide" x1="140" y1="64" x2="140" y2="174"></line>
+          <g id="leg">
+            <line class="limb" x1="140" y1="64" x2="140" y2="174"></line>
+            <line class="limb" id="lower-leg" x1="140" y1="174" x2="140.0" y2="274.0"></line>
+            <circle class="joint" cx="140" cy="64" r="14"></circle>
+            <circle class="joint" cx="140" cy="174" r="16"></circle>
+            <circle class="joint" id="ankle" cx="140.0" cy="274.0" r="14"></circle>
+          </g>
+        </svg>
+        <div class="joint-labels">
+          <span>Bent</span>
+          <span>Straight</span>
+        </div>
+      </div>
+      <div>
+        <p>Potentiometer Reading</p>
+        <h1 id="reading">3500</h1>
+        <div class="subtext" id="angle-text">67% straight</div>
+      </div>
+    </div>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
