@@ -2,12 +2,12 @@
 EXTENSION NAME : linecount
 EXTENSION VERSION : 0.1.7
 -------------------------------------------------------------------------------
-count time : 2026-04-12 00:10:39
-count workspace : c:\Users\ccw10\Documents\s-sleeve\angular_compiler
-total files : 210
-total code lines : 11577
+count time : 2026-04-12 03:42:49
+count workspace : c:\Users\ccw10\Documents\s-sleeve\windows_compiler
+total files : 242
+total code lines : 20745
 total comment lines : 66
-total blank lines : 2009
+total blank lines : 2146
 
 angular_runtime.h, code is 56, comment is 0, blank is 10.
 angular_test\angular_ankleX.c, code is 14, comment is 0, blank is 2.
@@ -16,45 +16,67 @@ angular_test\angular_ankleY.c, code is 14, comment is 0, blank is 2.
 angular_test\angular_ankleY.h, code is 26, comment is 0, blank is 7.
 angular_test\angular_clamp.c, code is 15, comment is 0, blank is 2.
 angular_test\angular_clamp.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_dailyAverages.c, code is 13, comment is 0, blank is 2.
-angular_test\angular_dailyAverages.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_formatTimestamp.c, code is 13, comment is 0, blank is 2.
-angular_test\angular_formatTimestamp.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_generated_demo.c, code is 36, comment is 0, blank is 83.
-angular_test\angular_goal.c, code is 13, comment is 0, blank is 2.
+angular_test\angular_compensation.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_compensation.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_dailyAverageRows_.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_dailyAverageRows_.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_dailyDiagnostics_.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_dailyDiagnostics_.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_generated_demo.c, code is 50, comment is 0, blank is 6.
+angular_test\angular_goal.c, code is 14, comment is 0, blank is 2.
 angular_test\angular_goal.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_http_service.c, code is 124, comment is 0, blank is 11.
-angular_test\angular_http_service.h, code is 15, comment is 0, blank is 4.
-angular_test\angular_latestStep.c, code is 13, comment is 0, blank is 2.
-angular_test\angular_latestStep.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_live.c, code is 13, comment is 0, blank is 2.
-angular_test\angular_live.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_historyDiagnostics_.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_historyDiagnostics_.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_historyGoal_.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_historyGoal_.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_historyRows_.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_historyRows_.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_http_service.c, code is 84, comment is 0, blank is 6.
+angular_test\angular_http_service.h, code is 23, comment is 0, blank is 6.
+angular_test\angular_inStep.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_inStep.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_lastScore.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_lastScore.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_liveState_.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_liveState_.h, code is 26, comment is 0, blank is 7.
 angular_test\angular_lowerLegX2.c, code is 14, comment is 0, blank is 2.
 angular_test\angular_lowerLegX2.h, code is 26, comment is 0, blank is 7.
 angular_test\angular_lowerLegY2.c, code is 14, comment is 0, blank is 2.
 angular_test\angular_lowerLegY2.h, code is 26, comment is 0, blank is 7.
 angular_test\angular_mapPercentToAngle.c, code is 17, comment is 0, blank is 2.
 angular_test\angular_mapPercentToAngle.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_ngOnInit.c, code is 21, comment is 0, blank is 2.
+angular_test\angular_ngOnInit.c, code is 13, comment is 0, blank is 2.
 angular_test\angular_ngOnInit.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_refreshHistory.c, code is 13, comment is 0, blank is 2.
-angular_test\angular_refreshHistory.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_refreshLive.c, code is 13, comment is 0, blank is 2.
-angular_test\angular_refreshLive.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_percentStraight.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_percentStraight.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_reading.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_reading.h, code is 26, comment is 0, blank is 7.
 angular_test\angular_runtime.h, code is 56, comment is 0, blank is 10.
-angular_test\angular_scoreClass.c, code is 13, comment is 0, blank is 2.
-angular_test\angular_scoreClass.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_selectedView.c, code is 13, comment is 0, blank is 2.
+angular_test\angular_saveVariables_.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_saveVariables_.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_selectedView.c, code is 14, comment is 0, blank is 2.
 angular_test\angular_selectedView.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_stepHistory.c, code is 13, comment is 0, blank is 2.
-angular_test\angular_stepHistory.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_switchView.c, code is 13, comment is 0, blank is 2.
+angular_test\angular_selectedView_.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_selectedView_.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_shaky.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_shaky.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_speed.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_speed.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_stepCount.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_stepCount.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_switchView.c, code is 15, comment is 0, blank is 2.
 angular_test\angular_switchView.h, code is 26, comment is 0, blank is 7.
-angular_test\angular_syncClock.c, code is 13, comment is 0, blank is 2.
-angular_test\angular_syncClock.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_timeSynced.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_timeSynced.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_todayAverage.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_todayAverage.h, code is 26, comment is 0, blank is 7.
+angular_test\angular_uncontrolledDescent.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_uncontrolledDescent.h, code is 26, comment is 0, blank is 7.
 angular_test\angular_updateKnee.c, code is 42, comment is 0, blank is 2.
 angular_test\angular_updateKnee.h, code is 26, comment is 0, blank is 7.
-angular_test\app.js, code is 22, comment is 0, blank is 0.
+angular_test\angular_variablesState_.c, code is 14, comment is 0, blank is 2.
+angular_test\angular_variablesState_.h, code is 26, comment is 0, blank is 7.
+angular_test\app.js, code is 377, comment is 0, blank is 44.
 angular_test\bin\generated_demo.exe, it is a binary file.
 angular_test\helpers\include\data\json.h, code is 65, comment is 0, blank is 13.
 angular_test\helpers\include\data\json_utils.h, code is 7, comment is 0, blank is 4.
@@ -65,6 +87,7 @@ angular_test\helpers\include\math\number_utils.h, code is 5, comment is 0, blank
 angular_test\helpers\include\net\http_server.h, code is 23, comment is 0, blank is 6.
 angular_test\helpers\include\net\http_service.h, code is 30, comment is 0, blank is 7.
 angular_test\helpers\include\runtime\app_runtime.h, code is 37, comment is 0, blank is 7.
+angular_test\helpers\include\runtime\observable.h, code is 22, comment is 0, blank is 6.
 angular_test\helpers\include\support\list.h, code is 22, comment is 0, blank is 2.
 angular_test\helpers\include\support\stringbuilder.h, code is 21, comment is 3, blank is 4.
 angular_test\helpers\src\data\json.c, code is 335, comment is 25, blank is 54.
@@ -76,12 +99,13 @@ angular_test\helpers\src\math\number_utils.c, code is 14, comment is 0, blank is
 angular_test\helpers\src\net\http_server.c, code is 229, comment is 0, blank is 47.
 angular_test\helpers\src\net\http_service.c, code is 90, comment is 0, blank is 19.
 angular_test\helpers\src\runtime\app_runtime.c, code is 128, comment is 0, blank is 18.
+angular_test\helpers\src\runtime\observable.c, code is 88, comment is 0, blank is 23.
 angular_test\helpers\src\support\stringbuilder.c, code is 107, comment is 5, blank is 18.
-angular_test\index.html, code is 38, comment is 0, blank is 0.
-angular_test\Makefile, code is 50, comment is 0, blank is 8.
+angular_test\index.html, code is 199, comment is 0, blank is 3.
+angular_test\Makefile, code is 61, comment is 0, blank is 7.
 angular_test\server_stderr_rerun.log, code is 0, comment is 0, blank is 0.
-angular_test\server_stdout_rerun.log, code is 482, comment is 0, blank is 0.
-angular_test\styles.css, code is 20, comment is 0, blank is 0.
+angular_test\server_stdout_rerun.log, code is 1677, comment is 0, blank is 0.
+angular_test\styles.css, code is 272, comment is 0, blank is 4.
 bin\main.exe, it is a binary file.
 build\ast.d, code is 5, comment is 0, blank is 0.
 build\ast.o, it is a binary file.
@@ -89,7 +113,7 @@ build\cli.d, code is 16, comment is 0, blank is 0.
 build\cli.o, it is a binary file.
 build\file_io.d, code is 3, comment is 0, blank is 0.
 build\file_io.o, it is a binary file.
-build\generator.d, code is 10, comment is 0, blank is 0.
+build\generator.d, code is 12, comment is 0, blank is 0.
 build\generator.o, it is a binary file.
 build\js_codegen.d, code is 9, comment is 0, blank is 0.
 build\js_codegen.o, it is a binary file.
@@ -132,6 +156,8 @@ helpers\build\src\net\http_service.d, code is 4, comment is 0, blank is 0.
 helpers\build\src\net\http_service.o, it is a binary file.
 helpers\build\src\runtime\app_runtime.d, code is 3, comment is 0, blank is 0.
 helpers\build\src\runtime\app_runtime.o, it is a binary file.
+helpers\build\src\runtime\observable.d, code is 3, comment is 0, blank is 0.
+helpers\build\src\runtime\observable.o, it is a binary file.
 helpers\build\src\support\stringbuilder.d, code is 4, comment is 0, blank is 0.
 helpers\build\src\support\stringbuilder.o, it is a binary file.
 helpers\build\src\support\test.d, code is 2, comment is 0, blank is 0.
@@ -152,6 +178,8 @@ helpers\build\tests\unit\test_number_format.d, code is 4, comment is 0, blank is
 helpers\build\tests\unit\test_number_format.o, it is a binary file.
 helpers\build\tests\unit\test_number_utils.d, code is 4, comment is 0, blank is 0.
 helpers\build\tests\unit\test_number_utils.o, it is a binary file.
+helpers\build\tests\unit\test_observable.d, code is 4, comment is 0, blank is 0.
+helpers\build\tests\unit\test_observable.o, it is a binary file.
 helpers\include\data\json.h, code is 65, comment is 0, blank is 13.
 helpers\include\data\json_utils.h, code is 7, comment is 0, blank is 4.
 helpers\include\format\number_format.h, code is 5, comment is 0, blank is 3.
@@ -161,10 +189,11 @@ helpers\include\math\number_utils.h, code is 5, comment is 0, blank is 2.
 helpers\include\net\http_server.h, code is 23, comment is 0, blank is 6.
 helpers\include\net\http_service.h, code is 30, comment is 0, blank is 7.
 helpers\include\runtime\app_runtime.h, code is 37, comment is 0, blank is 7.
+helpers\include\runtime\observable.h, code is 22, comment is 0, blank is 6.
 helpers\include\support\list.h, code is 22, comment is 0, blank is 2.
 helpers\include\support\stringbuilder.h, code is 21, comment is 3, blank is 4.
 helpers\include\support\test.h, code is 59, comment is 0, blank is 8.
-helpers\Makefile, code is 70, comment is 0, blank is 20.
+helpers\Makefile, code is 72, comment is 0, blank is 20.
 helpers\src\data\json.c, code is 335, comment is 25, blank is 54.
 helpers\src\data\json_utils.c, code is 84, comment is 0, blank is 19.
 helpers\src\format\number_format.c, code is 13, comment is 0, blank is 5.
@@ -174,6 +203,7 @@ helpers\src\math\number_utils.c, code is 14, comment is 0, blank is 3.
 helpers\src\net\http_server.c, code is 229, comment is 0, blank is 47.
 helpers\src\net\http_service.c, code is 90, comment is 0, blank is 19.
 helpers\src\runtime\app_runtime.c, code is 128, comment is 0, blank is 18.
+helpers\src\runtime\observable.c, code is 88, comment is 0, blank is 23.
 helpers\src\support\stringbuilder.c, code is 107, comment is 5, blank is 18.
 helpers\src\support\test.c, code is 20, comment is 0, blank is 2.
 helpers\tests\integration\helper_server_main.c, code is 61, comment is 0, blank is 10.
@@ -181,42 +211,44 @@ helpers\tests\unit\test_app_runtime.c, code is 15, comment is 0, blank is 4.
 helpers\tests\unit\test_fetch_runtime.c, code is 28, comment is 0, blank is 6.
 helpers\tests\unit\test_http_service.c, code is 84, comment is 0, blank is 13.
 helpers\tests\unit\test_json_utils.c, code is 24, comment is 0, blank is 5.
-helpers\tests\unit\test_main.c, code is 36, comment is 0, blank is 7.
+helpers\tests\unit\test_main.c, code is 38, comment is 0, blank is 7.
 helpers\tests\unit\test_ng_math.c, code is 9, comment is 0, blank is 1.
 helpers\tests\unit\test_number_format.c, code is 9, comment is 0, blank is 2.
 helpers\tests\unit\test_number_utils.c, code is 9, comment is 0, blank is 1.
+helpers\tests\unit\test_observable.c, code is 21, comment is 0, blank is 5.
 include\cli.h, code is 4, comment is 0, blank is 2.
 include\file_io.h, code is 10, comment is 0, blank is 4.
-include\generator.h, code is 17, comment is 0, blank is 3.
+include\generator.h, code is 18, comment is 0, blank is 3.
 include\js_codegen.h, code is 23, comment is 0, blank is 6.
 include\log.h, code is 16, comment is 0, blank is 4.
 include\output_fs.h, code is 8, comment is 0, blank is 2.
 include\path_scan.h, code is 5, comment is 0, blank is 3.
-log.txt, code is 3284, comment is 0, blank is 6.
+log.txt, code is 8053, comment is 0, blank is 6.
 Makefile, code is 62, comment is 0, blank is 15.
-scripts\test_generated_server.ps1, code is 55, comment is 0, blank is 10.
-src\cli.c, code is 215, comment is 0, blank is 41.
+scripts\test_generated_server.ps1, code is 84, comment is 0, blank is 10.
+src\cli.c, code is 227, comment is 0, blank is 43.
 src\file_io.c, code is 58, comment is 0, blank is 15.
-src\generator.c, code is 693, comment is 0, blank is 652.
+src\generator.c, code is 1733, comment is 0, blank is 634.
 src\js_codegen.c, code is 707, comment is 0, blank is 74.
 src\log.c, code is 86, comment is 0, blank is 18.
 src\main.c, code is 4, comment is 0, blank is 1.
-src\output_fs.c, code is 125, comment is 0, blank is 27.
-src\parser\include\ast.h, code is 48, comment is 0, blank is 12.
+src\output_fs.c, code is 234, comment is 0, blank is 34.
+src\parser\include\ast.h, code is 51, comment is 0, blank is 12.
 src\parser\include\parser.h, code is 32, comment is 0, blank is 6.
 src\parser\include\parser_internal.h, code is 14, comment is 0, blank is 4.
-src\parser\src\ast.c, code is 46, comment is 0, blank is 5.
+src\parser\src\ast.c, code is 47, comment is 0, blank is 5.
 src\parser\src\parser.c, code is 221, comment is 0, blank is 32.
-src\parser\src\parser_component.c, code is 266, comment is 0, blank is 44.
+src\parser\src\parser_component.c, code is 314, comment is 0, blank is 54.
 src\parser\src\parser_style.c, code is 29, comment is 0, blank is 8.
 src\parser\src\parser_template.c, code is 36, comment is 0, blank is 11.
-src\path_scan.c, code is 75, comment is 0, blank is 18.
+src\path_scan.c, code is 78, comment is 0, blank is 18.
 src\tokenizer\include\token.h, code is 24, comment is 0, blank is 5.
 src\tokenizer\include\tokenizer.h, code is 13, comment is 0, blank is 4.
 src\tokenizer\src\token.c, code is 54, comment is 0, blank is 7.
 src\tokenizer\src\tokenizer.c, code is 158, comment is 0, blank is 31.
 test.ps1, code is 10, comment is 0, blank is 4.
-test_input\app.component.css, code is 107, comment is 0, blank is 18.
-test_input\app.component.html, code is 59, comment is 0, blank is 4.
+test_input\app.component.css, code is 246, comment is 0, blank is 4.
+test_input\app.component.html, code is 152, comment is 0, blank is 3.
 test_input\app.component.ng, code is 98, comment is 0, blank is 16.
+test_input\app.runtime.js, code is 266, comment is 0, blank is 19.
 ===============================================================================

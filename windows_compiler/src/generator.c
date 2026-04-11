@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "file_io.h"
 #include "js_codegen.h"
@@ -24,6 +25,19 @@ typedef enum {
   GENERATOR_OBSERVABLE_POST
 } generator_observable_kind_t;
 
+typedef enum {
+  GENERATOR_PIPE_UNKNOWN = 0,
+  GENERATOR_PIPE_PROP,
+  GENERATOR_PIPE_MAP,
+  GENERATOR_PIPE_TAP,
+  GENERATOR_PIPE_REDUCE
+} generator_pipe_kind_t;
+
+typedef struct {
+  generator_pipe_kind_t kind;
+  char argument[128];
+} generator_pipe_op_t;
+
 typedef struct {
   char name[128];
   char safe_name[128];
@@ -31,6 +45,8 @@ typedef struct {
   char path[256];
   char seed[128];
   int interval_ms;
+  generator_pipe_op_t pipe_ops[8];
+  size_t pipe_count;
 } generator_observable_spec_t;
 
 #define GENERATOR_MAX_OBSERVABLES 16
@@ -237,6 +253,161 @@ static int generator_parse_quoted_argument(const char *text,
   return 0;
 }
 
+static int generator_parse_numeric_argument_after_quote(const char *text,
+                                                        const char *prefix,
+                                                        int *out_value) {
+  const char *start = strstr(text, prefix);
+  const char *cursor;
+  int depth = 1;
+  int seen_quote = 0;
+  char number_buffer[32];
+  size_t number_length = 0;
+
+  if (out_value == NULL) {
+    return 1;
+  }
+  if (start == NULL) {
+    return 1;
+  }
+
+  start += strlen(prefix);
+  cursor = start;
+
+  while (*cursor != '\0' && depth > 0) {
+    char ch = *cursor++;
+    if (ch == '\'') {
+      seen_quote = !seen_quote;
+      continue;
+    }
+    if (seen_quote) {
+      continue;
+    }
+    if (ch == '(') {
+      depth += 1;
+      continue;
+    }
+    if (ch == ')') {
+      depth -= 1;
+      continue;
+    }
+    if (depth == 1 && ch == ',') {
+      while (*cursor == ' ' || *cursor == '\t') {
+        cursor += 1;
+      }
+      while ((*cursor >= '0' && *cursor <= '9') && number_length + 1 < sizeof(number_buffer)) {
+        number_buffer[number_length++] = *cursor++;
+      }
+      number_buffer[number_length] = '\0';
+      if (number_length == 0) {
+        return 1;
+      }
+      *out_value = atoi(number_buffer);
+      LOG_TRACE("generator_parse_numeric_argument_after_quote prefix=%s value=%d text=%s\n",
+                prefix,
+                *out_value,
+                text);
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+static void generator_strip_trailing_dollar(char *buffer, size_t buffer_size, const char *name) {
+  size_t length;
+  if (buffer_size == 0) {
+    return;
+  }
+  snprintf(buffer, buffer_size, "%s", name != NULL ? name : "");
+  length = strlen(buffer);
+  if (length > 0 && buffer[length - 1] == '$') {
+    buffer[length - 1] = '\0';
+  }
+}
+
+static int generator_parse_pipe_segment(const char *segment, generator_pipe_op_t *op) {
+  memset(op, 0, sizeof(*op));
+
+  if (strstr(segment, "rx.prop(") != NULL) {
+    op->kind = GENERATOR_PIPE_PROP;
+    return generator_parse_quoted_argument(segment, "rx.prop(", op->argument, sizeof(op->argument));
+  }
+  if (strstr(segment, "rx.map(") != NULL) {
+    op->kind = GENERATOR_PIPE_MAP;
+    return generator_parse_quoted_argument(segment, "rx.map(", op->argument, sizeof(op->argument));
+  }
+  if (strstr(segment, "rx.tap(") != NULL) {
+    op->kind = GENERATOR_PIPE_TAP;
+    return generator_parse_quoted_argument(segment, "rx.tap(", op->argument, sizeof(op->argument));
+  }
+  if (strstr(segment, "rx.reduce(") != NULL) {
+    op->kind = GENERATOR_PIPE_REDUCE;
+    return generator_parse_quoted_argument(segment, "rx.reduce(", op->argument, sizeof(op->argument));
+  }
+
+  return 1;
+}
+
+static void generator_parse_pipe_chain(const char *initializer, generator_observable_spec_t *spec) {
+  const char *pipe_start = strstr(initializer, ".pipe(");
+  const char *cursor;
+  int depth = 1;
+  char segment[256];
+  char trimmed[256];
+  size_t segment_length = 0;
+
+  spec->pipe_count = 0;
+  if (pipe_start == NULL) {
+    return;
+  }
+
+  cursor = pipe_start + strlen(".pipe(");
+  while (*cursor != '\0' && depth > 0) {
+    char ch = *cursor++;
+    if (ch == '(') {
+      depth += 1;
+    } else if (ch == ')') {
+      depth -= 1;
+      if (depth == 0) {
+        if (segment_length > 0 && spec->pipe_count < sizeof(spec->pipe_ops) / sizeof(spec->pipe_ops[0])) {
+          segment[segment_length] = '\0';
+          generator_trim_copy(trimmed, sizeof(trimmed), segment, strlen(segment));
+          if (generator_parse_pipe_segment(trimmed, &spec->pipe_ops[spec->pipe_count]) == 0) {
+            LOG_TRACE("generator pipe member=%s index=%zu kind=%d arg=%s\n",
+                      spec->name,
+                      spec->pipe_count,
+                      (int)spec->pipe_ops[spec->pipe_count].kind,
+                      spec->pipe_ops[spec->pipe_count].argument);
+            spec->pipe_count += 1;
+          }
+        }
+        break;
+      }
+    }
+
+    if (depth == 1 && ch == ',') {
+      if (segment_length > 0 && spec->pipe_count < sizeof(spec->pipe_ops) / sizeof(spec->pipe_ops[0])) {
+        segment[segment_length] = '\0';
+        generator_trim_copy(trimmed, sizeof(trimmed), segment, strlen(segment));
+        if (generator_parse_pipe_segment(trimmed, &spec->pipe_ops[spec->pipe_count]) == 0) {
+          LOG_TRACE("generator pipe member=%s index=%zu kind=%d arg=%s\n",
+                    spec->name,
+                    spec->pipe_count,
+                    (int)spec->pipe_ops[spec->pipe_count].kind,
+                    spec->pipe_ops[spec->pipe_count].argument);
+          spec->pipe_count += 1;
+        }
+      }
+      segment_length = 0;
+      continue;
+    }
+
+    if (segment_length + 1 < sizeof(segment)) {
+      segment[segment_length++] = ch;
+    }
+  }
+}
+
 static int generator_parse_observable_spec(const ast_member_t *member, generator_observable_spec_t *spec) {
   memset(spec, 0, sizeof(*spec));
   snprintf(spec->name, sizeof(spec->name), "%s", member->name);
@@ -252,22 +423,20 @@ static int generator_parse_observable_spec(const ast_member_t *member, generator
     if (generator_parse_quoted_argument(member->initializer, "rx.state(", spec->seed, sizeof(spec->seed)) != 0) {
       snprintf(spec->seed, sizeof(spec->seed), "live");
     }
+    generator_parse_pipe_chain(member->initializer, spec);
     return 0;
   }
 
   if (strstr(member->initializer, "rx.poll(") != NULL) {
-    const char *comma;
     spec->kind = GENERATOR_OBSERVABLE_POLL;
     if (generator_parse_quoted_argument(member->initializer, "rx.poll(", spec->path, sizeof(spec->path)) != 0) {
       return 1;
     }
-    comma = strrchr(member->initializer, ',');
-    if (comma != NULL) {
-      spec->interval_ms = atoi(comma + 1);
-    }
+    generator_parse_numeric_argument_after_quote(member->initializer, "rx.poll(", &spec->interval_ms);
     if (spec->interval_ms <= 0) {
       spec->interval_ms = 1000;
     }
+    generator_parse_pipe_chain(member->initializer, spec);
     return 0;
   }
 
@@ -276,6 +445,7 @@ static int generator_parse_observable_spec(const ast_member_t *member, generator
     if (generator_parse_quoted_argument(member->initializer, "rx.post(", spec->path, sizeof(spec->path)) != 0) {
       return 1;
     }
+    generator_parse_pipe_chain(member->initializer, spec);
     return 0;
   }
 
@@ -291,12 +461,13 @@ static size_t __attribute__((unused)) generator_collect_observable_specs(const a
   for (index = 0; index < component->member_count && count < max_specs; ++index) {
     if (component->members[index].is_observable &&
         generator_parse_observable_spec(&component->members[index], &specs[count]) == 0) {
-      LOG_TRACE("generator observable member=%s kind=%d path=%s interval=%d seed=%s\n",
+      LOG_TRACE("generator observable member=%s kind=%d path=%s interval=%d seed=%s pipes=%zu\n",
                 specs[count].name,
                 (int)specs[count].kind,
                 specs[count].path,
                 specs[count].interval_ms,
-                specs[count].seed);
+                specs[count].seed,
+                specs[count].pipe_count);
       count += 1;
     }
   }
@@ -1311,8 +1482,8 @@ static int generator_emit_http_service_header(const char *output_dir, size_t rou
 
 static int generator_emit_http_service_source(const char *output_dir,
                                               const generator_route_collection_t *routes) {
-  char source_text[131072];
-  char route_bodies[32768] = "";
+  char source_text[524288];
+  char route_bodies[262144] = "";
   char route_table[16384] = "";
   char route_init[16384] = "";
   size_t body_cursor = 0;
@@ -1321,9 +1492,14 @@ static int generator_emit_http_service_source(const char *output_dir,
   size_t index;
 
   for (index = 0; index < routes->route_count; ++index) {
-    char escaped_body[4096];
+    char escaped_body[65536];
     const generator_route_asset_t *route = &routes->routes[index];
     generator_escape_c_string(escaped_body, sizeof(escaped_body), route->body.data);
+    LOG_TRACE("generator_emit_http_service_source route=%zu path=%s raw_bytes=%zu escaped_chars=%zu\n",
+              index,
+              route->path,
+              route->body.size,
+              strlen(escaped_body));
     body_cursor += (size_t)snprintf(route_bodies + body_cursor,
                                     sizeof(route_bodies) - body_cursor,
                                     "static const char g_route_body_%zu[] = \"%s\";\n",
@@ -1368,12 +1544,15 @@ static int generator_emit_http_service_source(const char *output_dir,
            "  (void)request;\n"
            "  if (route == NULL) {\n"
            "    response->status_code = 500;\n"
-           "    strcpy(response->body, \"missing generated route context\");\n"
+           "    ng_http_response_set_text(response, \"missing generated route context\");\n"
            "    return 0;\n"
            "  }\n"
            "  angular_http_log(route->path);\n"
            "  snprintf(response->content_type, sizeof(response->content_type), \"%%s\", route->content_type);\n"
-           "  snprintf(response->body, sizeof(response->body), \"%%s\", route->body);\n"
+           "  if (ng_http_response_set_text(response, route->body) != 0) {\n"
+           "    response->status_code = 500;\n"
+           "    ng_http_response_set_text(response, \"route body too large\");\n"
+           "  }\n"
            "  return 0;\n"
            "}\n\n"
            "void angular_http_service_init(angular_http_service_t *service,\n"
@@ -1404,23 +1583,56 @@ static int generator_emit_demo_file(const char *output_dir) {
       "#include \"angular_http_service.h\"\n"
       "#include \"helpers/include/net/http_server.h\"\n"
       "#include \"helpers/include/net/http_service.h\"\n\n"
-      "static char g_index_html[16384];\n"
-      "static char g_styles_css[16384];\n"
-      "static char g_app_js[16384];\n\n"
-      "static int angular_demo_load_file(const char *path, char *buffer, size_t buffer_size) {\n"
+      "static char *g_index_html = NULL;\n"
+      "static char *g_styles_css = NULL;\n"
+      "static char *g_app_js = NULL;\n\n"
+      "static int angular_demo_load_file(const char *path, char **buffer, size_t *buffer_size) {\n"
       "  FILE *file = fopen(path, \"rb\");\n"
+      "  long file_size;\n"
       "  size_t bytes_read;\n"
       "  if (file == NULL) {\n"
       "    fprintf(stderr, \"[demo] failed to open %s\\n\", path);\n"
       "    return 1;\n"
       "  }\n"
-      "  bytes_read = fread(buffer, 1, buffer_size - 1, file);\n"
+      "  if (fseek(file, 0, SEEK_END) != 0) {\n"
+      "    fclose(file);\n"
+      "    fprintf(stderr, \"[demo] failed to seek %s\\n\", path);\n"
+      "    return 1;\n"
+      "  }\n"
+      "  file_size = ftell(file);\n"
+      "  if (file_size < 0) {\n"
+      "    fclose(file);\n"
+      "    fprintf(stderr, \"[demo] failed to size %s\\n\", path);\n"
+      "    return 1;\n"
+      "  }\n"
+      "  if (fseek(file, 0, SEEK_SET) != 0) {\n"
+      "    fclose(file);\n"
+      "    fprintf(stderr, \"[demo] failed to rewind %s\\n\", path);\n"
+      "    return 1;\n"
+      "  }\n"
+      "  *buffer = (char *)malloc((size_t)file_size + 1u);\n"
+      "  if (*buffer == NULL) {\n"
+      "    fclose(file);\n"
+      "    fprintf(stderr, \"[demo] failed to allocate %s bytes=%ld\\n\", path, file_size);\n"
+      "    return 1;\n"
+      "  }\n"
+      "  bytes_read = fread(*buffer, 1, (size_t)file_size, file);\n"
       "  if (ferror(file)) {\n"
+      "    free(*buffer);\n"
+      "    *buffer = NULL;\n"
       "    fclose(file);\n"
       "    fprintf(stderr, \"[demo] failed to read %s\\n\", path);\n"
       "    return 1;\n"
       "  }\n"
-      "  buffer[bytes_read] = '\\0';\n"
+      "  if (bytes_read != (size_t)file_size) {\n"
+      "    free(*buffer);\n"
+      "    *buffer = NULL;\n"
+      "    fclose(file);\n"
+      "    fprintf(stderr, \"[demo] short read %s expected=%ld actual=%zu\\n\", path, file_size, bytes_read);\n"
+      "    return 1;\n"
+      "  }\n"
+      "  (*buffer)[bytes_read] = '\\0';\n"
+      "  *buffer_size = bytes_read;\n"
       "  fclose(file);\n"
       "  printf(\"[demo] loaded %s bytes=%zu\\n\", path, bytes_read);\n"
       "  fflush(stdout);\n"
@@ -1437,16 +1649,29 @@ static int generator_emit_demo_file(const char *output_dir) {
       "  if (argc >= 3) {\n"
       "    max_requests = atoi(argv[2]);\n"
       "  }\n\n"
-      "  if (angular_demo_load_file(\"index.html\", g_index_html, sizeof(g_index_html)) != 0 ||\n"
-      "      angular_demo_load_file(\"styles.css\", g_styles_css, sizeof(g_styles_css)) != 0 ||\n"
-      "      angular_demo_load_file(\"app.js\", g_app_js, sizeof(g_app_js)) != 0) {\n"
+      "  size_t index_html_size = 0;\n"
+      "  size_t styles_css_size = 0;\n"
+      "  size_t app_js_size = 0;\n\n"
+      "  if (angular_demo_load_file(\"index.html\", &g_index_html, &index_html_size) != 0 ||\n"
+      "      angular_demo_load_file(\"styles.css\", &g_styles_css, &styles_css_size) != 0 ||\n"
+      "      angular_demo_load_file(\"app.js\", &g_app_js, &app_js_size) != 0) {\n"
+      "    free(g_index_html);\n"
+      "    free(g_styles_css);\n"
+      "    free(g_app_js);\n"
       "    return 1;\n"
       "  }\n\n"
       "  ng_runtime_init(&runtime);\n"
+      "  (void)index_html_size;\n"
+      "  (void)styles_css_size;\n"
+      "  (void)app_js_size;\n"
       "  printf(\"[demo] starting port=%u max_requests=%d\\n\", port, max_requests);\n"
       "  fflush(stdout);\n"
       "  angular_http_service_init(&service, &runtime, g_index_html, g_styles_css, g_app_js);\n"
-      "  return ng_http_server_serve(port, ng_http_service_handle, &service.service, max_requests);\n"
+      "  max_requests = ng_http_server_serve(port, ng_http_service_handle, &service.service, max_requests);\n"
+      "  free(g_index_html);\n"
+      "  free(g_styles_css);\n"
+      "  free(g_app_js);\n"
+      "  return max_requests;\n"
       "}\n";
 
   return generator_write_text_asset(output_dir, "angular_generated_demo.c", demo_source);
@@ -1492,13 +1717,311 @@ static int generator_emit_styles_css(const char *output_dir, const char *css_sou
   return generator_write_text_asset(output_dir, "styles.css", css_source);
 }
 
-static int generator_emit_app_js(const char *output_dir, const char *input_dir) {
+static const char *generator_pipe_kind_name(generator_pipe_kind_t kind) {
+  switch (kind) {
+    case GENERATOR_PIPE_PROP:
+      return "prop";
+    case GENERATOR_PIPE_MAP:
+      return "map";
+    case GENERATOR_PIPE_TAP:
+      return "tap";
+    case GENERATOR_PIPE_REDUCE:
+      return "reduce";
+    case GENERATOR_PIPE_UNKNOWN:
+    default:
+      return "unknown";
+  }
+}
+
+static int generator_append_text(char *buffer, size_t buffer_size, size_t *cursor, const char *text) {
+  int written;
+  if (*cursor >= buffer_size) {
+    return 1;
+  }
+  written = snprintf(buffer + *cursor, buffer_size - *cursor, "%s", text);
+  if (written < 0 || (size_t)written >= buffer_size - *cursor) {
+    return 1;
+  }
+  *cursor += (size_t)written;
+  return 0;
+}
+
+static int generator_append_format(char *buffer, size_t buffer_size, size_t *cursor, const char *format, ...) {
+  va_list args;
+  int written;
+  if (*cursor >= buffer_size) {
+    return 1;
+  }
+  va_start(args, format);
+  written = vsnprintf(buffer + *cursor, buffer_size - *cursor, format, args);
+  va_end(args);
+  if (written < 0 || (size_t)written >= buffer_size - *cursor) {
+    return 1;
+  }
+  *cursor += (size_t)written;
+  return 0;
+}
+
+static int generator_emit_compiled_app_js(const char *output_dir,
+                                          const char *input_dir,
+                                          const ast_component_file_t *component) {
+  generator_observable_spec_t specs[GENERATOR_MAX_OBSERVABLES];
+  size_t spec_count;
+  size_t index;
+  file_buffer_t source_app_js;
+  char app_js[65536];
+  size_t cursor = 0;
+  char source_path[512];
+
+  generator_build_path(source_path, sizeof(source_path), input_dir, "app.js");
+  if (file_read_all(source_path, &source_app_js) != 0) {
+    log_errorf("failed to read source app.js: %s\n", source_path);
+    return 1;
+  }
+
+  spec_count = generator_collect_observable_specs(component, specs, GENERATOR_MAX_OBSERVABLES);
+  LOG_TRACE("generator_emit_compiled_app_js spec_count=%zu source=%s\n", spec_count, source_path);
+
+  if (generator_append_text(app_js, sizeof(app_js), &cursor,
+                            "(function () {\n"
+                            "  function ngLog() {\n"
+                            "    var args = Array.prototype.slice.call(arguments);\n"
+                            "    args.unshift('[ng-runtime]');\n"
+                            "    console.log.apply(console, args);\n"
+                            "  }\n\n"
+                            "  function ngFetchJson(path, options) {\n"
+                            "    ngLog('fetch', path, options && options.method ? options.method : 'GET');\n"
+                            "    return fetch(path, options).then(function (response) {\n"
+                            "      return response.json();\n"
+                            "    });\n"
+                            "  }\n\n"
+                            "  function ngResolveHook(name) {\n"
+                            "    return typeof window[name] === 'function' ? window[name] : null;\n"
+                            "  }\n\n"
+                            "  function ngNormalizeName(name) {\n"
+                            "    return name && name.charAt(name.length - 1) === '$' ? name.slice(0, -1) : name;\n"
+                            "  }\n\n"
+                            "  function ngApplyPipeChain(value, steps, app, spec) {\n"
+                            "    return (steps || []).reduce(function (current, step) {\n"
+                            "      var hook;\n"
+                            "      ngLog('pipe', spec.name, step.kind, step.argument);\n"
+                            "      if (step.kind === 'prop') {\n"
+                            "        if (current && typeof current === 'object') {\n"
+                            "          return current[step.argument];\n"
+                            "        }\n"
+                            "        return undefined;\n"
+                            "      }\n"
+                            "      if (step.kind === 'map') {\n"
+                            "        hook = ngResolveHook(step.argument);\n"
+                            "        if (!hook) {\n"
+                            "          ngLog('missing map hook', step.argument);\n"
+                            "          return current;\n"
+                            "        }\n"
+                            "        if (Array.isArray(current)) {\n"
+                            "          return current.map(function (item, index) { return hook(item, app, index, spec); });\n"
+                            "        }\n"
+                            "        return hook(current, app, 0, spec);\n"
+                            "      }\n"
+                            "      if (step.kind === 'reduce') {\n"
+                            "        hook = ngResolveHook(step.argument);\n"
+                            "        if (!hook) {\n"
+                            "          ngLog('missing reduce hook', step.argument);\n"
+                            "          return current;\n"
+                            "        }\n"
+                            "        return hook(current, app, spec);\n"
+                            "      }\n"
+                            "      if (step.kind === 'tap') {\n"
+                            "        hook = ngResolveHook(step.argument);\n"
+                            "        if (hook) {\n"
+                            "          hook(current, app, spec);\n"
+                            "        } else {\n"
+                            "          ngLog('missing tap hook', step.argument);\n"
+                            "        }\n"
+                            "        return current;\n"
+                            "      }\n"
+                            "      return current;\n"
+                            "    }, value);\n"
+                            "  }\n\n"
+                            "  function ngCreateApp() {\n"
+                            "    var app = {\n"
+                            "      streams: {},\n"
+                            "      values: {},\n"
+                            "      intervals: []\n"
+                            "    };\n\n"
+                            "    app.getValue = function (name) {\n"
+                            "      return app.values[name];\n"
+                            "    };\n\n"
+                            "    app.setValue = function (name, value) {\n"
+                            "      ngLog('setValue', name, value);\n"
+                            "      app.values[name] = value;\n"
+                            "      return value;\n"
+                            "    };\n\n"
+                            "    app.applyObservableValue = function (spec, rawValue) {\n"
+                            "      var processed = ngApplyPipeChain(rawValue, spec.steps, app, spec);\n"
+                            "      var alias = ngNormalizeName(spec.name);\n"
+                            "      ngLog('applyObservableValue', spec.name, alias, processed);\n"
+                            "      app.values[spec.name] = processed;\n"
+                            "      app.values[alias] = processed;\n"
+                            "      return processed;\n"
+                            "    };\n\n"
+                            "    app.registerObservable = function (spec) {\n"
+                            "      ngLog('registerObservable', spec.name, spec.kind, spec.path || spec.seed || '');\n"
+                            "      app.streams[spec.name] = spec;\n"
+                            "      if (spec.kind === 'state') {\n"
+                            "        app.applyObservableValue(spec, spec.seed);\n"
+                            "      }\n"
+                            "    };\n\n"
+                            "    app.setObservable = function (name, value) {\n"
+                            "      var spec = app.streams[name];\n"
+                            "      if (!spec || spec.kind !== 'state') {\n"
+                            "        ngLog('setObservable ignored', name);\n"
+                            "        return;\n"
+                            "      }\n"
+                            "      app.applyObservableValue(spec, value);\n"
+                            "    };\n\n"
+                            "    app.refreshObservable = function (name) {\n"
+                            "      var spec = app.streams[name];\n"
+                            "      if (!spec || spec.kind !== 'poll') {\n"
+                            "        ngLog('refreshObservable ignored', name);\n"
+                            "        return Promise.resolve(null);\n"
+                            "      }\n"
+                            "      return ngFetchJson(spec.path).then(function (payload) {\n"
+                            "        return app.applyObservableValue(spec, payload);\n"
+                            "      });\n"
+                            "    };\n\n"
+                            "    app.runObservable = function (name, payload) {\n"
+                            "      var spec = app.streams[name];\n"
+                            "      if (!spec || spec.kind !== 'post') {\n"
+                            "        ngLog('runObservable ignored', name);\n"
+                            "        return Promise.resolve(null);\n"
+                            "      }\n"
+                            "      return ngFetchJson(spec.path, {\n"
+                            "        method: 'POST',\n"
+                            "        headers: { 'Content-Type': 'application/json' },\n"
+                            "        body: JSON.stringify(payload || {})\n"
+                            "      }).then(function (responsePayload) {\n"
+                            "        return app.applyObservableValue(spec, responsePayload);\n"
+                            "      });\n"
+                            "    };\n\n"
+                            "    app.start = function () {\n"
+                            "      Object.keys(app.streams).forEach(function (name) {\n"
+                            "        var spec = app.streams[name];\n"
+                            "        if (spec.kind === 'poll') {\n"
+                            "          app.refreshObservable(name);\n"
+                            "          app.intervals.push(window.setInterval(function () {\n"
+                            "            app.refreshObservable(name);\n"
+                            "          }, spec.intervalMs));\n"
+                            "        }\n"
+                            "      });\n"
+                            "    };\n\n"
+                            "    return app;\n"
+                            "  }\n\n")) {
+    file_buffer_free(&source_app_js);
+    return 1;
+  }
+
+  if (generator_append_text(app_js, sizeof(app_js), &cursor, source_app_js.data) != 0) {
+    file_buffer_free(&source_app_js);
+    return 1;
+  }
+
+  if (generator_append_text(app_js, sizeof(app_js), &cursor,
+                            "\n\n  var ngApp = ngCreateApp();\n"
+                            "  window.ngApp = ngApp;\n") != 0) {
+    file_buffer_free(&source_app_js);
+    return 1;
+  }
+
+  for (index = 0; index < spec_count; ++index) {
+    size_t step_index;
+    char alias[128];
+    char steps_text[2048];
+    size_t steps_cursor = 0;
+
+    steps_text[0] = '\0';
+
+    generator_strip_trailing_dollar(alias, sizeof(alias), specs[index].name);
+    if (specs[index].kind == GENERATOR_OBSERVABLE_STATE) {
+      if (generator_append_format(app_js,
+                                  sizeof(app_js),
+                                  &cursor,
+                                  "  ngApp.registerObservable({ name: '%s', alias: '%s', kind: 'state', path: '', seed: '%s', intervalMs: %d, steps: [",
+                                  specs[index].name,
+                                  alias,
+                                  specs[index].seed,
+                                  specs[index].interval_ms) != 0) {
+        file_buffer_free(&source_app_js);
+        return 1;
+      }
+    } else {
+      if (generator_append_format(app_js,
+                                  sizeof(app_js),
+                                  &cursor,
+                                  "  ngApp.registerObservable({ name: '%s', alias: '%s', kind: '%s', path: '%s', seed: null, intervalMs: %d, steps: [",
+                                  specs[index].name,
+                                  alias,
+                                  specs[index].kind == GENERATOR_OBSERVABLE_POLL ? "poll" :
+                                      specs[index].kind == GENERATOR_OBSERVABLE_POST ? "post" : "unknown",
+                                  specs[index].path,
+                                  specs[index].interval_ms) != 0) {
+        file_buffer_free(&source_app_js);
+        return 1;
+      }
+    }
+    for (step_index = 0; step_index < specs[index].pipe_count; ++step_index) {
+      if (step_index > 0) {
+        if (generator_append_text(steps_text, sizeof(steps_text), &steps_cursor, ", ") != 0) {
+          file_buffer_free(&source_app_js);
+          return 1;
+        }
+      }
+      if (generator_append_format(steps_text,
+                                  sizeof(steps_text),
+                                  &steps_cursor,
+                                  "{ kind: '%s', argument: '%s' }",
+                                  generator_pipe_kind_name(specs[index].pipe_ops[step_index].kind),
+                                  specs[index].pipe_ops[step_index].argument) != 0) {
+        file_buffer_free(&source_app_js);
+        return 1;
+      }
+    }
+    if (generator_append_format(app_js, sizeof(app_js), &cursor, "%s] });\n", steps_text) != 0) {
+      file_buffer_free(&source_app_js);
+      return 1;
+    }
+  }
+
+  if (generator_append_text(app_js, sizeof(app_js), &cursor,
+                            "  if (typeof window.ngInitializeApp === 'function') {\n"
+                            "    window.ngInitializeApp(ngApp);\n"
+                            "  }\n"
+                            "  ngApp.start();\n"
+                            "}());\n") != 0) {
+    file_buffer_free(&source_app_js);
+    return 1;
+  }
+
+  file_buffer_free(&source_app_js);
+  LOG_TRACE("generator_emit_compiled_app_js bytes=%zu specs=%zu\n", cursor, spec_count);
+  return generator_write_text_asset(output_dir, "app.js", app_js);
+}
+
+static int generator_emit_app_js(const char *output_dir, const char *input_dir, const ast_component_file_t *component) {
   char source_path[512];
   char destination_path[512];
+  generator_observable_spec_t specs[GENERATOR_MAX_OBSERVABLES];
+  size_t spec_count;
 
   generator_build_path(source_path, sizeof(source_path), input_dir, "app.js");
   generator_build_path(destination_path, sizeof(destination_path), output_dir, "app.js");
-  LOG_TRACE("generator_emit_app_js source=%s destination=%s\n", source_path, destination_path);
+  spec_count = generator_collect_observable_specs(component, specs, GENERATOR_MAX_OBSERVABLES);
+  LOG_TRACE("generator_emit_app_js source=%s destination=%s observable_count=%zu\n",
+            source_path,
+            destination_path,
+            spec_count);
+  if (spec_count > 0) {
+    return generator_emit_compiled_app_js(output_dir, input_dir, component);
+  }
   return output_fs_copy_file(source_path, destination_path);
 }
 
@@ -1812,7 +2335,7 @@ int generator_generate_demo_files(const char *output_dir,
     generator_free_route_assets(&routes);
     return 1;
   }
-  if (generator_emit_app_js(output_dir, input_dir) != 0) {
+  if (generator_emit_app_js(output_dir, input_dir, component) != 0) {
     generator_free_route_assets(&routes);
     return 1;
   }

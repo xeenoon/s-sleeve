@@ -11,7 +11,7 @@ typedef struct {
 static int test_state_handler(void *context, const ng_http_request_t *request, ng_http_response_t *response) {
   test_http_context_t *test_context = (test_http_context_t *)context;
   (void)request;
-  snprintf(response->body, sizeof(response->body), "{\"value\":%d}", test_context->value);
+  ng_http_response_set_format(response, "{\"value\":%d}", test_context->value);
   return 0;
 }
 
@@ -20,7 +20,7 @@ static int test_post_handler(void *context, const ng_http_request_t *request, ng
   if (strstr(request->body, "42") != NULL) {
     test_context->value = 42;
   }
-  snprintf(response->body, sizeof(response->body), "{\"value\":%d}", test_context->value);
+  ng_http_response_set_format(response, "{\"value\":%d}", test_context->value);
   return 0;
 }
 
@@ -30,6 +30,13 @@ void test_http_service(ng_test_context_t *context) {
   ng_http_service_t service;
   ng_http_request_t request;
   ng_http_response_t response;
+  char large_js[8192];
+  size_t fill_index;
+
+  for (fill_index = 0; fill_index + 1 < sizeof(large_js); ++fill_index) {
+    large_js[fill_index] = (char)('a' + (fill_index % 26u));
+  }
+  large_js[sizeof(large_js) - 1] = '\0';
 
   routes[0].method = "GET";
   routes[0].path = "/state";
@@ -43,7 +50,7 @@ void test_http_service(ng_test_context_t *context) {
   ng_http_service_init(&service,
                        "<!doctype html><div id=\"reading\"></div>",
                        ".limb{stroke:#d66b2d;}.joint{fill:#241a14;}",
-                       "fetch('/state');",
+                       large_js,
                        routes,
                        2);
 
@@ -53,7 +60,8 @@ void test_http_service(ng_test_context_t *context) {
   ng_http_response_init(&response);
   NG_ASSERT_INT_EQ(context, 0, ng_http_service_handle(&service, &request, &response));
   NG_ASSERT_STR_EQ(context, "text/html; charset=utf-8", response.content_type);
-  NG_ASSERT_TRUE(context, strstr(response.body, "id=\"reading\"") != NULL);
+  NG_ASSERT_TRUE(context, strstr(ng_http_response_body(&response), "id=\"reading\"") != NULL);
+  ng_http_response_dispose(&response);
 
   memset(&request, 0, sizeof(request));
   strcpy(request.method, "GET");
@@ -61,7 +69,8 @@ void test_http_service(ng_test_context_t *context) {
   ng_http_response_init(&response);
   NG_ASSERT_INT_EQ(context, 0, ng_http_service_handle(&service, &request, &response));
   NG_ASSERT_STR_EQ(context, "text/css; charset=utf-8", response.content_type);
-  NG_ASSERT_TRUE(context, strstr(response.body, ".joint") != NULL);
+  NG_ASSERT_TRUE(context, strstr(ng_http_response_body(&response), ".joint") != NULL);
+  ng_http_response_dispose(&response);
 
   memset(&request, 0, sizeof(request));
   strcpy(request.method, "GET");
@@ -69,14 +78,17 @@ void test_http_service(ng_test_context_t *context) {
   ng_http_response_init(&response);
   NG_ASSERT_INT_EQ(context, 0, ng_http_service_handle(&service, &request, &response));
   NG_ASSERT_STR_EQ(context, "application/javascript; charset=utf-8", response.content_type);
-  NG_ASSERT_TRUE(context, strstr(response.body, "fetch('/state')") != NULL);
+  NG_ASSERT_INT_EQ(context, (int)strlen(large_js), (int)strlen(ng_http_response_body(&response)));
+  NG_ASSERT_TRUE(context, strcmp(ng_http_response_body(&response), large_js) == 0);
+  ng_http_response_dispose(&response);
 
   memset(&request, 0, sizeof(request));
   strcpy(request.method, "GET");
   strcpy(request.path, "/state");
   ng_http_response_init(&response);
   NG_ASSERT_INT_EQ(context, 0, ng_http_service_handle(&service, &request, &response));
-  NG_ASSERT_TRUE(context, strstr(response.body, "\"value\":7") != NULL);
+  NG_ASSERT_TRUE(context, strstr(ng_http_response_body(&response), "\"value\":7") != NULL);
+  ng_http_response_dispose(&response);
 
   memset(&request, 0, sizeof(request));
   strcpy(request.method, "POST");
@@ -85,7 +97,8 @@ void test_http_service(ng_test_context_t *context) {
   request.body_length = strlen(request.body);
   ng_http_response_init(&response);
   NG_ASSERT_INT_EQ(context, 0, ng_http_service_handle(&service, &request, &response));
-  NG_ASSERT_TRUE(context, strstr(response.body, "\"value\":42") != NULL);
+  NG_ASSERT_TRUE(context, strstr(ng_http_response_body(&response), "\"value\":42") != NULL);
+  ng_http_response_dispose(&response);
 
   memset(&request, 0, sizeof(request));
   strcpy(request.method, "GET");
@@ -93,5 +106,6 @@ void test_http_service(ng_test_context_t *context) {
   ng_http_response_init(&response);
   NG_ASSERT_INT_EQ(context, 0, ng_http_service_handle(&service, &request, &response));
   NG_ASSERT_INT_EQ(context, 404, response.status_code);
-  NG_ASSERT_TRUE(context, strstr(response.body, "unknown route") != NULL);
+  NG_ASSERT_TRUE(context, strstr(ng_http_response_body(&response), "unknown route") != NULL);
+  ng_http_response_dispose(&response);
 }

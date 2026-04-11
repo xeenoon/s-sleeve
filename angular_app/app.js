@@ -1,133 +1,255 @@
-(function () {
-  function fetchJson(path, options) {
-    return fetch(path, options).then(function (response) { return response.json(); });
+function setText(id, value) {
+  var element = document.getElementById(id);
+  if (element) {
+    element.textContent = value;
   }
+}
 
-  function setText(id, value) {
-    var element = document.getElementById(id);
-    if (element) {
-      element.textContent = value;
+function setHtml(id, value) {
+  var element = document.getElementById(id);
+  if (element) {
+    element.innerHTML = value;
+  }
+}
+
+function showView(view) {
+  console.log('[app] showView', view);
+  ['live', 'history', 'variables'].forEach(function (name) {
+    var section = document.getElementById(name + '-view');
+    if (section) {
+      section.classList.toggle('hidden', name !== view);
     }
+  });
+  var tabs = document.getElementById('tabs');
+  if (tabs) {
+    Array.prototype.forEach.call(tabs.querySelectorAll('button[data-view]'), function (button) {
+      button.classList.toggle('active', button.getAttribute('data-view') === view);
+    });
   }
+  window.history.replaceState({}, '', view === 'variables' ? '/variables' : '/');
+}
 
-  function showView(view) {
-    ['live', 'history', 'variables'].forEach(function (name) {
-      var section = document.getElementById(name + '-view');
-      if (section) {
-        section.classList.toggle('hidden', name !== view);
+function updateKnee(percentStraight) {
+  var normalized = Math.max(0, Math.min(1, Number(percentStraight || 0) / 100));
+  var angle = 78 + (0 - 78) * normalized;
+  var radians = angle * Math.PI / 180;
+  var ankleX = 140 + Math.sin(radians) * 100;
+  var ankleY = 174 + Math.cos(radians) * 100;
+  var lowerLeg = document.getElementById('lower-leg');
+  var ankle = document.getElementById('ankle');
+  if (lowerLeg) {
+    lowerLeg.setAttribute('x2', ankleX.toFixed(1));
+    lowerLeg.setAttribute('y2', ankleY.toFixed(1));
+  }
+  if (ankle) {
+    ankle.setAttribute('cx', ankleX.toFixed(1));
+    ankle.setAttribute('cy', ankleY.toFixed(1));
+  }
+}
+
+function scoreChip(score) {
+  if (score < 55) { return 'score-chip bad'; }
+  if (score < 75) { return 'score-chip warn'; }
+  return 'score-chip';
+}
+
+function formatTime(timestampMs) {
+  return new Date(timestampMs).toLocaleString();
+}
+
+function formatHistoryRow(item) {
+  return '<tr><td>' + formatTime(item.timestampMs) + '</td><td><span class="' + scoreChip(item.score) + '">' + Number(item.score).toFixed(1) + '</span></td><td>' + Number(item.shakiness).toFixed(1) + '</td><td>' + Number(item.uncontrolledDescent).toFixed(1) + '</td><td>' + Number(item.compensation).toFixed(1) + '</td><td>' + Math.round(item.durationMs) + ' ms</td><td>' + Number(item.range).toFixed(1) + '%</td><td>' + Number(item.descentAvgSpeed).toFixed(1) + '</td><td>' + Number(item.ascentAvgSpeed).toFixed(1) + '</td><td>' + item.oscillations + '</td></tr>';
+}
+
+function formatDailyAverageRow(item, app) {
+  var goal = app && typeof app.getValue === 'function' ? Number(app.getValue('historyGoal') || app.getValue('goal') || 0) : 0;
+  return '<tr><td>' + formatTime(item.dayStartMs).split(',')[0] + '</td><td><span class="' + scoreChip(item.averageScore) + '">' + Number(item.averageScore).toFixed(1) + '</span></td><td>' + item.count + '</td><td>' + goal + '</td></tr>';
+}
+
+function renderHistoryRows(rows) {
+  console.log('[app] renderHistoryRows count=' + ((rows && rows.length) || 0));
+  setHtml('history-body', (rows || []).join('') || '<tr><td class="empty" colspan="10">No steps recorded yet.</td></tr>');
+}
+
+function renderDailyAverageRows(rows) {
+  console.log('[app] renderDailyAverageRows count=' + ((rows && rows.length) || 0));
+  setHtml('daily-average-body', (rows || []).join('') || '<tr><td class="empty" colspan="4">No synced history yet.</td></tr>');
+}
+
+function summarizeHistory(history) {
+  var rows = Array.isArray(history) ? history : [];
+  var totalScore = 0;
+  var totalDuration = 0;
+  var bestStep = null;
+  var worstStep = null;
+
+  rows.forEach(function (item) {
+    totalScore += Number(item.score || 0);
+    totalDuration += Number(item.durationMs || 0);
+    if (!bestStep || Number(item.score || 0) > Number(bestStep.score || 0)) {
+      bestStep = item;
+    }
+    if (!worstStep || Number(item.score || 0) < Number(worstStep.score || 0)) {
+      worstStep = item;
+    }
+  });
+
+  console.log('[app] summarizeHistory count=' + rows.length);
+  return {
+    count: rows.length,
+    averageScore: rows.length ? totalScore / rows.length : 0,
+    averageDurationMs: rows.length ? totalDuration / rows.length : 0,
+    bestStep: bestStep,
+    worstStep: worstStep
+  };
+}
+
+function summarizeDailyAverages(days) {
+  var rows = Array.isArray(days) ? days : [];
+  var bestDay = null;
+  var worstDay = null;
+
+  rows.forEach(function (item) {
+    if (!bestDay || Number(item.averageScore || 0) > Number(bestDay.averageScore || 0)) {
+      bestDay = item;
+    }
+    if (!worstDay || Number(item.averageScore || 0) < Number(worstDay.averageScore || 0)) {
+      worstDay = item;
+    }
+  });
+
+  console.log('[app] summarizeDailyAverages count=' + rows.length);
+  return {
+    count: rows.length,
+    bestDay: bestDay,
+    worstDay: worstDay
+  };
+}
+
+function renderHistoryDiagnostics(summary) {
+  var bestStep = summary && summary.bestStep;
+  var worstStep = summary && summary.worstStep;
+  console.log('[app] renderHistoryDiagnostics count=' + (summary && summary.count));
+  setText('best-step-score', bestStep ? Number(bestStep.score || 0).toFixed(1) : '0.0');
+  setText('best-step-detail', bestStep ? formatTime(bestStep.timestampMs) + ' • ' + Math.round(bestStep.durationMs) + ' ms' : 'No steps yet');
+  setText('worst-step-score', worstStep ? Number(worstStep.score || 0).toFixed(1) : '0.0');
+  setText('worst-step-detail', worstStep ? formatTime(worstStep.timestampMs) + ' • ' + Math.round(worstStep.durationMs) + ' ms' : 'No steps yet');
+  setText('average-step-score', summary ? Number(summary.averageScore || 0).toFixed(1) : '0.0');
+  setText('average-step-detail', summary ? String(summary.count || 0) + ' logged steps' : 'Across all logged steps');
+  setText('average-step-duration', summary ? Math.round(summary.averageDurationMs || 0) + ' ms' : '0 ms');
+  setText('average-step-duration-detail', 'Across all logged steps');
+}
+
+function renderDailyDiagnostics(summary) {
+  var bestDay = summary && summary.bestDay;
+  var worstDay = summary && summary.worstDay;
+  console.log('[app] renderDailyDiagnostics count=' + (summary && summary.count));
+  setText('best-day-score', bestDay ? Number(bestDay.averageScore || 0).toFixed(1) : '0.0');
+  setText('best-day-detail', bestDay ? formatTime(bestDay.dayStartMs).split(',')[0] + ' • ' + bestDay.count + ' steps' : 'No days yet');
+  setText('worst-day-score', worstDay ? Number(worstDay.averageScore || 0).toFixed(1) : '0.0');
+  setText('worst-day-detail', worstDay ? formatTime(worstDay.dayStartMs).split(',')[0] + ' • ' + worstDay.count + ' steps' : 'No days yet');
+}
+
+function applyHistoryGoal(goal, app) {
+  console.log('[app] applyHistoryGoal', goal);
+  if (app && typeof app.setValue === 'function') {
+    app.setValue('historyGoal', Number(goal || 0));
+  }
+}
+
+function applyLivePayload(payload, app) {
+  console.log('[app] applyLivePayload reading=' + payload.reading + ' percent=' + payload.percentStraight);
+  if (app && typeof app.setValue === 'function') {
+    app.setValue('goal', payload.goal || 0);
+  }
+  setText('reading', String(payload.reading));
+  setText('percent-straight', Number(payload.percentStraight || 0).toFixed(1) + '%');
+  setText('last-score', Number(payload.lastScore || 0).toFixed(1));
+  setText('step-count', String(payload.stepCount || 0));
+  setText('today-average', Number(payload.todayAverage || 0).toFixed(1));
+  setText('goal-inline', String(payload.goal || 0));
+  setText('speed', Number(payload.speed || 0).toFixed(1));
+  setText('live-shaky', Number(payload.shaky || 0).toFixed(1));
+  setText('live-descent', Number(payload.uncontrolledDescent || 0).toFixed(1));
+  setText('live-compensation', Number(payload.compensation || 0).toFixed(1));
+  updateKnee(payload.percentStraight || 0);
+  var syncPill = document.getElementById('sync-pill');
+  if (syncPill) {
+    syncPill.textContent = payload.timeSynced ? 'Phone time synced for daily tracking' : 'Phone time not synced yet';
+    syncPill.classList.toggle('warn', !payload.timeSynced);
+  }
+}
+
+function applyVariablesPayload(payload) {
+  console.log('[app] applyVariablesPayload keys=' + Object.keys(payload).join(','));
+  Object.keys(payload).forEach(function (key) {
+    var input = document.getElementById(key);
+    if (input) {
+      input.value = payload[key];
+    }
+  });
+  setText('variables-status', payload.status || 'Variables loaded');
+}
+
+function applyVariablesSaveResponse(payload) {
+  console.log('[app] applyVariablesSaveResponse', payload && payload.status);
+  setText('variables-status', payload.status || 'Variables saved');
+}
+
+function collectVariablesPayload() {
+  var payload = {};
+  Array.prototype.forEach.call(document.querySelectorAll('#variables-view input'), function (input) {
+    payload[input.name] = input.value;
+  });
+  return payload;
+}
+
+function ngInitializeApp(app) {
+  console.log('[app] ngInitializeApp');
+  var tabs = document.getElementById('tabs');
+  if (tabs) {
+    tabs.addEventListener('click', function (event) {
+      var button = event.target.closest('button[data-view]');
+      if (button) {
+        app.setObservable('selectedView$', button.getAttribute('data-view'));
       }
     });
-    var tabs = document.getElementById('tabs');
-    if (tabs) {
-      Array.prototype.forEach.call(tabs.querySelectorAll('button[data-view]'), function (button) {
-        button.classList.toggle('active', button.getAttribute('data-view') === view);
-      });
-    }
-    window.history.replaceState({}, '', view === 'variables' ? '/variables' : '/');
   }
 
-  function updateKnee(percentStraight) {
-    var normalized = Math.max(0, Math.min(1, Number(percentStraight || 0) / 100));
-    var angle = 78 + (0 - 78) * normalized;
-    var radians = angle * Math.PI / 180;
-    var ankleX = 140 + Math.sin(radians) * 100;
-    var ankleY = 174 + Math.cos(radians) * 100;
-    var lowerLeg = document.getElementById('lower-leg');
-    var ankle = document.getElementById('ankle');
-    if (lowerLeg) {
-      lowerLeg.setAttribute('x2', ankleX.toFixed(1));
-      lowerLeg.setAttribute('y2', ankleY.toFixed(1));
-    }
-    if (ankle) {
-      ankle.setAttribute('cx', ankleX.toFixed(1));
-      ankle.setAttribute('cy', ankleY.toFixed(1));
-    }
-  }
-
-  function scoreChip(score) {
-    if (score < 55) { return 'score-chip bad'; }
-    if (score < 75) { return 'score-chip warn'; }
-    return 'score-chip';
-  }
-
-  function formatTime(timestampMs) {
-    return new Date(timestampMs).toLocaleString();
-  }
-
-  function applyLive(payload) {
-    setText('reading', String(payload.reading));
-    setText('percent-straight', Number(payload.percentStraight || 0).toFixed(1) + '%');
-    setText('last-score', Number(payload.lastScore || 0).toFixed(1));
-    setText('step-count', String(payload.stepCount || 0));
-    setText('today-average', Number(payload.todayAverage || 0).toFixed(1));
-    setText('goal-inline', String(payload.goal || 0));
-    setText('speed', Number(payload.speed || 0).toFixed(1));
-    setText('live-shaky', Number(payload.shaky || 0).toFixed(1));
-    setText('live-descent', Number(payload.uncontrolledDescent || 0).toFixed(1));
-    setText('live-compensation', Number(payload.compensation || 0).toFixed(1));
-    updateKnee(payload.percentStraight || 0);
-  }
-
-  function applyHistory(payload) {
-    var historyBody = document.getElementById('history-body');
-    var dailyBody = document.getElementById('daily-average-body');
-    if (dailyBody) {
-      dailyBody.innerHTML = (payload.dailyAverages || []).map(function (item) {
-        return '<tr><td>' + formatTime(item.dayStartMs).split(',')[0] + '</td><td><span class="' + scoreChip(item.averageScore) + '">' + Number(item.averageScore).toFixed(1) + '</span></td><td>' + item.count + '</td><td>' + payload.goal + '</td></tr>';
-      }).join('') || '<tr><td class="empty" colspan="4">No synced history yet.</td></tr>';
-    }
-    if (historyBody) {
-      historyBody.innerHTML = (payload.history || []).map(function (item) {
-        return '<tr><td>' + formatTime(item.timestampMs) + '</td><td><span class="' + scoreChip(item.score) + '">' + Number(item.score).toFixed(1) + '</span></td><td>' + Number(item.shakiness).toFixed(1) + '</td><td>' + Number(item.uncontrolledDescent).toFixed(1) + '</td><td>' + Number(item.compensation).toFixed(1) + '</td><td>' + Math.round(item.durationMs) + ' ms</td><td>' + Number(item.range).toFixed(1) + '%</td><td>' + Number(item.descentAvgSpeed).toFixed(1) + '</td><td>' + Number(item.ascentAvgSpeed).toFixed(1) + '</td><td>' + item.oscillations + '</td></tr>';
-      }).join('') || '<tr><td class="empty" colspan="10">No steps recorded yet.</td></tr>';
-    }
-  }
-
-  function applyVariables(payload) {
-    Object.keys(payload).forEach(function (key) {
-      var input = document.getElementById(key);
-      if (input) {
-        input.value = payload[key];
-      }
+  var saveButton = document.getElementById('save-variables');
+  if (saveButton) {
+    saveButton.addEventListener('click', function () {
+      app.runObservable('saveVariables$', collectVariablesPayload());
     });
-    setText('variables-status', payload.status || 'Variables loaded');
   }
 
-  function refreshAll() {
-    return Promise.all([
-      fetchJson('/api/live').then(applyLive),
-      fetchJson('/api/history').then(applyHistory),
-      fetchJson('/api/variables').then(applyVariables)
-    ]);
+  var reloadButton = document.getElementById('reload-variables');
+  if (reloadButton) {
+    reloadButton.addEventListener('click', function () {
+      app.refreshObservable('variablesState$');
+    });
   }
 
-  document.getElementById('tabs').addEventListener('click', function (event) {
-    var button = event.target.closest('button[data-view]');
-    if (button) {
-      showView(button.getAttribute('data-view'));
-    }
-  });
+  app.setObservable('selectedView$', window.location.pathname === '/variables' ? 'variables' : 'live');
+}
 
-  document.getElementById('save-variables').addEventListener('click', function () {
-    var form = new URLSearchParams();
-    Array.prototype.forEach.call(document.querySelectorAll('#variables-view input'), function (input) {
-      form.append(input.name, input.value);
-    });
-    fetchJson('/api/variables', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form.toString()
-    }).then(function (result) {
-      setText('variables-status', result.status || 'Variables saved');
-    });
-  });
-
-  document.getElementById('reload-variables').addEventListener('click', function () {
-    fetchJson('/api/variables').then(applyVariables);
-  });
-
-  showView(window.location.pathname === '/variables' ? 'variables' : 'live');
-  refreshAll();
-  window.setInterval(function () { fetchJson('/api/live').then(applyLive); }, 500);
-  window.setInterval(function () { fetchJson('/api/history').then(applyHistory); }, 3000);
-}());
+window.setText = setText;
+window.setHtml = setHtml;
+window.showView = showView;
+window.updateKnee = updateKnee;
+window.scoreChip = scoreChip;
+window.formatTime = formatTime;
+window.formatHistoryRow = formatHistoryRow;
+window.formatDailyAverageRow = formatDailyAverageRow;
+window.renderHistoryRows = renderHistoryRows;
+window.renderDailyAverageRows = renderDailyAverageRows;
+window.summarizeHistory = summarizeHistory;
+window.summarizeDailyAverages = summarizeDailyAverages;
+window.renderHistoryDiagnostics = renderHistoryDiagnostics;
+window.renderDailyDiagnostics = renderDailyDiagnostics;
+window.applyHistoryGoal = applyHistoryGoal;
+window.applyLivePayload = applyLivePayload;
+window.applyVariablesPayload = applyVariablesPayload;
+window.applyVariablesSaveResponse = applyVariablesSaveResponse;
+window.collectVariablesPayload = collectVariablesPayload;
+window.ngInitializeApp = ngInitializeApp;

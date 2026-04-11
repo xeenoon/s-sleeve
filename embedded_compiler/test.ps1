@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 $exe = Join-Path $PSScriptRoot 'bin\main.exe'
-$inputDir = Join-Path $PSScriptRoot 'test_input'
+$inputDir = Join-Path $PSScriptRoot '..\angular_app'
 
 if (-not (Test-Path $exe)) {
   throw "Missing compiler executable: $exe"

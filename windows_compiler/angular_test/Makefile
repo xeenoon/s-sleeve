@@ -10,7 +10,11 @@ TARGET := $(BIN_DIR)/generated_demo.exe
 SOURCES := \
 	angular_selectedView_.c \
 	angular_liveState_.c \
-	angular_historyState_.c \
+	angular_historyRows_.c \
+	angular_dailyAverageRows_.c \
+	angular_historyGoal_.c \
+	angular_historyDiagnostics_.c \
+	angular_dailyDiagnostics_.c \
 	angular_variablesState_.c \
 	angular_saveVariables_.c \
 	angular_selectedView.c \

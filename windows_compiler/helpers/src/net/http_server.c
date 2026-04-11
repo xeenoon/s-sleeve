@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #ifndef NG_HTTP_TRACE_ENABLED
 #define NG_HTTP_TRACE_ENABLED 1
@@ -140,15 +141,131 @@ static const char *ng_http_status_text(int status_code) {
 }
 
 void ng_http_response_init(ng_http_response_t *response) {
-  memset(response, 0, sizeof(*response));
+  if (response == NULL) {
+    return;
+  }
   response->status_code = 200;
+  memset(response->content_type, 0, sizeof(response->content_type));
   strcpy(response->content_type, "application/json");
-  strcpy(response->body, "{}");
+  response->body[0] = '\0';
+  response->dynamic_body = NULL;
+  response->dynamic_body_length = 0;
+  if (ng_http_response_set_text(response, "{}") != 0) {
+    response->body[0] = '{';
+    response->body[1] = '}';
+    response->body[2] = '\0';
+  }
+}
+
+void ng_http_response_dispose(ng_http_response_t *response) {
+  if (response == NULL) {
+    return;
+  }
+  if (response->dynamic_body != NULL) {
+    free(response->dynamic_body);
+    response->dynamic_body = NULL;
+  }
+  response->dynamic_body_length = 0;
+  response->body[0] = '\0';
+}
+
+const char *ng_http_response_body(const ng_http_response_t *response) {
+  if (response == NULL) {
+    return "";
+  }
+  if (response->dynamic_body != NULL) {
+    return response->dynamic_body;
+  }
+  return response->body;
+}
+
+int ng_http_response_set_text(ng_http_response_t *response, const char *text) {
+  size_t length;
+  char *dynamic_copy;
+
+  if (response == NULL) {
+    return 1;
+  }
+
+  if (text == NULL) {
+    text = "";
+  }
+
+  length = strlen(text);
+  if (response->dynamic_body != NULL) {
+    free(response->dynamic_body);
+    response->dynamic_body = NULL;
+    response->dynamic_body_length = 0;
+  }
+
+  if (length < sizeof(response->body)) {
+    memcpy(response->body, text, length + 1);
+    response->dynamic_body_length = length;
+    return 0;
+  }
+
+  dynamic_copy = (char *)malloc(length + 1);
+  if (dynamic_copy == NULL) {
+    return 1;
+  }
+
+  memcpy(dynamic_copy, text, length + 1);
+  response->dynamic_body = dynamic_copy;
+  response->dynamic_body_length = length;
+  response->body[0] = '\0';
+  return 0;
+}
+
+int ng_http_response_set_format(ng_http_response_t *response, const char *format, ...) {
+  int needed;
+  va_list args;
+  char *dynamic_text;
+
+  if (response == NULL || format == NULL) {
+    return 1;
+  }
+
+  va_start(args, format);
+  needed = _vscprintf(format, args);
+  va_end(args);
+  if (needed < 0) {
+    return 1;
+  }
+
+  if ((size_t)needed < sizeof(response->body)) {
+    va_start(args, format);
+    vsnprintf(response->body, sizeof(response->body), format, args);
+    va_end(args);
+    if (response->dynamic_body != NULL) {
+      free(response->dynamic_body);
+      response->dynamic_body = NULL;
+    }
+    response->dynamic_body_length = (size_t)needed;
+    return 0;
+  }
+
+  dynamic_text = (char *)malloc((size_t)needed + 1u);
+  if (dynamic_text == NULL) {
+    return 1;
+  }
+
+  va_start(args, format);
+  vsnprintf(dynamic_text, (size_t)needed + 1u, format, args);
+  va_end(args);
+
+  if (response->dynamic_body != NULL) {
+    free(response->dynamic_body);
+  }
+  response->dynamic_body = dynamic_text;
+  response->dynamic_body_length = (size_t)needed;
+  response->body[0] = '\0';
+  return 0;
 }
 
 static int ng_http_send_response(SOCKET client_socket, const ng_http_response_t *response) {
-  char packet[32768];
-  int body_length = (int)strlen(response->body);
+  char packet[131072];
+  const char *body_text = ng_http_response_body(response);
+  int body_length = (int)strlen(body_text);
   int packet_length;
 
   packet_length = snprintf(packet,
@@ -163,7 +280,7 @@ static int ng_http_send_response(SOCKET client_socket, const ng_http_response_t 
                            ng_http_status_text(response->status_code),
                            response->content_type,
                            body_length,
-                           response->body);
+                           body_text);
   if (packet_length < 0 || packet_length >= (int)sizeof(packet)) {
     return 1;
   }
@@ -225,7 +342,7 @@ int ng_http_server_serve(unsigned short port,
 
   while (max_requests <= 0 || requests_handled < max_requests) {
     SOCKET client_socket;
-    char request_buffer[8192];
+    char request_buffer[16384];
     ng_http_request_t request;
     ng_http_response_t response;
 
@@ -265,6 +382,7 @@ int ng_http_server_serve(unsigned short port,
     }
 
     ng_http_send_response(client_socket, &response);
+    ng_http_response_dispose(&response);
     closesocket(client_socket);
     requests_handled += 1;
   }

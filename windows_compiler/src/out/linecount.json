@@ -1,0 +1,137 @@
+{
+    "extension": "linecount",
+    "version": "0.1.7",
+    "workspace": "c:\\Users\\ccw10\\Documents\\s-sleeve\\windows_compiler\\src",
+    "linecount": [
+        {
+            "version": "0.1.7",
+            "counttime": "2026-04-12 03:43:25",
+            "filesum": 20,
+            "codesum": 4120,
+            "commentsum": 0,
+            "blanksum": 1016,
+            "filelist": [
+                {
+                    "blank": 43,
+                    "code": 227,
+                    "comment": 0,
+                    "filename": "cli.c"
+                },
+                {
+                    "blank": 15,
+                    "code": 58,
+                    "comment": 0,
+                    "filename": "file_io.c"
+                },
+                {
+                    "blank": 634,
+                    "code": 1733,
+                    "comment": 0,
+                    "filename": "generator.c"
+                },
+                {
+                    "blank": 74,
+                    "code": 707,
+                    "comment": 0,
+                    "filename": "js_codegen.c"
+                },
+                {
+                    "blank": 18,
+                    "code": 86,
+                    "comment": 0,
+                    "filename": "log.c"
+                },
+                {
+                    "blank": 1,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "main.c"
+                },
+                {
+                    "blank": 34,
+                    "code": 234,
+                    "comment": 0,
+                    "filename": "output_fs.c"
+                },
+                {
+                    "blank": 12,
+                    "code": 51,
+                    "comment": 0,
+                    "filename": "parser\\include\\ast.h"
+                },
+                {
+                    "blank": 6,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "parser\\include\\parser.h"
+                },
+                {
+                    "blank": 4,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "parser\\include\\parser_internal.h"
+                },
+                {
+                    "blank": 5,
+                    "code": 47,
+                    "comment": 0,
+                    "filename": "parser\\src\\ast.c"
+                },
+                {
+                    "blank": 32,
+                    "code": 221,
+                    "comment": 0,
+                    "filename": "parser\\src\\parser.c"
+                },
+                {
+                    "blank": 54,
+                    "code": 314,
+                    "comment": 0,
+                    "filename": "parser\\src\\parser_component.c"
+                },
+                {
+                    "blank": 8,
+                    "code": 29,
+                    "comment": 0,
+                    "filename": "parser\\src\\parser_style.c"
+                },
+                {
+                    "blank": 11,
+                    "code": 36,
+                    "comment": 0,
+                    "filename": "parser\\src\\parser_template.c"
+                },
+                {
+                    "blank": 18,
+                    "code": 78,
+                    "comment": 0,
+                    "filename": "path_scan.c"
+                },
+                {
+                    "blank": 5,
+                    "code": 24,
+                    "comment": 0,
+                    "filename": "tokenizer\\include\\token.h"
+                },
+                {
+                    "blank": 4,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "tokenizer\\include\\tokenizer.h"
+                },
+                {
+                    "blank": 7,
+                    "code": 54,
+                    "comment": 0,
+                    "filename": "tokenizer\\src\\token.c"
+                },
+                {
+                    "blank": 31,
+                    "code": 158,
+                    "comment": 0,
+                    "filename": "tokenizer\\src\\tokenizer.c"
+                }
+            ]
+        }
+    ]
+}

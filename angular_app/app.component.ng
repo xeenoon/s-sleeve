@@ -4,11 +4,15 @@
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  selectedView$ = rx.state('live');
-  liveState$ = rx.poll('/state', 1000);
-  historyState$ = rx.poll('/api/history', 4000);
-  variablesState$ = rx.poll('/api/variables', 8000);
-  saveVariables$ = rx.post('/api/variables');
+  selectedView$ = rx.state('live').pipe(rx.tap('showView'));
+  liveState$ = rx.poll('/api/live', 500).pipe(rx.tap('applyLivePayload'));
+  historyRows$ = rx.poll('/api/history', 3000).pipe(rx.prop('history'), rx.map('formatHistoryRow'), rx.tap('renderHistoryRows'));
+  dailyAverageRows$ = rx.poll('/api/history', 3000).pipe(rx.prop('dailyAverages'), rx.map('formatDailyAverageRow'), rx.tap('renderDailyAverageRows'));
+  historyGoal$ = rx.poll('/api/history', 3000).pipe(rx.prop('goal'), rx.tap('applyHistoryGoal'));
+  historyDiagnostics$ = rx.poll('/api/history', 3000).pipe(rx.prop('history'), rx.reduce('summarizeHistory'), rx.tap('renderHistoryDiagnostics'));
+  dailyDiagnostics$ = rx.poll('/api/history', 3000).pipe(rx.prop('dailyAverages'), rx.reduce('summarizeDailyAverages'), rx.tap('renderDailyDiagnostics'));
+  variablesState$ = rx.poll('/api/variables', 8000).pipe(rx.tap('applyVariablesPayload'));
+  saveVariables$ = rx.post('/api/variables').pipe(rx.tap('applyVariablesSaveResponse'));
 
   selectedView = 'live';
   goal = 85;
