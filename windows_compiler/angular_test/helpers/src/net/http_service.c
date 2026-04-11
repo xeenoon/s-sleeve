@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+
+#include "data/json.h"
 
 #ifndef NG_HTTP_TRACE_ENABLED
 #define NG_HTTP_TRACE_ENABLED 1
@@ -20,10 +23,29 @@
 #endif
 
 static void ng_http_service_write_error(ng_http_response_t *response, int status_code, const char *message) {
+  json_data *root;
+  char *json_text;
+
   response->status_code = status_code;
-  if (ng_http_response_set_format(response, "{\"error\":\"%s\"}", message) != 0) {
-    ng_http_response_set_text(response, "{\"error\":\"response build failure\"}");
+  root = init_json_object();
+  if (root == NULL ||
+      json_object_add_string(root, "error", message != NULL ? message : "response build failure") != 0) {
+    ng_http_response_set_text(response, "{}");
+    if (root != NULL) {
+      json_free(root);
+    }
+    return;
   }
+
+  json_text = json_tostring(root);
+  json_free(root);
+  if (json_text == NULL) {
+    ng_http_response_set_text(response, "{}");
+    return;
+  }
+
+  ng_http_response_set_text(response, json_text);
+  free(json_text);
 }
 
 void ng_http_service_init(ng_http_service_t *service,
