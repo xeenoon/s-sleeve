@@ -11,6 +11,8 @@
   --warn: #b85f18;
   --bad: #a5302d;
   --shadow: 0 24px 60px rgba(47, 29, 18, 0.12);
+  --glow: rgba(191, 91, 44, 0.18);
+  --surface-shift: 0px;
 }
 
 * { box-sizing: border-box; }
@@ -27,6 +29,8 @@ body {
 }
 
 .shell {
+  position: relative;
+  overflow: hidden;
   width: min(1180px, calc(100vw - 24px));
   margin: 20px auto;
   padding: 20px;
@@ -37,6 +41,38 @@ body {
   backdrop-filter: blur(10px);
 }
 
+.ambient {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+  filter: blur(18px);
+  opacity: 0.7;
+  animation: ambientFloat 16s ease-in-out infinite;
+}
+.ambient-a {
+  width: 220px;
+  height: 220px;
+  top: -40px;
+  right: -20px;
+  background: radial-gradient(circle, rgba(191, 91, 44, 0.3), transparent 70%);
+}
+.ambient-b {
+  width: 180px;
+  height: 180px;
+  bottom: 80px;
+  left: -40px;
+  background: radial-gradient(circle, rgba(47, 125, 83, 0.14), transparent 72%);
+  animation-duration: 20s;
+}
+.ambient-c {
+  width: 140px;
+  height: 140px;
+  top: 45%;
+  right: 36%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.38), transparent 70%);
+  animation-duration: 13s;
+}
+
 .hero, .card-grid, .history-layout, .variables-grid { display: grid; gap: 18px; }
 .hero { grid-template-columns: minmax(320px, 1.2fr) minmax(260px, 0.8fr); align-items: stretch; }
 .panel, .metric-card, .table-panel {
@@ -44,7 +80,32 @@ body {
   border: 1px solid var(--line);
   background: #fffaf4;
 }
-.panel { padding: 22px; }
+.panel {
+  position: relative;
+  padding: 22px;
+  transition: transform 320ms ease, box-shadow 320ms ease, border-color 320ms ease, opacity 320ms ease;
+}
+.panel::before,
+.metric-card::before,
+.diagnostic-card::before,
+.quality-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.24), transparent 40%, rgba(191, 91, 44, 0.06));
+  pointer-events: none;
+  opacity: 0.55;
+}
+.hero-panel,
+.control-panel,
+.meter-card,
+.diagnostics-panel,
+.table-panel,
+.variables-grid,
+.field {
+  animation: riseFade 720ms ease both;
+}
 .eyebrow {
   margin: 0 0 10px;
   font-size: 0.78rem;
@@ -57,10 +118,35 @@ body {
   font-size: clamp(2.6rem, 7vw, 4.8rem);
   line-height: 0.95;
   color: var(--accent);
+  text-shadow: 0 10px 30px rgba(191, 91, 44, 0.1);
 }
 .subline { margin: 10px 0 0; color: var(--muted); font-size: 1rem; }
+.hero-ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 247, 240, 0.9);
+  border: 1px solid rgba(191, 91, 44, 0.12);
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.signal-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: var(--good);
+  box-shadow: 0 0 0 0 rgba(47, 125, 83, 0.3);
+  animation: signalPulse 2.4s ease-out infinite;
+}
 .card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 18px; }
-.metric-card { padding: 18px; }
+.metric-card {
+  position: relative;
+  padding: 18px;
+  overflow: hidden;
+}
 .metric-label {
   font-size: 0.8rem;
   letter-spacing: 0.08em;
@@ -71,8 +157,29 @@ body {
   margin-top: 10px;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: 700;
+  transition: transform 220ms ease, opacity 220ms ease, filter 220ms ease;
 }
 .metric-detail, .hint { margin-top: 8px; color: var(--muted); font-size: 0.95rem; }
+.metric-trace {
+  margin-top: 14px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(63, 46, 32, 0.08);
+  overflow: hidden;
+}
+.metric-trace span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(191, 91, 44, 0.15), rgba(191, 91, 44, 0.8), rgba(255,255,255,0.2));
+  transform: translateX(-180%);
+  opacity: 0;
+}
+.telemetry-card.is-live .metric-trace span {
+  opacity: 1;
+  animation: traceRun 1.35s linear infinite;
+}
 .tabs {
   display: inline-flex;
   gap: 8px;
@@ -90,8 +197,14 @@ body {
   color: var(--muted);
   font: inherit;
   cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
 }
-.tabs button.active { background: var(--accent); color: #fff8f4; }
+.tabs button.active {
+  background: var(--accent);
+  color: #fff8f4;
+  box-shadow: 0 10px 24px rgba(191, 91, 44, 0.24);
+}
+.tabs button:hover { transform: translateY(-1px); }
 .status-row {
   display: flex;
   flex-wrap: wrap;
@@ -109,9 +222,17 @@ body {
   font-size: 0.92rem;
   background: rgba(47, 125, 83, 0.1);
   color: var(--good);
+  transition: transform 220ms ease, background 220ms ease, color 220ms ease, opacity 220ms ease;
 }
 .status-pill.warn { background: rgba(184, 95, 24, 0.12); color: var(--warn); }
 .hidden { display: none !important; }
+.view-surface {
+  transform: translateY(var(--surface-shift));
+  transition: transform 380ms ease, opacity 380ms ease, filter 380ms ease;
+}
+.view-surface.is-transitioning {
+  animation: viewReveal 420ms ease;
+}
 .live-layout {
   display: grid;
   grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
@@ -122,6 +243,7 @@ body {
   padding: 20px;
   text-align: center;
   background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(246, 232, 220, 0.92));
+  overflow: hidden;
 }
 .joint-labels, .quality-grid { display: grid; gap: 12px; }
 .joint-labels {
@@ -133,7 +255,35 @@ body {
   font-size: 0.8rem;
 }
 svg { width: min(100%, 320px); height: auto; overflow: visible; }
-.limb { fill: none; stroke: var(--accent); stroke-width: 22; stroke-linecap: round; }
+.limb {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 22;
+  stroke-linecap: round;
+  filter: drop-shadow(0 12px 18px rgba(191, 91, 44, 0.18));
+  transition: filter 220ms ease, transform 220ms ease;
+}
+.limb-shadow {
+  stroke: rgba(34, 25, 18, 0.16);
+  stroke-width: 30;
+  filter: blur(5px);
+}
+.limb-highlight {
+  fill: none;
+  stroke: rgba(255, 250, 245, 0.82);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-opacity: 0.88;
+}
+.stride-echo {
+  fill: none;
+  stroke: rgba(191, 91, 44, 0.18);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 10 12;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
 .guide {
   fill: none;
   stroke: rgba(34, 25, 18, 0.12);
@@ -141,20 +291,66 @@ svg { width: min(100%, 320px); height: auto; overflow: visible; }
   stroke-linecap: round;
   stroke-dasharray: 10 14;
 }
-.joint { fill: var(--text); }
+.joint {
+  transition: transform 220ms ease, filter 220ms ease;
+}
+.joint-glow {
+  fill: rgba(191, 91, 44, 0.22);
+  filter: blur(2px);
+}
+.joint-core {
+  fill: var(--text);
+}
+.pulse-ring {
+  fill: none;
+  stroke: rgba(191, 91, 44, 0.42);
+  stroke-width: 3;
+  stroke-dasharray: 14 10;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 260ms ease, transform 260ms ease, stroke-width 260ms ease;
+}
+.meter-card.is-energized .joint {
+  filter: drop-shadow(0 0 16px rgba(191, 91, 44, 0.2));
+}
+.meter-card.is-energized .limb {
+  filter: drop-shadow(0 16px 22px rgba(191, 91, 44, 0.28));
+}
+.meter-card.is-energized .stride-echo {
+  opacity: 1;
+}
+.pulse-ring.is-moving {
+  opacity: 0.82;
+  stroke-width: 4;
+  animation: anklePulse 1.35s ease-out 1;
+}
+.meter-demo-copy {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  opacity: 0.82;
+}
 .quality-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .quality-card {
+  position: relative;
   padding: 18px;
   border-radius: 20px;
   border: 1px solid var(--line);
   background: rgba(255, 248, 241, 0.86);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 .quality-card strong, .quality-card span { display: block; }
 .quality-card strong { font-size: 1.7rem; margin: 10px 0 6px; }
 .quality-card span { color: var(--muted); font-size: 0.92rem; }
 .history-layout { grid-template-columns: minmax(0, 1fr); margin-top: 18px; }
 .table-panel { padding: 18px; overflow: hidden; }
-.table-wrap { overflow: auto; border-radius: 18px; border: 1px solid var(--line); }
+.table-wrap {
+  overflow: auto;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(249, 241, 233, 0.88));
+}
 table {
   width: 100%;
   border-collapse: collapse;
@@ -200,6 +396,7 @@ th {
   margin-top: 14px;
 }
 .diagnostic-card {
+  position: relative;
   padding: 18px;
   border-radius: 18px;
   background: rgba(255, 250, 245, 0.92);
@@ -207,6 +404,7 @@ th {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
   display: grid;
   gap: 6px;
+  transition: transform 240ms ease, opacity 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
 }
 .diagnostic-card strong {
   font-size: 1.8rem;
@@ -224,6 +422,9 @@ th {
   display: grid;
   gap: 6px;
   margin-bottom: 14px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: riseFade 680ms ease forwards;
 }
 .field label {
   font-size: 0.82rem;
@@ -239,6 +440,13 @@ th {
   background: #fffdf9;
   font: inherit;
   color: var(--text);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.field input:focus {
+  outline: none;
+  border-color: rgba(191, 91, 44, 0.42);
+  box-shadow: 0 0 0 4px rgba(191, 91, 44, 0.12);
+  transform: translateY(-1px);
 }
 .actions {
   display: flex;
@@ -254,10 +462,49 @@ th {
   font: inherit;
   background: var(--accent);
   color: #fffaf4;
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+}
+.actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(191, 91, 44, 0.18);
 }
 .actions button.secondary {
   background: rgba(63, 46, 32, 0.12);
   color: var(--text);
+}
+.table-row-enter {
+  animation: rowIn 420ms ease both;
+}
+
+@keyframes ambientFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -14px, 0) scale(1.06); }
+}
+@keyframes signalPulse {
+  0% { box-shadow: 0 0 0 0 rgba(47, 125, 83, 0.3); }
+  70% { box-shadow: 0 0 0 12px rgba(47, 125, 83, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 125, 83, 0); }
+}
+@keyframes traceRun {
+  0% { transform: translateX(-160%); }
+  100% { transform: translateX(320%); }
+}
+@keyframes riseFade {
+  0% { opacity: 0; transform: translateY(18px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes viewReveal {
+  0% { opacity: 0.4; transform: translateY(10px); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes rowIn {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes anklePulse {
+  0% { transform: scale(0.94); opacity: 0.72; }
+  45% { transform: scale(1.1); opacity: 0.46; }
+  100% { transform: scale(1.28); opacity: 0; }
 }
 @media (max-width: 900px) {
   .hero, .live-layout, .variables-grid { grid-template-columns: 1fr; }

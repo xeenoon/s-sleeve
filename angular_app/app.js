@@ -12,15 +12,6 @@ function setHtml(id, value) {
   }
 }
 
-var demoState = {
-  lastMotionAt: 0,
-  timerId: null,
-  phase: 0,
-  active: false,
-  lastPercent: null,
-  lastLivePercent: null
-};
-
 function setDemoCopy(text) {
   setText('meter-demo-copy', text);
 }
@@ -99,44 +90,6 @@ function updateKnee(percentStraight) {
   if (meter) {
     meter.style.transform = 'translate3d(' + ((normalized - 0.5) * 8).toFixed(1) + 'px, ' + (5 - normalized * 9).toFixed(1) + 'px, 0)';
   }
-}
-
-function simulateGaitFrame() {
-  var secondsSinceMotion = (Date.now() - demoState.lastMotionAt) / 1000;
-  var primary;
-  var secondary;
-  var tertiary;
-  var percent;
-
-  if (secondsSinceMotion < 1.0) {
-    if (demoState.active) {
-      demoState.active = false;
-      demoState.lastPercent = null;
-      setDemoCopy('Live reading active');
-    }
-    return;
-  }
-
-  demoState.active = true;
-  demoState.phase += 0.22;
-  primary = (Math.sin(demoState.phase) * 0.5) + 0.5;
-  secondary = (Math.sin((demoState.phase * 2) - 0.8) * 0.5) + 0.5;
-  tertiary = (Math.sin((demoState.phase * 3) + 0.6) * 0.5) + 0.5;
-  percent = 14 + (Math.pow(primary, 0.86) * 50) + (secondary * 18) - (tertiary * 6);
-  percent = Math.max(10, Math.min(92, percent));
-  updateKnee(percent);
-  setText('percent-straight', percent.toFixed(1) + '%');
-  if (demoState.lastPercent === null || Math.abs(demoState.lastPercent - percent) > 0.4) {
-    setDemoCopy('Demo gait running while live reading is static');
-  }
-  demoState.lastPercent = percent;
-}
-
-function ensureDemoGaitLoop() {
-  if (demoState.timerId !== null) {
-    return;
-  }
-  demoState.timerId = window.setInterval(simulateGaitFrame, 90);
 }
 
 function scoreChip(score) {
@@ -252,10 +205,6 @@ function applyHistoryGoal(goal, app) {
 function applyLivePayload(payload, app) {
   var nextPercent = Number(payload.percentStraight || 0);
   console.log('[app] applyLivePayload reading=' + payload.reading + ' percent=' + payload.percentStraight);
-  if (demoState.lastLivePercent === null || Math.abs(demoState.lastLivePercent - nextPercent) > 0.35) {
-    demoState.lastMotionAt = Date.now();
-  }
-  demoState.lastLivePercent = nextPercent;
   if (app && typeof app.setValue === 'function') {
     app.setValue('goal', payload.goal || 0);
   }
@@ -284,7 +233,7 @@ function applyLivePayload(payload, app) {
   if (signalCopy) {
     signalCopy.textContent = payload.inStep ? 'Live observable pulse detecting active movement' : 'Observable live telemetry active';
   }
-  setDemoCopy('Live reading active');
+  setDemoCopy(payload.inStep ? 'Tracking real movement from the live sensor' : 'Waiting for live knee movement');
 }
 
 function applyVariablesPayload(payload) {
@@ -338,8 +287,7 @@ function ngInitializeApp(app) {
   }
 
   app.setObservable('selectedView$', window.location.pathname === '/variables' ? 'variables' : 'live');
-  demoState.lastMotionAt = 0;
-  ensureDemoGaitLoop();
+  setDemoCopy('Waiting for live knee movement');
 }
 
 window.setText = setText;

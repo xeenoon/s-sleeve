@@ -20,6 +20,142 @@
     return name && name.charAt(name.length - 1) === '$' ? name.slice(0, -1) : name;
   }
 
+  function ngExtractValue(value, path) {
+    if (!path) {
+      return value;
+    }
+    return String(path).split('.').reduce(function (current, segment) {
+      if (current === null || current === undefined) {
+        return undefined;
+      }
+      return current[segment];
+    }, value);
+  }
+
+  function ngRenderTemplate(text, value, app, spec) {
+    var rendered = String(text || '');
+    var alias = ngNormalizeName(spec.name);
+    var scalar = (value !== null && typeof value === 'object') ? '' : String(value === undefined || value === null ? '' : value);
+    rendered = rendered.replace(/\{\{value\}\}/g, scalar);
+    rendered = rendered.replace(/\{\{alias\}\}/g, alias);
+    return rendered;
+  }
+
+  function ngResolveNodes(selectorTemplate, value, app, spec) {
+    var selector = ngRenderTemplate(selectorTemplate, value, app, spec);
+    try {
+      return Array.prototype.slice.call(document.querySelectorAll(selector));
+    } catch (error) {
+      ngLog('invalid selector', selector, error && error.message ? error.message : error);
+      return [];
+    }
+  }
+
+  function ngApplyTemporaryClass(element, className, durationMs) {
+    if (!element) {
+      return;
+    }
+    element.classList.remove(className);
+    void element.offsetWidth;
+    element.classList.add(className);
+    window.setTimeout(function () {
+      element.classList.remove(className);
+    }, durationMs || 420);
+  }
+
+  function ngEffectStateKey(spec, suffix) {
+    return spec.name + '::' + suffix;
+  }
+
+  function ngHasChanged(app, spec, suffix, nextValue) {
+    var key = ngEffectStateKey(spec, suffix);
+    var previous = app.effectState[key];
+    app.effectState[key] = nextValue;
+    return previous !== nextValue;
+  }
+
+  function ngEffectConditionMet(current, step, app, spec, kindIndex, valueIndex, suffix) {
+    var args = step.args || [];
+    var conditionKind = args[kindIndex] || 'always';
+    var conditionPath = args[valueIndex] || '';
+    var observed = conditionPath ? ngExtractValue(current, conditionPath) : current;
+    if (conditionKind === 'always') {
+      return true;
+    }
+    if (conditionKind === 'truthy') {
+      return !!observed;
+    }
+    if (conditionKind === 'changed') {
+      return ngHasChanged(app, spec, suffix + ':' + conditionPath, observed);
+    }
+    ngLog('unknown effect condition', conditionKind, step.kind);
+    return true;
+  }
+
+  function ngApplyEffectStep(current, step, app, spec) {
+    var args = step.args || [];
+    var nodes;
+    var targetIndex;
+    var durationMs;
+    var staggerMs;
+    var selector;
+    var cssValue;
+    if (step.kind === 'effect-class') {
+      selector = args[0] || '';
+      durationMs = Number(args[2] || 420);
+      if (!ngEffectConditionMet(current, step, app, spec, 3, 4, step.kind + ':' + selector)) {
+        return current;
+      }
+      nodes = ngResolveNodes(selector, current, app, spec);
+      nodes.forEach(function (node) { ngApplyTemporaryClass(node, args[1], durationMs); });
+      return current;
+    }
+    if (step.kind === 'effect-class-at') {
+      selector = args[0] || '';
+      targetIndex = Number(args[1] || 0);
+      durationMs = Number(args[3] || 420);
+      if (!ngEffectConditionMet(current, step, app, spec, 4, 5, step.kind + ':' + selector + ':' + targetIndex)) {
+        return current;
+      }
+      nodes = ngResolveNodes(selector, current, app, spec);
+      if (nodes[targetIndex]) {
+        ngApplyTemporaryClass(nodes[targetIndex], args[2], durationMs);
+      }
+      return current;
+    }
+    if (step.kind === 'effect-stagger-class') {
+      selector = args[0] || '';
+      durationMs = Number(args[2] || 420);
+      staggerMs = Number(args[3] || 24);
+      nodes = ngResolveNodes(selector, current, app, spec);
+      nodes.forEach(function (node, index) {
+        window.setTimeout(function () {
+          ngApplyTemporaryClass(node, args[1], durationMs);
+        }, index * staggerMs);
+      });
+      return current;
+    }
+    if (step.kind === 'effect-style-var') {
+      selector = args[0] || ':root';
+      nodes = ngResolveNodes(selector, current, app, spec);
+      if (!nodes.length) {
+        return current;
+      }
+      if ((args[2] || 'value') === 'ternary-bool') {
+        cssValue = ngExtractValue(current, args[3]) ? args[4] : args[5];
+      } else if ((args[2] || 'value') === 'field') {
+        cssValue = ngExtractValue(current, args[3]);
+      } else {
+        cssValue = args[2];
+      }
+      nodes.forEach(function (node) {
+        node.style.setProperty(args[1], String(cssValue));
+      });
+      return current;
+    }
+    return current;
+  }
+
   function ngApplyPipeChain(value, steps, app, spec) {
     return (steps || []).reduce(function (current, step) {
       var hook;
@@ -37,7 +173,7 @@
           return current;
         }
         if (Array.isArray(current)) {
-          return current.map(function (item, itemIndex) { return hook(item, app, itemIndex, spec); });
+          return current.map(function (item, index) { return hook(item, app, index, spec); });
         }
         return hook(current, app, 0, spec);
       }
@@ -58,6 +194,9 @@
         }
         return current;
       }
+      if (step.kind.indexOf('effect-') === 0) {
+        return ngApplyEffectStep(current, step, app, spec);
+      }
       return current;
     }, value);
   }
@@ -66,7 +205,8 @@
     var app = {
       streams: {},
       values: {},
-      intervals: []
+      intervals: [],
+      effectState: {}
     };
 
     app.getValue = function (name) {
@@ -145,7 +285,6 @@
 
     return app;
   }
-
 function setText(id, value) {
   var element = document.getElementById(id);
   if (element) {
@@ -158,6 +297,19 @@ function setHtml(id, value) {
   if (element) {
     element.innerHTML = value;
   }
+}
+
+var demoState = {
+  lastMotionAt: 0,
+  timerId: null,
+  phase: 0,
+  active: false,
+  lastPercent: null,
+  lastLivePercent: null
+};
+
+function setDemoCopy(text) {
+  setText('meter-demo-copy', text);
 }
 
 function showView(view) {
@@ -181,18 +333,97 @@ function updateKnee(percentStraight) {
   var normalized = Math.max(0, Math.min(1, Number(percentStraight || 0) / 100));
   var angle = 78 + (0 - 78) * normalized;
   var radians = angle * Math.PI / 180;
-  var ankleX = 140 + Math.sin(radians) * 100;
-  var ankleY = 174 + Math.cos(radians) * 100;
+  var strideLift = Math.sin(normalized * Math.PI) * 6.5;
+  var shinLength = 100 - strideLift;
+  var ankleX = 140 + Math.sin(radians) * shinLength;
+  var ankleY = 174 + Math.cos(radians) * shinLength;
   var lowerLeg = document.getElementById('lower-leg');
+  var lowerLegShadow = document.getElementById('lower-leg-shadow');
+  var lowerLegHighlight = document.getElementById('lower-leg-highlight');
+  var strideEcho = document.getElementById('stride-echo');
   var ankle = document.getElementById('ankle');
+  var ankleGlow = document.getElementById('ankle-glow');
+  var ankleRing = document.getElementById('ankle-ring');
+  var previousAnkleX = ankle ? Number(ankle.getAttribute('cx') || 0) : ankleX;
+  var previousAnkleY = ankle ? Number(ankle.getAttribute('cy') || 0) : ankleY;
+  var movedDistance = Math.sqrt(Math.pow(ankleX - previousAnkleX, 2) + Math.pow(ankleY - previousAnkleY, 2));
   if (lowerLeg) {
     lowerLeg.setAttribute('x2', ankleX.toFixed(1));
     lowerLeg.setAttribute('y2', ankleY.toFixed(1));
+  }
+  if (lowerLegShadow) {
+    lowerLegShadow.setAttribute('x2', ankleX.toFixed(1));
+    lowerLegShadow.setAttribute('y2', ankleY.toFixed(1));
+  }
+  if (lowerLegHighlight) {
+    lowerLegHighlight.setAttribute('x2', ankleX.toFixed(1));
+    lowerLegHighlight.setAttribute('y2', ankleY.toFixed(1));
+  }
+  if (strideEcho) {
+    strideEcho.setAttribute('x2', (ankleX - 10 + normalized * 20).toFixed(1));
+    strideEcho.setAttribute('y2', (ankleY - 4).toFixed(1));
+    strideEcho.style.opacity = String(0.18 + normalized * 0.42);
   }
   if (ankle) {
     ankle.setAttribute('cx', ankleX.toFixed(1));
     ankle.setAttribute('cy', ankleY.toFixed(1));
   }
+  if (ankleGlow) {
+    ankleGlow.setAttribute('cx', ankleX.toFixed(1));
+    ankleGlow.setAttribute('cy', ankleY.toFixed(1));
+  }
+  if (ankleRing) {
+    ankleRing.setAttribute('cx', ankleX.toFixed(1));
+    ankleRing.setAttribute('cy', ankleY.toFixed(1));
+    ankleRing.setAttribute('r', (18 + normalized * 8).toFixed(1));
+    ankleRing.classList.remove('is-moving');
+    if (movedDistance > 1.2) {
+      void ankleRing.offsetWidth;
+      ankleRing.classList.add('is-moving');
+    }
+  }
+  var meter = document.getElementById('knee-meter');
+  if (meter) {
+    meter.style.transform = 'translate3d(' + ((normalized - 0.5) * 8).toFixed(1) + 'px, ' + (5 - normalized * 9).toFixed(1) + 'px, 0)';
+  }
+}
+
+function simulateGaitFrame() {
+  var secondsSinceMotion = (Date.now() - demoState.lastMotionAt) / 1000;
+  var primary;
+  var secondary;
+  var tertiary;
+  var percent;
+
+  if (secondsSinceMotion < 1.0) {
+    if (demoState.active) {
+      demoState.active = false;
+      demoState.lastPercent = null;
+      setDemoCopy('Live reading active');
+    }
+    return;
+  }
+
+  demoState.active = true;
+  demoState.phase += 0.22;
+  primary = (Math.sin(demoState.phase) * 0.5) + 0.5;
+  secondary = (Math.sin((demoState.phase * 2) - 0.8) * 0.5) + 0.5;
+  tertiary = (Math.sin((demoState.phase * 3) + 0.6) * 0.5) + 0.5;
+  percent = 14 + (Math.pow(primary, 0.86) * 50) + (secondary * 18) - (tertiary * 6);
+  percent = Math.max(10, Math.min(92, percent));
+  updateKnee(percent);
+  setText('percent-straight', percent.toFixed(1) + '%');
+  if (demoState.lastPercent === null || Math.abs(demoState.lastPercent - percent) > 0.4) {
+    setDemoCopy('Demo gait running while live reading is static');
+  }
+  demoState.lastPercent = percent;
+}
+
+function ensureDemoGaitLoop() {
+  if (demoState.timerId !== null) {
+    return;
+  }
+  demoState.timerId = window.setInterval(simulateGaitFrame, 90);
 }
 
 function scoreChip(score) {
@@ -306,7 +537,12 @@ function applyHistoryGoal(goal, app) {
 }
 
 function applyLivePayload(payload, app) {
+  var nextPercent = Number(payload.percentStraight || 0);
   console.log('[app] applyLivePayload reading=' + payload.reading + ' percent=' + payload.percentStraight);
+  if (demoState.lastLivePercent === null || Math.abs(demoState.lastLivePercent - nextPercent) > 0.35) {
+    demoState.lastMotionAt = Date.now();
+  }
+  demoState.lastLivePercent = nextPercent;
   if (app && typeof app.setValue === 'function') {
     app.setValue('goal', payload.goal || 0);
   }
@@ -320,12 +556,22 @@ function applyLivePayload(payload, app) {
   setText('live-shaky', Number(payload.shaky || 0).toFixed(1));
   setText('live-descent', Number(payload.uncontrolledDescent || 0).toFixed(1));
   setText('live-compensation', Number(payload.compensation || 0).toFixed(1));
-  updateKnee(payload.percentStraight || 0);
+  updateKnee(nextPercent);
   var syncPill = document.getElementById('sync-pill');
   if (syncPill) {
     syncPill.textContent = payload.timeSynced ? 'Phone time synced for daily tracking' : 'Phone time not synced yet';
     syncPill.classList.toggle('warn', !payload.timeSynced);
   }
+  var statusPill = document.getElementById('step-status');
+  if (statusPill) {
+    statusPill.textContent = payload.inStep ? 'Step in progress with live observable updates' : 'Waiting for a full movement cycle';
+    statusPill.classList.toggle('warn', !payload.inStep);
+  }
+  var signalCopy = document.getElementById('hero-signal-copy');
+  if (signalCopy) {
+    signalCopy.textContent = payload.inStep ? 'Live observable pulse detecting active movement' : 'Observable live telemetry active';
+  }
+  setDemoCopy('Live reading active');
 }
 
 function applyVariablesPayload(payload) {
@@ -379,6 +625,8 @@ function ngInitializeApp(app) {
   }
 
   app.setObservable('selectedView$', window.location.pathname === '/variables' ? 'variables' : 'live');
+  demoState.lastMotionAt = 0;
+  ensureDemoGaitLoop();
 }
 
 window.setText = setText;
@@ -405,15 +653,15 @@ window.ngInitializeApp = ngInitializeApp;
 
   var ngApp = ngCreateApp();
   window.ngApp = ngApp;
-  ngApp.registerObservable({ name: 'selectedView$', alias: 'selectedView', kind: 'state', path: '', seed: 'live', intervalMs: 0, steps: [{ kind: 'tap', argument: 'showView' }] });
-  ngApp.registerObservable({ name: 'liveState$', alias: 'liveState', kind: 'poll', path: '/api/live', seed: null, intervalMs: 500, steps: [{ kind: 'tap', argument: 'applyLivePayload' }] });
-  ngApp.registerObservable({ name: 'historyRows$', alias: 'historyRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history' }, { kind: 'map', argument: 'formatHistoryRow' }, { kind: 'tap', argument: 'renderHistoryRows' }] });
-  ngApp.registerObservable({ name: 'dailyAverageRows$', alias: 'dailyAverageRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages' }, { kind: 'map', argument: 'formatDailyAverageRow' }, { kind: 'tap', argument: 'renderDailyAverageRows' }] });
-  ngApp.registerObservable({ name: 'historyGoal$', alias: 'historyGoal', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'goal' }, { kind: 'tap', argument: 'applyHistoryGoal' }] });
-  ngApp.registerObservable({ name: 'historyDiagnostics$', alias: 'historyDiagnostics', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history' }, { kind: 'reduce', argument: 'summarizeHistory' }, { kind: 'tap', argument: 'renderHistoryDiagnostics' }] });
-  ngApp.registerObservable({ name: 'dailyDiagnostics$', alias: 'dailyDiagnostics', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages' }, { kind: 'reduce', argument: 'summarizeDailyAverages' }, { kind: 'tap', argument: 'renderDailyDiagnostics' }] });
-  ngApp.registerObservable({ name: 'variablesState$', alias: 'variablesState', kind: 'poll', path: '/api/variables', seed: null, intervalMs: 8000, steps: [{ kind: 'tap', argument: 'applyVariablesPayload' }] });
-  ngApp.registerObservable({ name: 'saveVariables$', alias: 'saveVariables', kind: 'post', path: '/api/variables', seed: null, intervalMs: 0, steps: [{ kind: 'tap', argument: 'applyVariablesSaveResponse' }] });
+  ngApp.registerObservable({ name: 'selectedView$', alias: 'selectedView', kind: 'state', path: '', seed: 'live', intervalMs: 0, steps: [{ kind: 'tap', argument: 'showView', args: ['showView'] }, { kind: 'effect-class', argument: 'is-transitioning', args: ['#{{value}}-view', 'is-transitioning', '460'] }] });
+  ngApp.registerObservable({ name: 'liveState$', alias: 'liveState', kind: 'poll', path: '/api/live', seed: null, intervalMs: 500, steps: [{ kind: 'tap', argument: 'applyLivePayload', args: ['applyLivePayload'] }, { kind: 'effect-class-at', argument: '0', args: ['[data-telemetry-card]', '0', 'is-live', '1000', 'changed', 'reading'] }, { kind: 'effect-class-at', argument: '1', args: ['[data-telemetry-card]', '1', 'is-live', '1000', 'changed', 'percentStraight'] }, { kind: 'effect-class-at', argument: '2', args: ['[data-telemetry-card]', '2', 'is-live', '1000', 'changed', 'lastScore'] }, { kind: 'effect-class-at', argument: '3', args: ['[data-telemetry-card]', '3', 'is-live', '1000', 'changed', 'stepCount'] }, { kind: 'effect-class', argument: 'is-energized', args: ['.meter-card', 'is-energized', '360', 'changed', 'percentStraight'] }, { kind: 'effect-style-var', argument: '--surface-shift', args: [':root', '--surface-shift', 'ternary-bool', 'inStep', '-2px', '0px'] }] });
+  ngApp.registerObservable({ name: 'historyRows$', alias: 'historyRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history', args: ['history'] }, { kind: 'map', argument: 'formatHistoryRow', args: ['formatHistoryRow'] }, { kind: 'tap', argument: 'renderHistoryRows', args: ['renderHistoryRows'] }, { kind: 'effect-stagger-class', argument: 'table-row-enter', args: ['#history-body tr', 'table-row-enter', '420', '16'] }] });
+  ngApp.registerObservable({ name: 'dailyAverageRows$', alias: 'dailyAverageRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages', args: ['dailyAverages'] }, { kind: 'map', argument: 'formatDailyAverageRow', args: ['formatDailyAverageRow'] }, { kind: 'tap', argument: 'renderDailyAverageRows', args: ['renderDailyAverageRows'] }, { kind: 'effect-stagger-class', argument: 'table-row-enter', args: ['#daily-average-body tr', 'table-row-enter', '420', '24'] }] });
+  ngApp.registerObservable({ name: 'historyGoal$', alias: 'historyGoal', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'goal', args: ['goal'] }, { kind: 'tap', argument: 'applyHistoryGoal', args: ['applyHistoryGoal'] }] });
+  ngApp.registerObservable({ name: 'historyDiagnostics$', alias: 'historyDiagnostics', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history', args: ['history'] }, { kind: 'reduce', argument: 'summarizeHistory', args: ['summarizeHistory'] }, { kind: 'tap', argument: 'renderHistoryDiagnostics', args: ['renderHistoryDiagnostics'] }] });
+  ngApp.registerObservable({ name: 'dailyDiagnostics$', alias: 'dailyDiagnostics', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages', args: ['dailyAverages'] }, { kind: 'reduce', argument: 'summarizeDailyAverages', args: ['summarizeDailyAverages'] }, { kind: 'tap', argument: 'renderDailyDiagnostics', args: ['renderDailyDiagnostics'] }] });
+  ngApp.registerObservable({ name: 'variablesState$', alias: 'variablesState', kind: 'poll', path: '/api/variables', seed: null, intervalMs: 8000, steps: [{ kind: 'tap', argument: 'applyVariablesPayload', args: ['applyVariablesPayload'] }] });
+  ngApp.registerObservable({ name: 'saveVariables$', alias: 'saveVariables', kind: 'post', path: '/api/variables', seed: null, intervalMs: 0, steps: [{ kind: 'tap', argument: 'applyVariablesSaveResponse', args: ['applyVariablesSaveResponse'] }, { kind: 'effect-class', argument: 'warn', args: ['#variables-status', 'warn', '520'] }] });
   if (typeof window.ngInitializeApp === 'function') {
     window.ngInitializeApp(ngApp);
   }

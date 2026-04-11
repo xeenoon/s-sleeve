@@ -8,13 +8,20 @@
 </head>
 <body>
   <div class="shell">
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+    <div class="ambient ambient-c"></div>
     <section class="hero">
-      <div class="panel">
+      <div class="panel hero-panel">
         <p class="eyebrow">Rehab Tracker</p>
         <h1 class="headline"><span id="today-average">0.0</span>/100</h1>
         <p class="subline">Daily average step quality with a goal of <strong id="goal-inline">85</strong>.</p>
+        <div class="hero-ribbon">
+          <span class="signal-dot" id="hero-signal-dot"></span>
+          <span id="hero-signal-copy">Observable live telemetry active</span>
+        </div>
       </div>
-      <div class="panel">
+      <div class="panel control-panel">
         <div class="status-row">
           <div class="tabs" id="tabs">
             <button data-view="live" class="active" type="button">Live</button>
@@ -24,46 +31,60 @@
           <div id="sync-pill" class="status-pill">Phone time synced for daily tracking</div>
         </div>
         <div class="card-grid">
-          <div class="metric-card">
+          <div class="metric-card telemetry-card" data-telemetry-card>
             <div class="metric-label">Current Reading</div>
             <div class="metric-value" id="reading">0</div>
             <div class="metric-detail">Raw potentiometer value</div>
+            <div class="metric-trace"><span></span></div>
           </div>
-          <div class="metric-card">
+          <div class="metric-card telemetry-card" data-telemetry-card>
             <div class="metric-label">Straightness</div>
             <div class="metric-value" id="percent-straight">0%</div>
             <div class="metric-detail">Mapped knee position</div>
+            <div class="metric-trace"><span></span></div>
           </div>
-          <div class="metric-card">
+          <div class="metric-card telemetry-card" data-telemetry-card>
             <div class="metric-label">Step Score</div>
             <div class="metric-value" id="last-score">0.0</div>
             <div class="metric-detail">Most recent completed step</div>
+            <div class="metric-trace"><span></span></div>
           </div>
-          <div class="metric-card">
+          <div class="metric-card telemetry-card" data-telemetry-card>
             <div class="metric-label">Steps Logged</div>
             <div class="metric-value" id="step-count">0</div>
             <div class="metric-detail">Stored in device history</div>
+            <div class="metric-trace"><span></span></div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="live-view">
+    <section id="live-view" class="view-surface">
       <div class="live-layout">
         <div class="panel meter-card">
           <p class="eyebrow">Knee Position</p>
-          <svg viewBox="0 0 280 320" aria-label="Knee joint animation">
+          <svg viewBox="0 0 280 320" aria-label="Knee joint animation" id="knee-meter">
             <line class="guide" x1="140" y1="64" x2="140" y2="174"></line>
+            <line class="limb limb-shadow" x1="140" y1="64" x2="140" y2="174"></line>
+            <line class="limb limb-shadow" id="lower-leg-shadow" x1="140" y1="174" x2="140.0" y2="274.0"></line>
             <line class="limb" x1="140" y1="64" x2="140" y2="174"></line>
             <line class="limb" id="lower-leg" x1="140" y1="174" x2="140.0" y2="274.0"></line>
-            <circle class="joint" cx="140" cy="64" r="14"></circle>
-            <circle class="joint" cx="140" cy="174" r="16"></circle>
-            <circle class="joint" id="ankle" cx="140.0" cy="274.0" r="14"></circle>
+            <line class="limb-highlight" x1="140" y1="64" x2="140" y2="174"></line>
+            <line class="limb-highlight" id="lower-leg-highlight" x1="140" y1="174" x2="140.0" y2="274.0"></line>
+            <line class="stride-echo" id="stride-echo" x1="140" y1="174" x2="140.0" y2="274.0"></line>
+            <circle class="joint joint-glow" cx="140" cy="64" r="18"></circle>
+            <circle class="joint joint-glow" cx="140" cy="174" r="20"></circle>
+            <circle class="joint joint-core" cx="140" cy="64" r="14"></circle>
+            <circle class="joint joint-core" cx="140" cy="174" r="16"></circle>
+            <circle class="joint joint-glow" id="ankle-glow" cx="140.0" cy="274.0" r="18"></circle>
+            <circle class="joint joint-core" id="ankle" cx="140.0" cy="274.0" r="14"></circle>
+            <circle class="pulse-ring" id="ankle-ring" cx="140.0" cy="274.0" r="22"></circle>
           </svg>
           <div class="joint-labels">
             <span>Bent</span>
             <span>Straight</span>
           </div>
+          <div class="meter-demo-copy" id="meter-demo-copy">Waiting for live knee movement</div>
         </div>
         <div class="panel">
           <div class="status-row">
@@ -78,17 +99,17 @@
             </div>
           </div>
           <div class="quality-grid">
-            <div class="quality-card">
+            <div class="quality-card" data-quality-card>
               <div class="metric-label">Shaky Movement</div>
               <strong id="live-shaky">0.0</strong>
               <span>From reversals and extra path during a step</span>
             </div>
-            <div class="quality-card">
+            <div class="quality-card" data-quality-card>
               <div class="metric-label">Uncontrolled Descent</div>
               <strong id="live-descent">0.0</strong>
               <span>Penalizes overly fast or spiky lowering</span>
             </div>
-            <div class="quality-card">
+            <div class="quality-card" data-quality-card>
               <div class="metric-label">Compensation</div>
               <strong id="live-compensation">0.0</strong>
               <span>Flags phase imbalance and incomplete return</span>
@@ -98,37 +119,37 @@
       </div>
     </section>
 
-    <section id="history-view" class="hidden">
+    <section id="history-view" class="hidden view-surface">
       <div class="history-layout">
         <div class="panel diagnostics-panel">
           <p class="eyebrow">History Diagnostics</p>
           <div class="diagnostics-grid">
-            <div class="diagnostic-card">
+            <div class="diagnostic-card" data-diagnostic-card>
               <div class="metric-label">Best Step</div>
               <strong id="best-step-score">0.0</strong>
               <span id="best-step-detail">No steps yet</span>
             </div>
-            <div class="diagnostic-card">
+            <div class="diagnostic-card" data-diagnostic-card>
               <div class="metric-label">Worst Step</div>
               <strong id="worst-step-score">0.0</strong>
               <span id="worst-step-detail">No steps yet</span>
             </div>
-            <div class="diagnostic-card">
+            <div class="diagnostic-card" data-diagnostic-card>
               <div class="metric-label">Best Day</div>
               <strong id="best-day-score">0.0</strong>
               <span id="best-day-detail">No days yet</span>
             </div>
-            <div class="diagnostic-card">
+            <div class="diagnostic-card" data-diagnostic-card>
               <div class="metric-label">Worst Day</div>
               <strong id="worst-day-score">0.0</strong>
               <span id="worst-day-detail">No days yet</span>
             </div>
-            <div class="diagnostic-card">
+            <div class="diagnostic-card" data-diagnostic-card>
               <div class="metric-label">Average Step Score</div>
               <strong id="average-step-score">0.0</strong>
               <span id="average-step-detail">Across all logged steps</span>
             </div>
-            <div class="diagnostic-card">
+            <div class="diagnostic-card" data-diagnostic-card>
               <div class="metric-label">Average Step Duration</div>
               <strong id="average-step-duration">0 ms</strong>
               <span id="average-step-duration-detail">Across all logged steps</span>
@@ -148,7 +169,7 @@
             </table>
           </div>
         </div>
-        <div class="table-panel">
+        <div class="table-panel table-panel-history">
           <p class="eyebrow">Step History</p>
           <div class="table-wrap">
             <table>
@@ -167,27 +188,27 @@
       </div>
     </section>
 
-    <section id="variables-view" class="hidden">
+    <section id="variables-view" class="hidden view-surface">
       <div class="panel">
         <p class="eyebrow">Calibration Variables</p>
         <div class="hint">Open this directly at <strong>/variables</strong>. Saving applies immediately to live tracking.</div>
         <div id="variables-status" class="status-pill warn" style="margin-top:14px;">Variables not loaded yet</div>
         <div class="variables-grid">
           <div>
-            <div class="field"><label for="minReading">Min Reading</label><input id="minReading" name="minReading" type="number"></div>
-            <div class="field"><label for="maxReading">Max Reading</label><input id="maxReading" name="maxReading" type="number"></div>
-            <div class="field"><label for="bentAngle">Bent Angle</label><input id="bentAngle" name="bentAngle" type="number" step="0.1"></div>
-            <div class="field"><label for="straightAngle">Straight Angle</label><input id="straightAngle" name="straightAngle" type="number" step="0.1"></div>
-            <div class="field"><label for="sampleIntervalMs">Sample Interval Ms</label><input id="sampleIntervalMs" name="sampleIntervalMs" type="number"></div>
-            <div class="field"><label for="filterAlpha">Filter Alpha</label><input id="filterAlpha" name="filterAlpha" type="number" step="0.001"></div>
+            <div class="field" data-variable-field><label for="minReading">Min Reading</label><input id="minReading" name="minReading" type="number"></div>
+            <div class="field" data-variable-field><label for="maxReading">Max Reading</label><input id="maxReading" name="maxReading" type="number"></div>
+            <div class="field" data-variable-field><label for="bentAngle">Bent Angle</label><input id="bentAngle" name="bentAngle" type="number" step="0.1"></div>
+            <div class="field" data-variable-field><label for="straightAngle">Straight Angle</label><input id="straightAngle" name="straightAngle" type="number" step="0.1"></div>
+            <div class="field" data-variable-field><label for="sampleIntervalMs">Sample Interval Ms</label><input id="sampleIntervalMs" name="sampleIntervalMs" type="number"></div>
+            <div class="field" data-variable-field><label for="filterAlpha">Filter Alpha</label><input id="filterAlpha" name="filterAlpha" type="number" step="0.001"></div>
           </div>
           <div>
-            <div class="field"><label for="motionThreshold">Motion Threshold</label><input id="motionThreshold" name="motionThreshold" type="number" step="0.001"></div>
-            <div class="field"><label for="stepRangeThreshold">Step Range Threshold</label><input id="stepRangeThreshold" name="stepRangeThreshold" type="number" step="0.001"></div>
-            <div class="field"><label for="startReadyThreshold">Start Ready Threshold</label><input id="startReadyThreshold" name="startReadyThreshold" type="number" step="0.001"></div>
-            <div class="field"><label for="returnMargin">Return Margin</label><input id="returnMargin" name="returnMargin" type="number" step="0.001"></div>
-            <div class="field"><label for="maxStepDurationMs">Max Step Duration Ms</label><input id="maxStepDurationMs" name="maxStepDurationMs" type="number"></div>
-            <div class="field"><label for="sampleHistoryEnabled">Sample History</label><input id="sampleHistoryEnabled" name="sampleHistoryEnabled" type="text"></div>
+            <div class="field" data-variable-field><label for="motionThreshold">Motion Threshold</label><input id="motionThreshold" name="motionThreshold" type="number" step="0.001"></div>
+            <div class="field" data-variable-field><label for="stepRangeThreshold">Step Range Threshold</label><input id="stepRangeThreshold" name="stepRangeThreshold" type="number" step="0.001"></div>
+            <div class="field" data-variable-field><label for="startReadyThreshold">Start Ready Threshold</label><input id="startReadyThreshold" name="startReadyThreshold" type="number" step="0.001"></div>
+            <div class="field" data-variable-field><label for="returnMargin">Return Margin</label><input id="returnMargin" name="returnMargin" type="number" step="0.001"></div>
+            <div class="field" data-variable-field><label for="maxStepDurationMs">Max Step Duration Ms</label><input id="maxStepDurationMs" name="maxStepDurationMs" type="number"></div>
+            <div class="field" data-variable-field><label for="sampleHistoryEnabled">Sample History</label><input id="sampleHistoryEnabled" name="sampleHistoryEnabled" type="text"></div>
           </div>
         </div>
         <div class="actions">

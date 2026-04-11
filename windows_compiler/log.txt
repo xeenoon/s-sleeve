@@ -1,6 +1,6 @@
 [TRACE src/cli.c:219] cli_run argc=2
 [TRACE src/cli.c:233] cli_run input_dir=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app output_dir=angular_test runtime_header_path=angular_runtime.h
-[TRACE src/generator.c:2477] generator_prepare_output_directory output_dir=angular_test
+[TRACE src/generator.c:2233] generator_prepare_output_directory output_dir=angular_test
 [TRACE src/output_fs.c:191] output_fs_prepare_clean_directory start path=angular_test
 [TRACE src/output_fs.c:92] output_fs_remove_tree_internal enter path=angular_test
 [TRACE src/output_fs.c:128] output_fs_remove_tree_internal delete file=angular_test\angular_ankleX.c
@@ -73,6 +73,9 @@
 [TRACE src/output_fs.c:121] output_fs_remove_tree_internal recurse dir=angular_test\bin
 [TRACE src/output_fs.c:92] output_fs_remove_tree_internal enter path=angular_test\bin
 [TRACE src/output_fs.c:128] output_fs_remove_tree_internal delete file=angular_test\bin\generated_demo.exe
+[TRACE src/output_fs.c:132] output_fs_remove_tree_internal delete failed path=angular_test\bin\generated_demo.exe error=5
+[TRACE src/output_fs.c:60] output_fs_kill_process_holding_file terminating pid=3040 path=c:\users\ccw10\documents\s-sleeve\windows_compiler\angular_test\bin\generated_demo.exe
+[TRACE src/output_fs.c:141] output_fs_remove_tree_internal delete recovered path=angular_test\bin\generated_demo.exe attempt=1
 [TRACE src/output_fs.c:186] output_fs_remove_tree_internal removed path=angular_test\bin
 [TRACE src/output_fs.c:121] output_fs_remove_tree_internal recurse dir=angular_test\helpers
 [TRACE src/output_fs.c:92] output_fs_remove_tree_internal enter path=angular_test\helpers
@@ -150,8 +153,8 @@
 [TRACE src/output_fs.c:186] output_fs_remove_tree_internal removed path=angular_test\helpers
 [TRACE src/output_fs.c:128] output_fs_remove_tree_internal delete file=angular_test\index.html
 [TRACE src/output_fs.c:128] output_fs_remove_tree_internal delete file=angular_test\Makefile
-[TRACE src/output_fs.c:128] output_fs_remove_tree_internal delete file=angular_test\server_stderr.log
-[TRACE src/output_fs.c:128] output_fs_remove_tree_internal delete file=angular_test\server_stdout.log
+[TRACE src/output_fs.c:128] output_fs_remove_tree_internal delete file=angular_test\server_stderr_rerun.log
+[TRACE src/output_fs.c:128] output_fs_remove_tree_internal delete file=angular_test\server_stdout_rerun.log
 [TRACE src/output_fs.c:128] output_fs_remove_tree_internal delete file=angular_test\styles.css
 [TRACE src/output_fs.c:186] output_fs_remove_tree_internal removed path=angular_test
 [TRACE src/output_fs.c:207] output_fs_prepare_clean_directory ready path=angular_test
@@ -10298,516 +10301,516 @@ VALIDATION OK
 [TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app\routes
 [TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app
 [TRACE src/cli.c:146] cli_generate_outputs output_dir=angular_test component_class=AppComponent html_bytes=11983 css_bytes=13277
-[TRACE src/generator.c:2484] generator_copy_runtime_header runtime_header_path=angular_runtime.h output_dir=angular_test
+[TRACE src/generator.c:2240] generator_copy_runtime_header runtime_header_path=angular_runtime.h output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_runtime.h path=angular_test\angular_runtime.h
 [TRACE src/output_fs.c:227] output_fs_copy_file source=angular_runtime.h destination=angular_test\angular_runtime.h
 [TRACE src/output_fs.c:236] output_fs_copy_file success destination=angular_test\angular_runtime.h
-[TRACE src/generator.c:2494] generator_generate_component_headers class=AppComponent member_count=31 output_dir=angular_test
-[TRACE src/generator.c:2500] generator_generate_component_headers index=0 member=selectedView$
-[TRACE src/generator.c:2406] generator_emit_member_header member=selectedView$ kind=field output_dir=angular_test
+[TRACE src/generator.c:2250] generator_generate_component_headers class=AppComponent member_count=31 output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=0 member=selectedView$
+[TRACE src/generator.c:2162] generator_emit_member_header member=selectedView$ kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_selectedView_.h path=angular_test\angular_selectedView_.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_SELECTEDVIEW__H path=angular_test\angular_selectedView_.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1111 member=selectedView$
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_SELECTEDVIEW__H path=angular_test\angular_selectedView_.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1111 member=selectedView$
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_selectedView_.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1111 path=angular_test\angular_selectedView_.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_selectedView_.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=1 member=liveState$
-[TRACE src/generator.c:2406] generator_emit_member_header member=liveState$ kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=1 member=liveState$
+[TRACE src/generator.c:2162] generator_emit_member_header member=liveState$ kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_liveState_.h path=angular_test\angular_liveState_.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_LIVESTATE__H path=angular_test\angular_liveState_.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1075 member=liveState$
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_LIVESTATE__H path=angular_test\angular_liveState_.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1075 member=liveState$
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_liveState_.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1075 path=angular_test\angular_liveState_.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_liveState_.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=2 member=historyRows$
-[TRACE src/generator.c:2406] generator_emit_member_header member=historyRows$ kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=2 member=historyRows$
+[TRACE src/generator.c:2162] generator_emit_member_header member=historyRows$ kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_historyRows_.h path=angular_test\angular_historyRows_.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_HISTORYROWS__H path=angular_test\angular_historyRows_.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1099 member=historyRows$
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_HISTORYROWS__H path=angular_test\angular_historyRows_.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1099 member=historyRows$
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_historyRows_.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1099 path=angular_test\angular_historyRows_.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_historyRows_.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=3 member=dailyAverageRows$
-[TRACE src/generator.c:2406] generator_emit_member_header member=dailyAverageRows$ kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=3 member=dailyAverageRows$
+[TRACE src/generator.c:2162] generator_emit_member_header member=dailyAverageRows$ kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_dailyAverageRows_.h path=angular_test\angular_dailyAverageRows_.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_DAILYAVERAGEROWS__H path=angular_test\angular_dailyAverageRows_.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1159 member=dailyAverageRows$
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_DAILYAVERAGEROWS__H path=angular_test\angular_dailyAverageRows_.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1159 member=dailyAverageRows$
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_dailyAverageRows_.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1159 path=angular_test\angular_dailyAverageRows_.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_dailyAverageRows_.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=4 member=historyGoal$
-[TRACE src/generator.c:2406] generator_emit_member_header member=historyGoal$ kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=4 member=historyGoal$
+[TRACE src/generator.c:2162] generator_emit_member_header member=historyGoal$ kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_historyGoal_.h path=angular_test\angular_historyGoal_.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_HISTORYGOAL__H path=angular_test\angular_historyGoal_.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1099 member=historyGoal$
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_HISTORYGOAL__H path=angular_test\angular_historyGoal_.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1099 member=historyGoal$
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_historyGoal_.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1099 path=angular_test\angular_historyGoal_.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_historyGoal_.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=5 member=historyDiagnostics$
-[TRACE src/generator.c:2406] generator_emit_member_header member=historyDiagnostics$ kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=5 member=historyDiagnostics$
+[TRACE src/generator.c:2162] generator_emit_member_header member=historyDiagnostics$ kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_historyDiagnostics_.h path=angular_test\angular_historyDiagnostics_.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_HISTORYDIAGNOSTICS__H path=angular_test\angular_historyDiagnostics_.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1183 member=historyDiagnostics$
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_HISTORYDIAGNOSTICS__H path=angular_test\angular_historyDiagnostics_.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1183 member=historyDiagnostics$
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_historyDiagnostics_.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1183 path=angular_test\angular_historyDiagnostics_.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_historyDiagnostics_.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=6 member=dailyDiagnostics$
-[TRACE src/generator.c:2406] generator_emit_member_header member=dailyDiagnostics$ kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=6 member=dailyDiagnostics$
+[TRACE src/generator.c:2162] generator_emit_member_header member=dailyDiagnostics$ kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_dailyDiagnostics_.h path=angular_test\angular_dailyDiagnostics_.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_DAILYDIAGNOSTICS__H path=angular_test\angular_dailyDiagnostics_.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1159 member=dailyDiagnostics$
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_DAILYDIAGNOSTICS__H path=angular_test\angular_dailyDiagnostics_.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1159 member=dailyDiagnostics$
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_dailyDiagnostics_.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1159 path=angular_test\angular_dailyDiagnostics_.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_dailyDiagnostics_.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=7 member=variablesState$
-[TRACE src/generator.c:2406] generator_emit_member_header member=variablesState$ kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=7 member=variablesState$
+[TRACE src/generator.c:2162] generator_emit_member_header member=variablesState$ kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_variablesState_.h path=angular_test\angular_variablesState_.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_VARIABLESSTATE__H path=angular_test\angular_variablesState_.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1135 member=variablesState$
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_VARIABLESSTATE__H path=angular_test\angular_variablesState_.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1135 member=variablesState$
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_variablesState_.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1135 path=angular_test\angular_variablesState_.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_variablesState_.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=8 member=saveVariables$
-[TRACE src/generator.c:2406] generator_emit_member_header member=saveVariables$ kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=8 member=saveVariables$
+[TRACE src/generator.c:2162] generator_emit_member_header member=saveVariables$ kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_saveVariables_.h path=angular_test\angular_saveVariables_.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_SAVEVARIABLES__H path=angular_test\angular_saveVariables_.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1123 member=saveVariables$
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_SAVEVARIABLES__H path=angular_test\angular_saveVariables_.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1123 member=saveVariables$
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_saveVariables_.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1123 path=angular_test\angular_saveVariables_.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_saveVariables_.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=9 member=selectedView
-[TRACE src/generator.c:2406] generator_emit_member_header member=selectedView kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=9 member=selectedView
+[TRACE src/generator.c:2162] generator_emit_member_header member=selectedView kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_selectedView.h path=angular_test\angular_selectedView.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_SELECTEDVIEW_H path=angular_test\angular_selectedView.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1097 member=selectedView
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_SELECTEDVIEW_H path=angular_test\angular_selectedView.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1097 member=selectedView
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_selectedView.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1097 path=angular_test\angular_selectedView.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_selectedView.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=10 member=goal
-[TRACE src/generator.c:2406] generator_emit_member_header member=goal kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=10 member=goal
+[TRACE src/generator.c:2162] generator_emit_member_header member=goal kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_goal.h path=angular_test\angular_goal.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_GOAL_H path=angular_test\angular_goal.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1001 member=goal
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_GOAL_H path=angular_test\angular_goal.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1001 member=goal
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_goal.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1001 path=angular_test\angular_goal.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_goal.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=11 member=reading
-[TRACE src/generator.c:2406] generator_emit_member_header member=reading kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=11 member=reading
+[TRACE src/generator.c:2162] generator_emit_member_header member=reading kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_reading.h path=angular_test\angular_reading.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_READING_H path=angular_test\angular_reading.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1037 member=reading
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_READING_H path=angular_test\angular_reading.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1037 member=reading
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_reading.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1037 path=angular_test\angular_reading.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_reading.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=12 member=percentStraight
-[TRACE src/generator.c:2406] generator_emit_member_header member=percentStraight kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=12 member=percentStraight
+[TRACE src/generator.c:2162] generator_emit_member_header member=percentStraight kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_percentStraight.h path=angular_test\angular_percentStraight.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_PERCENTSTRAIGHT_H path=angular_test\angular_percentStraight.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1133 member=percentStraight
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_PERCENTSTRAIGHT_H path=angular_test\angular_percentStraight.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1133 member=percentStraight
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_percentStraight.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1133 path=angular_test\angular_percentStraight.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_percentStraight.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=13 member=speed
-[TRACE src/generator.c:2406] generator_emit_member_header member=speed kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=13 member=speed
+[TRACE src/generator.c:2162] generator_emit_member_header member=speed kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_speed.h path=angular_test\angular_speed.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_SPEED_H path=angular_test\angular_speed.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1013 member=speed
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_SPEED_H path=angular_test\angular_speed.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1013 member=speed
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_speed.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1013 path=angular_test\angular_speed.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_speed.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=14 member=lastScore
-[TRACE src/generator.c:2406] generator_emit_member_header member=lastScore kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=14 member=lastScore
+[TRACE src/generator.c:2162] generator_emit_member_header member=lastScore kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_lastScore.h path=angular_test\angular_lastScore.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_LASTSCORE_H path=angular_test\angular_lastScore.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1061 member=lastScore
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_LASTSCORE_H path=angular_test\angular_lastScore.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1061 member=lastScore
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_lastScore.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1061 path=angular_test\angular_lastScore.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_lastScore.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=15 member=stepCount
-[TRACE src/generator.c:2406] generator_emit_member_header member=stepCount kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=15 member=stepCount
+[TRACE src/generator.c:2162] generator_emit_member_header member=stepCount kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_stepCount.h path=angular_test\angular_stepCount.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_STEPCOUNT_H path=angular_test\angular_stepCount.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1061 member=stepCount
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_STEPCOUNT_H path=angular_test\angular_stepCount.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1061 member=stepCount
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_stepCount.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1061 path=angular_test\angular_stepCount.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_stepCount.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=16 member=todayAverage
-[TRACE src/generator.c:2406] generator_emit_member_header member=todayAverage kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=16 member=todayAverage
+[TRACE src/generator.c:2162] generator_emit_member_header member=todayAverage kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_todayAverage.h path=angular_test\angular_todayAverage.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_TODAYAVERAGE_H path=angular_test\angular_todayAverage.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1097 member=todayAverage
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_TODAYAVERAGE_H path=angular_test\angular_todayAverage.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1097 member=todayAverage
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_todayAverage.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1097 path=angular_test\angular_todayAverage.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_todayAverage.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=17 member=timeSynced
-[TRACE src/generator.c:2406] generator_emit_member_header member=timeSynced kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=17 member=timeSynced
+[TRACE src/generator.c:2162] generator_emit_member_header member=timeSynced kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_timeSynced.h path=angular_test\angular_timeSynced.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_TIMESYNCED_H path=angular_test\angular_timeSynced.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1073 member=timeSynced
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_TIMESYNCED_H path=angular_test\angular_timeSynced.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1073 member=timeSynced
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_timeSynced.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1073 path=angular_test\angular_timeSynced.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_timeSynced.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=18 member=inStep
-[TRACE src/generator.c:2406] generator_emit_member_header member=inStep kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=18 member=inStep
+[TRACE src/generator.c:2162] generator_emit_member_header member=inStep kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_inStep.h path=angular_test\angular_inStep.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_INSTEP_H path=angular_test\angular_inStep.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1025 member=inStep
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_INSTEP_H path=angular_test\angular_inStep.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1025 member=inStep
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_inStep.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1025 path=angular_test\angular_inStep.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_inStep.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=19 member=shaky
-[TRACE src/generator.c:2406] generator_emit_member_header member=shaky kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=19 member=shaky
+[TRACE src/generator.c:2162] generator_emit_member_header member=shaky kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_shaky.h path=angular_test\angular_shaky.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_SHAKY_H path=angular_test\angular_shaky.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1013 member=shaky
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_SHAKY_H path=angular_test\angular_shaky.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1013 member=shaky
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_shaky.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1013 path=angular_test\angular_shaky.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_shaky.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=20 member=uncontrolledDescent
-[TRACE src/generator.c:2406] generator_emit_member_header member=uncontrolledDescent kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=20 member=uncontrolledDescent
+[TRACE src/generator.c:2162] generator_emit_member_header member=uncontrolledDescent kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_uncontrolledDescent.h path=angular_test\angular_uncontrolledDescent.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_UNCONTROLLEDDESCENT_H path=angular_test\angular_uncontrolledDescent.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1181 member=uncontrolledDescent
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_UNCONTROLLEDDESCENT_H path=angular_test\angular_uncontrolledDescent.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1181 member=uncontrolledDescent
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_uncontrolledDescent.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1181 path=angular_test\angular_uncontrolledDescent.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_uncontrolledDescent.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=21 member=compensation
-[TRACE src/generator.c:2406] generator_emit_member_header member=compensation kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=21 member=compensation
+[TRACE src/generator.c:2162] generator_emit_member_header member=compensation kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_compensation.h path=angular_test\angular_compensation.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_COMPENSATION_H path=angular_test\angular_compensation.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1097 member=compensation
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_COMPENSATION_H path=angular_test\angular_compensation.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1097 member=compensation
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_compensation.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1097 path=angular_test\angular_compensation.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_compensation.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=22 member=lowerLegX2
-[TRACE src/generator.c:2406] generator_emit_member_header member=lowerLegX2 kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=22 member=lowerLegX2
+[TRACE src/generator.c:2162] generator_emit_member_header member=lowerLegX2 kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_lowerLegX2.h path=angular_test\angular_lowerLegX2.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_LOWERLEGX2_H path=angular_test\angular_lowerLegX2.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1073 member=lowerLegX2
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_LOWERLEGX2_H path=angular_test\angular_lowerLegX2.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1073 member=lowerLegX2
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_lowerLegX2.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1073 path=angular_test\angular_lowerLegX2.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_lowerLegX2.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=23 member=lowerLegY2
-[TRACE src/generator.c:2406] generator_emit_member_header member=lowerLegY2 kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=23 member=lowerLegY2
+[TRACE src/generator.c:2162] generator_emit_member_header member=lowerLegY2 kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_lowerLegY2.h path=angular_test\angular_lowerLegY2.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_LOWERLEGY2_H path=angular_test\angular_lowerLegY2.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1073 member=lowerLegY2
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_LOWERLEGY2_H path=angular_test\angular_lowerLegY2.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1073 member=lowerLegY2
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_lowerLegY2.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1073 path=angular_test\angular_lowerLegY2.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_lowerLegY2.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=24 member=ankleX
-[TRACE src/generator.c:2406] generator_emit_member_header member=ankleX kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=24 member=ankleX
+[TRACE src/generator.c:2162] generator_emit_member_header member=ankleX kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_ankleX.h path=angular_test\angular_ankleX.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_ANKLEX_H path=angular_test\angular_ankleX.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1025 member=ankleX
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_ANKLEX_H path=angular_test\angular_ankleX.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1025 member=ankleX
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_ankleX.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1025 path=angular_test\angular_ankleX.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_ankleX.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=25 member=ankleY
-[TRACE src/generator.c:2406] generator_emit_member_header member=ankleY kind=field output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=25 member=ankleY
+[TRACE src/generator.c:2162] generator_emit_member_header member=ankleY kind=field output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_ankleY.h path=angular_test\angular_ankleY.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_ANKLEY_H path=angular_test\angular_ankleY.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1025 member=ankleY
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_ANKLEY_H path=angular_test\angular_ankleY.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1025 member=ankleY
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_ankleY.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1025 path=angular_test\angular_ankleY.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_ankleY.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=26 member=ngOnInit
-[TRACE src/generator.c:2406] generator_emit_member_header member=ngOnInit kind=method output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=26 member=ngOnInit
+[TRACE src/generator.c:2162] generator_emit_member_header member=ngOnInit kind=method output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_ngOnInit.h path=angular_test\angular_ngOnInit.h
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_NGONINIT_H path=angular_test\angular_ngOnInit.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1025 member=ngOnInit
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_NGONINIT_H path=angular_test\angular_ngOnInit.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1025 member=ngOnInit
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_ngOnInit.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1025 path=angular_test\angular_ngOnInit.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_ngOnInit.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=27 member=switchView
-[TRACE src/generator.c:2406] generator_emit_member_header member=switchView kind=method output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=27 member=switchView
+[TRACE src/generator.c:2162] generator_emit_member_header member=switchView kind=method output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_switchView.h path=angular_test\angular_switchView.h
 [TRACE src/js_codegen.c:776] js_codegen compiled member=switchView return_type=void params=1
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_SWITCHVIEW_H path=angular_test\angular_switchView.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1069 member=switchView
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_SWITCHVIEW_H path=angular_test\angular_switchView.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1069 member=switchView
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_switchView.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1069 path=angular_test\angular_switchView.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_switchView.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=28 member=clamp
-[TRACE src/generator.c:2406] generator_emit_member_header member=clamp kind=method output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=28 member=clamp
+[TRACE src/generator.c:2162] generator_emit_member_header member=clamp kind=method output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_clamp.h path=angular_test\angular_clamp.h
 [TRACE src/js_codegen.c:776] js_codegen compiled member=clamp return_type=double params=3
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_CLAMP_H path=angular_test\angular_clamp.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1036 member=clamp
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_CLAMP_H path=angular_test\angular_clamp.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1036 member=clamp
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_clamp.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1036 path=angular_test\angular_clamp.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_clamp.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=29 member=mapPercentToAngle
-[TRACE src/generator.c:2406] generator_emit_member_header member=mapPercentToAngle kind=method output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=29 member=mapPercentToAngle
+[TRACE src/generator.c:2162] generator_emit_member_header member=mapPercentToAngle kind=method output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_mapPercentToAngle.h path=angular_test\angular_mapPercentToAngle.h
 [TRACE src/js_codegen.c:776] js_codegen compiled member=mapPercentToAngle return_type=double params=1
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_MAPPERCENTTOANGLE_H path=angular_test\angular_mapPercentToAngle.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1166 member=mapPercentToAngle
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_MAPPERCENTTOANGLE_H path=angular_test\angular_mapPercentToAngle.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1166 member=mapPercentToAngle
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_mapPercentToAngle.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1166 path=angular_test\angular_mapPercentToAngle.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_mapPercentToAngle.h
-[TRACE src/generator.c:2500] generator_generate_component_headers index=30 member=updateKnee
-[TRACE src/generator.c:2406] generator_emit_member_header member=updateKnee kind=method output_dir=angular_test
+[TRACE src/generator.c:2256] generator_generate_component_headers index=30 member=updateKnee
+[TRACE src/generator.c:2162] generator_emit_member_header member=updateKnee kind=method output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_updateKnee.h path=angular_test\angular_updateKnee.h
 [TRACE src/js_codegen.c:776] js_codegen compiled member=updateKnee return_type=void params=1
-[TRACE src/generator.c:2420] generator_emit_member_header guard=ANGULAR_UPDATEKNEE_H path=angular_test\angular_updateKnee.h requires_external_fetch=0
-[TRACE src/generator.c:2472] generator_emit_member_header header_bytes=1080 member=updateKnee
+[TRACE src/generator.c:2176] generator_emit_member_header guard=ANGULAR_UPDATEKNEE_H path=angular_test\angular_updateKnee.h requires_external_fetch=0
+[TRACE src/generator.c:2228] generator_emit_member_header header_bytes=1080 member=updateKnee
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_updateKnee.h
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=1080 path=angular_test\angular_updateKnee.h
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\angular_updateKnee.h
-[TRACE src/generator.c:2515] generator_validate_component_headers class=AppComponent output_dir=angular_test
+[TRACE src/generator.c:2271] generator_validate_component_headers class=AppComponent output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_runtime.h path=angular_test\angular_runtime.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_runtime.h exists=1
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_selectedView_.h path=angular_test\angular_selectedView_.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_selectedView_.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_selectedView_.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_selectedView_.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_selectedView_.h
 [TRACE src/file_io.c:33] file_read_all size=1111 path=angular_test\angular_selectedView_.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1111 path=angular_test\angular_selectedView_.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_selectedView_.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_selectedView_.h
 [TRACE src/file_io.c:69] file_buffer_free size=1111
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_liveState_.h path=angular_test\angular_liveState_.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_liveState_.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_liveState_.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_liveState_.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_liveState_.h
 [TRACE src/file_io.c:33] file_read_all size=1075 path=angular_test\angular_liveState_.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1075 path=angular_test\angular_liveState_.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_liveState_.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_liveState_.h
 [TRACE src/file_io.c:69] file_buffer_free size=1075
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_historyRows_.h path=angular_test\angular_historyRows_.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_historyRows_.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_historyRows_.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_historyRows_.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_historyRows_.h
 [TRACE src/file_io.c:33] file_read_all size=1099 path=angular_test\angular_historyRows_.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1099 path=angular_test\angular_historyRows_.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_historyRows_.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_historyRows_.h
 [TRACE src/file_io.c:69] file_buffer_free size=1099
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_dailyAverageRows_.h path=angular_test\angular_dailyAverageRows_.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_dailyAverageRows_.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_dailyAverageRows_.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_dailyAverageRows_.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_dailyAverageRows_.h
 [TRACE src/file_io.c:33] file_read_all size=1159 path=angular_test\angular_dailyAverageRows_.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1159 path=angular_test\angular_dailyAverageRows_.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_dailyAverageRows_.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_dailyAverageRows_.h
 [TRACE src/file_io.c:69] file_buffer_free size=1159
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_historyGoal_.h path=angular_test\angular_historyGoal_.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_historyGoal_.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_historyGoal_.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_historyGoal_.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_historyGoal_.h
 [TRACE src/file_io.c:33] file_read_all size=1099 path=angular_test\angular_historyGoal_.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1099 path=angular_test\angular_historyGoal_.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_historyGoal_.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_historyGoal_.h
 [TRACE src/file_io.c:69] file_buffer_free size=1099
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_historyDiagnostics_.h path=angular_test\angular_historyDiagnostics_.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_historyDiagnostics_.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_historyDiagnostics_.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_historyDiagnostics_.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_historyDiagnostics_.h
 [TRACE src/file_io.c:33] file_read_all size=1183 path=angular_test\angular_historyDiagnostics_.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1183 path=angular_test\angular_historyDiagnostics_.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_historyDiagnostics_.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_historyDiagnostics_.h
 [TRACE src/file_io.c:69] file_buffer_free size=1183
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_dailyDiagnostics_.h path=angular_test\angular_dailyDiagnostics_.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_dailyDiagnostics_.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_dailyDiagnostics_.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_dailyDiagnostics_.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_dailyDiagnostics_.h
 [TRACE src/file_io.c:33] file_read_all size=1159 path=angular_test\angular_dailyDiagnostics_.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1159 path=angular_test\angular_dailyDiagnostics_.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_dailyDiagnostics_.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_dailyDiagnostics_.h
 [TRACE src/file_io.c:69] file_buffer_free size=1159
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_variablesState_.h path=angular_test\angular_variablesState_.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_variablesState_.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_variablesState_.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_variablesState_.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_variablesState_.h
 [TRACE src/file_io.c:33] file_read_all size=1135 path=angular_test\angular_variablesState_.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1135 path=angular_test\angular_variablesState_.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_variablesState_.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_variablesState_.h
 [TRACE src/file_io.c:69] file_buffer_free size=1135
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_saveVariables_.h path=angular_test\angular_saveVariables_.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_saveVariables_.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_saveVariables_.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_saveVariables_.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_saveVariables_.h
 [TRACE src/file_io.c:33] file_read_all size=1123 path=angular_test\angular_saveVariables_.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1123 path=angular_test\angular_saveVariables_.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_saveVariables_.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_saveVariables_.h
 [TRACE src/file_io.c:69] file_buffer_free size=1123
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_selectedView.h path=angular_test\angular_selectedView.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_selectedView.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_selectedView.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_selectedView.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_selectedView.h
 [TRACE src/file_io.c:33] file_read_all size=1097 path=angular_test\angular_selectedView.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1097 path=angular_test\angular_selectedView.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_selectedView.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_selectedView.h
 [TRACE src/file_io.c:69] file_buffer_free size=1097
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_goal.h path=angular_test\angular_goal.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_goal.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_goal.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_goal.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_goal.h
 [TRACE src/file_io.c:33] file_read_all size=1001 path=angular_test\angular_goal.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1001 path=angular_test\angular_goal.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_goal.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_goal.h
 [TRACE src/file_io.c:69] file_buffer_free size=1001
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_reading.h path=angular_test\angular_reading.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_reading.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_reading.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_reading.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_reading.h
 [TRACE src/file_io.c:33] file_read_all size=1037 path=angular_test\angular_reading.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1037 path=angular_test\angular_reading.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_reading.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_reading.h
 [TRACE src/file_io.c:69] file_buffer_free size=1037
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_percentStraight.h path=angular_test\angular_percentStraight.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_percentStraight.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_percentStraight.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_percentStraight.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_percentStraight.h
 [TRACE src/file_io.c:33] file_read_all size=1133 path=angular_test\angular_percentStraight.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1133 path=angular_test\angular_percentStraight.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_percentStraight.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_percentStraight.h
 [TRACE src/file_io.c:69] file_buffer_free size=1133
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_speed.h path=angular_test\angular_speed.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_speed.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_speed.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_speed.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_speed.h
 [TRACE src/file_io.c:33] file_read_all size=1013 path=angular_test\angular_speed.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1013 path=angular_test\angular_speed.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_speed.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_speed.h
 [TRACE src/file_io.c:69] file_buffer_free size=1013
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_lastScore.h path=angular_test\angular_lastScore.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_lastScore.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_lastScore.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_lastScore.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_lastScore.h
 [TRACE src/file_io.c:33] file_read_all size=1061 path=angular_test\angular_lastScore.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1061 path=angular_test\angular_lastScore.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_lastScore.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_lastScore.h
 [TRACE src/file_io.c:69] file_buffer_free size=1061
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_stepCount.h path=angular_test\angular_stepCount.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_stepCount.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_stepCount.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_stepCount.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_stepCount.h
 [TRACE src/file_io.c:33] file_read_all size=1061 path=angular_test\angular_stepCount.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1061 path=angular_test\angular_stepCount.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_stepCount.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_stepCount.h
 [TRACE src/file_io.c:69] file_buffer_free size=1061
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_todayAverage.h path=angular_test\angular_todayAverage.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_todayAverage.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_todayAverage.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_todayAverage.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_todayAverage.h
 [TRACE src/file_io.c:33] file_read_all size=1097 path=angular_test\angular_todayAverage.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1097 path=angular_test\angular_todayAverage.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_todayAverage.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_todayAverage.h
 [TRACE src/file_io.c:69] file_buffer_free size=1097
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_timeSynced.h path=angular_test\angular_timeSynced.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_timeSynced.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_timeSynced.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_timeSynced.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_timeSynced.h
 [TRACE src/file_io.c:33] file_read_all size=1073 path=angular_test\angular_timeSynced.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1073 path=angular_test\angular_timeSynced.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_timeSynced.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_timeSynced.h
 [TRACE src/file_io.c:69] file_buffer_free size=1073
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_inStep.h path=angular_test\angular_inStep.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_inStep.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_inStep.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_inStep.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_inStep.h
 [TRACE src/file_io.c:33] file_read_all size=1025 path=angular_test\angular_inStep.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1025 path=angular_test\angular_inStep.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_inStep.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_inStep.h
 [TRACE src/file_io.c:69] file_buffer_free size=1025
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_shaky.h path=angular_test\angular_shaky.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_shaky.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_shaky.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_shaky.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_shaky.h
 [TRACE src/file_io.c:33] file_read_all size=1013 path=angular_test\angular_shaky.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1013 path=angular_test\angular_shaky.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_shaky.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_shaky.h
 [TRACE src/file_io.c:69] file_buffer_free size=1013
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_uncontrolledDescent.h path=angular_test\angular_uncontrolledDescent.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_uncontrolledDescent.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_uncontrolledDescent.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_uncontrolledDescent.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_uncontrolledDescent.h
 [TRACE src/file_io.c:33] file_read_all size=1181 path=angular_test\angular_uncontrolledDescent.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1181 path=angular_test\angular_uncontrolledDescent.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_uncontrolledDescent.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_uncontrolledDescent.h
 [TRACE src/file_io.c:69] file_buffer_free size=1181
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_compensation.h path=angular_test\angular_compensation.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_compensation.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_compensation.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_compensation.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_compensation.h
 [TRACE src/file_io.c:33] file_read_all size=1097 path=angular_test\angular_compensation.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1097 path=angular_test\angular_compensation.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_compensation.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_compensation.h
 [TRACE src/file_io.c:69] file_buffer_free size=1097
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_lowerLegX2.h path=angular_test\angular_lowerLegX2.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_lowerLegX2.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_lowerLegX2.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_lowerLegX2.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_lowerLegX2.h
 [TRACE src/file_io.c:33] file_read_all size=1073 path=angular_test\angular_lowerLegX2.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1073 path=angular_test\angular_lowerLegX2.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_lowerLegX2.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_lowerLegX2.h
 [TRACE src/file_io.c:69] file_buffer_free size=1073
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_lowerLegY2.h path=angular_test\angular_lowerLegY2.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_lowerLegY2.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_lowerLegY2.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_lowerLegY2.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_lowerLegY2.h
 [TRACE src/file_io.c:33] file_read_all size=1073 path=angular_test\angular_lowerLegY2.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1073 path=angular_test\angular_lowerLegY2.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_lowerLegY2.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_lowerLegY2.h
 [TRACE src/file_io.c:69] file_buffer_free size=1073
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_ankleX.h path=angular_test\angular_ankleX.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_ankleX.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_ankleX.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_ankleX.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_ankleX.h
 [TRACE src/file_io.c:33] file_read_all size=1025 path=angular_test\angular_ankleX.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1025 path=angular_test\angular_ankleX.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_ankleX.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_ankleX.h
 [TRACE src/file_io.c:69] file_buffer_free size=1025
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_ankleY.h path=angular_test\angular_ankleY.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_ankleY.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_ankleY.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_ankleY.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_ankleY.h
 [TRACE src/file_io.c:33] file_read_all size=1025 path=angular_test\angular_ankleY.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1025 path=angular_test\angular_ankleY.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_ankleY.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_ankleY.h
 [TRACE src/file_io.c:69] file_buffer_free size=1025
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_ngOnInit.h path=angular_test\angular_ngOnInit.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_ngOnInit.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_ngOnInit.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_ngOnInit.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_ngOnInit.h
 [TRACE src/file_io.c:33] file_read_all size=1025 path=angular_test\angular_ngOnInit.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1025 path=angular_test\angular_ngOnInit.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_ngOnInit.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_ngOnInit.h
 [TRACE src/file_io.c:69] file_buffer_free size=1025
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_switchView.h path=angular_test\angular_switchView.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_switchView.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_switchView.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_switchView.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_switchView.h
 [TRACE src/file_io.c:33] file_read_all size=1069 path=angular_test\angular_switchView.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1069 path=angular_test\angular_switchView.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_switchView.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_switchView.h
 [TRACE src/file_io.c:69] file_buffer_free size=1069
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_clamp.h path=angular_test\angular_clamp.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_clamp.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_clamp.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_clamp.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_clamp.h
 [TRACE src/file_io.c:33] file_read_all size=1036 path=angular_test\angular_clamp.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1036 path=angular_test\angular_clamp.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_clamp.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_clamp.h
 [TRACE src/file_io.c:69] file_buffer_free size=1036
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_mapPercentToAngle.h path=angular_test\angular_mapPercentToAngle.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_mapPercentToAngle.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_mapPercentToAngle.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_mapPercentToAngle.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_mapPercentToAngle.h
 [TRACE src/file_io.c:33] file_read_all size=1166 path=angular_test\angular_mapPercentToAngle.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1166 path=angular_test\angular_mapPercentToAngle.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_mapPercentToAngle.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_mapPercentToAngle.h
 [TRACE src/file_io.c:69] file_buffer_free size=1166
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_updateKnee.h path=angular_test\angular_updateKnee.h
-[TRACE src/generator.c:2535] generator_validate_component_headers checking path=angular_test\angular_updateKnee.h
+[TRACE src/generator.c:2291] generator_validate_component_headers checking path=angular_test\angular_updateKnee.h
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\angular_updateKnee.h exists=1
 [TRACE src/file_io.c:13] file_read_all start path=angular_test\angular_updateKnee.h
 [TRACE src/file_io.c:33] file_read_all size=1080 path=angular_test\angular_updateKnee.h
 [TRACE src/file_io.c:60] file_read_all success bytes=1080 path=angular_test\angular_updateKnee.h
-[TRACE src/generator.c:2558] generator_validate_component_headers content_ok path=angular_test\angular_updateKnee.h
+[TRACE src/generator.c:2314] generator_validate_component_headers content_ok path=angular_test\angular_updateKnee.h
 [TRACE src/file_io.c:69] file_buffer_free size=1080
 GENERATION VALIDATION OK
-[TRACE src/generator.c:2569] generator_generate_component_sources class=AppComponent member_count=31 output_dir=angular_test
+[TRACE src/generator.c:2325] generator_generate_component_sources class=AppComponent member_count=31 output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=angular_selectedView_.c path=angular_test\angular_selectedView_.c
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\angular_selectedView_.c
 [TRACE src/output_fs.c:252] output_fs_write_text bytes=430 path=angular_test\angular_selectedView_.c
@@ -11327,7 +11330,7 @@ SOURCE GENERATION VALIDATION OK
 [TRACE src/generator.c:335] generator_parse_call_arguments prefix=rx.effectClass( count=3 text=rx.effectClass('#variables-status', 'warn', 520)
 [TRACE src/generator.c:507] generator pipe member=saveVariables$ index=1 kind=5 arg=warn argc=3
 [TRACE src/generator.c:597] generator observable member=saveVariables$ kind=3 path=/api/variables interval=0 seed= pipes=2
-[TRACE src/generator.c:2328] generator_emit_app_js source=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app\app.js destination=angular_test\app.js observable_count=9
+[TRACE src/generator.c:2084] generator_emit_app_js source=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app\app.js destination=angular_test\app.js observable_count=9
 [TRACE src/generator.c:142] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app filename=app.js path=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app\app.js
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app\app.js
 [TRACE src/file_io.c:33] file_read_all size=14522 path=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app\app.js
@@ -11412,13 +11415,18 @@ SOURCE GENERATION VALIDATION OK
 [TRACE src/generator.c:335] generator_parse_call_arguments prefix=rx.effectClass( count=3 text=rx.effectClass('#variables-status', 'warn', 520)
 [TRACE src/generator.c:507] generator pipe member=saveVariables$ index=1 kind=5 arg=warn argc=3
 [TRACE src/generator.c:597] generator observable member=saveVariables$ kind=3 path=/api/variables interval=0 seed= pipes=2
-[TRACE src/generator.c:1937] generator_emit_compiled_app_js spec_count=9 source=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app\app.js
+[TRACE src/generator.c:1958] generator_emit_compiled_app_js spec_count=9 source=C:\Users\ccw10\Documents\s-sleeve\windows_compiler\..\angular_app\app.js
+[TRACE src/generator.c:1924] generator_append_runtime_asset path=assets\ng_runtime.js
+[TRACE src/file_io.c:13] file_read_all start path=assets\ng_runtime.js
+[TRACE src/file_io.c:33] file_read_all size=9052 path=assets\ng_runtime.js
+[TRACE src/file_io.c:60] file_read_all success bytes=9052 path=assets\ng_runtime.js
+[TRACE src/file_io.c:69] file_buffer_free size=9052
 [TRACE src/file_io.c:69] file_buffer_free size=14522
-[TRACE src/generator.c:2315] generator_emit_compiled_app_js bytes=27717 specs=9
+[TRACE src/generator.c:2071] generator_emit_compiled_app_js bytes=27716 specs=9
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=app.js path=angular_test\app.js
-[TRACE src/generator.c:167] generator_write_text_asset filename=app.js bytes=27717
+[TRACE src/generator.c:167] generator_write_text_asset filename=app.js bytes=27716
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\app.js
-[TRACE src/output_fs.c:252] output_fs_write_text bytes=27717 path=angular_test\app.js
+[TRACE src/output_fs.c:252] output_fs_write_text bytes=27716 path=angular_test\app.js
 [TRACE src/output_fs.c:260] output_fs_write_text success path=angular_test\app.js
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=Makefile path=angular_test\Makefile
 [TRACE src/output_fs.c:244] output_fs_write_text start path=angular_test\Makefile
@@ -11447,7 +11455,7 @@ SOURCE GENERATION VALIDATION OK
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=Makefile path=angular_test\Makefile
 [TRACE src/output_fs.c:266] output_fs_file_exists path=angular_test\Makefile exists=1
 DEMO FILE VALIDATION OK
-[TRACE src/generator.c:2680] generator_copy_helpers helpers_root_path=helpers output_dir=angular_test
+[TRACE src/generator.c:2436] generator_copy_helpers helpers_root_path=helpers output_dir=angular_test
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=helpers path=angular_test\helpers
 [TRACE src/output_fs.c:212] output_fs_create_directory path=angular_test\helpers
 [TRACE src/generator.c:142] generator_build_path directory=angular_test filename=helpers\include path=angular_test\helpers\include
