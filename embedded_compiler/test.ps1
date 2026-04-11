@@ -11,4 +11,9 @@ if (-not (Test-Path $inputDir)) {
   throw "Missing test folder: $inputDir"
 }
 
-& $exe $inputDir
+Push-Location $PSScriptRoot
+try {
+  & $exe $inputDir
+} finally {
+  Pop-Location
+}

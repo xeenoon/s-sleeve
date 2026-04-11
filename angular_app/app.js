@@ -90,6 +90,18 @@ function updateKnee(percentStraight) {
   if (meter) {
     meter.style.transform = 'translate3d(' + ((normalized - 0.5) * 8).toFixed(1) + 'px, ' + (5 - normalized * 9).toFixed(1) + 'px, 0)';
   }
+  var bentLabel = document.getElementById('bent-label');
+  var straightLabel = document.getElementById('straight-label');
+  var bentActive = normalized <= 0.3;
+  var straightActive = normalized >= 0.7;
+  if (bentLabel) {
+    bentLabel.classList.toggle('is-active', bentActive);
+    bentLabel.classList.toggle('is-bent', bentActive);
+  }
+  if (straightLabel) {
+    straightLabel.classList.toggle('is-active', straightActive);
+    straightLabel.classList.toggle('is-straight', straightActive);
+  }
 }
 
 function scoreChip(score) {
@@ -202,22 +214,15 @@ function applyHistoryGoal(goal, app) {
   }
 }
 
-function applyLivePayload(payload, app) {
+function applyMotionPayload(payload, app) {
   var nextPercent = Number(payload.percentStraight || 0);
-  console.log('[app] applyLivePayload reading=' + payload.reading + ' percent=' + payload.percentStraight);
+  console.log('[app] applyMotionPayload reading=' + payload.reading + ' percent=' + payload.percentStraight);
   if (app && typeof app.setValue === 'function') {
     app.setValue('goal', payload.goal || 0);
   }
   setText('reading', String(payload.reading));
   setText('percent-straight', Number(payload.percentStraight || 0).toFixed(1) + '%');
-  setText('last-score', Number(payload.lastScore || 0).toFixed(1));
-  setText('step-count', String(payload.stepCount || 0));
-  setText('today-average', Number(payload.todayAverage || 0).toFixed(1));
-  setText('goal-inline', String(payload.goal || 0));
   setText('speed', Number(payload.speed || 0).toFixed(1));
-  setText('live-shaky', Number(payload.shaky || 0).toFixed(1));
-  setText('live-descent', Number(payload.uncontrolledDescent || 0).toFixed(1));
-  setText('live-compensation', Number(payload.compensation || 0).toFixed(1));
   updateKnee(nextPercent);
   var syncPill = document.getElementById('sync-pill');
   if (syncPill) {
@@ -234,6 +239,20 @@ function applyLivePayload(payload, app) {
     signalCopy.textContent = payload.inStep ? 'Live observable pulse detecting active movement' : 'Observable live telemetry active';
   }
   setDemoCopy(payload.inStep ? 'Tracking real movement from the live sensor' : 'Waiting for live knee movement');
+}
+
+function applyLivePayload(payload, app) {
+  console.log('[app] applyLivePayload lastScore=' + payload.lastScore + ' steps=' + payload.stepCount);
+  if (app && typeof app.setValue === 'function') {
+    app.setValue('goal', payload.goal || 0);
+  }
+  setText('last-score', Number(payload.lastScore || 0).toFixed(1));
+  setText('step-count', String(payload.stepCount || 0));
+  setText('today-average', Number(payload.todayAverage || 0).toFixed(1));
+  setText('goal-inline', String(payload.goal || 0));
+  setText('live-shaky', Number(payload.shaky || 0).toFixed(1));
+  setText('live-descent', Number(payload.uncontrolledDescent || 0).toFixed(1));
+  setText('live-compensation', Number(payload.compensation || 0).toFixed(1));
 }
 
 function applyVariablesPayload(payload) {
@@ -305,6 +324,7 @@ window.summarizeDailyAverages = summarizeDailyAverages;
 window.renderHistoryDiagnostics = renderHistoryDiagnostics;
 window.renderDailyDiagnostics = renderDailyDiagnostics;
 window.applyHistoryGoal = applyHistoryGoal;
+window.applyMotionPayload = applyMotionPayload;
 window.applyLivePayload = applyLivePayload;
 window.applyVariablesPayload = applyVariablesPayload;
 window.applyVariablesSaveResponse = applyVariablesSaveResponse;

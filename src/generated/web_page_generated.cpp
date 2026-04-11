@@ -7,7 +7,8 @@ const char INDEX_HTML[] PROGMEM = R"HTML_ASSET(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Knee Rehab Tracker</title>
+  <title>s-sleeve</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='g' cx='30%25' cy='28%25' r='72%25'%3E%3Cstop offset='0%25' stop-color='%23ffd6a8'/%3E%3Cstop offset='38%25' stop-color='%23ff9b43'/%3E%3Cstop offset='72%25' stop-color='%23d96a1d'/%3E%3Cstop offset='100%25' stop-color='%23993f0d'/%3E%3C/radialGradient%3E%3ClinearGradient id='s' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='rgba(255,255,255,0.9)'/%3E%3Cstop offset='100%25' stop-color='rgba(255,255,255,0)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='18' fill='%23f6efe8'/%3E%3Ccircle cx='32' cy='32' r='21' fill='url(%23g)'/%3E%3Cellipse cx='25' cy='22' rx='11' ry='7' fill='url(%23s)' opacity='0.9'/%3E%3Ccircle cx='32' cy='32' r='21' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='1.5'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -17,9 +18,9 @@ const char INDEX_HTML[] PROGMEM = R"HTML_ASSET(
     <div class="ambient ambient-c"></div>
     <section class="hero">
       <div class="panel hero-panel">
-        <p class="eyebrow">Rehab Tracker</p>
+        <p class="eyebrow">s-sleeve</p>
         <h1 class="headline"><span id="today-average">0.0</span>/100</h1>
-        <p class="subline">Daily average step quality with a goal of <strong id="goal-inline">85</strong>.</p>
+        <p class="subline">s-sleeve live mobility tracking with a goal of <strong id="goal-inline">85</strong>.</p>
         <div class="hero-ribbon">
           <span class="signal-dot" id="hero-signal-dot"></span>
           <span id="hero-signal-copy">Observable live telemetry active</span>
@@ -85,8 +86,8 @@ const char INDEX_HTML[] PROGMEM = R"HTML_ASSET(
             <circle class="pulse-ring" id="ankle-ring" cx="140.0" cy="274.0" r="22"></circle>
           </svg>
           <div class="joint-labels">
-            <span>Bent</span>
-            <span>Straight</span>
+            <span id="bent-label" class="joint-label">Bent</span>
+            <span id="straight-label" class="joint-label">Straight</span>
           </div>
           <div class="meter-demo-copy" id="meter-demo-copy">Waiting for live knee movement</div>
         </div>
@@ -485,6 +486,35 @@ body {
   letter-spacing: 0.08em;
   font-size: 0.8rem;
 }
+.joint-label {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: color 200ms ease, border-color 200ms ease, background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+.joint-label.is-active {
+  color: var(--accent);
+  border-color: rgba(191, 91, 44, 0.18);
+  background: rgba(191, 91, 44, 0.08);
+}
+.joint-label.is-bent {
+  color: var(--warn);
+  border-color: rgba(184, 95, 24, 0.22);
+  background: rgba(184, 95, 24, 0.12);
+  animation: jointLabelPulse 1.25s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(184, 95, 24, 0.18);
+}
+.joint-label.is-straight {
+  color: var(--good);
+  border-color: rgba(47, 125, 83, 0.22);
+  background: rgba(47, 125, 83, 0.12);
+  animation: jointLabelPulse 1.25s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(47, 125, 83, 0.16);
+}
 svg { width: min(100%, 320px); height: auto; overflow: visible; }
 .limb {
   fill: none;
@@ -736,6 +766,16 @@ th {
   0% { transform: scale(0.94); opacity: 0.72; }
   45% { transform: scale(1.1); opacity: 0.46; }
   100% { transform: scale(1.28); opacity: 0; }
+}
+@keyframes jointLabelPulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 0 rgba(191, 91, 44, 0);
+  }
+  50% {
+    transform: translateY(-1px) scale(1.04);
+    box-shadow: 0 0 0 10px rgba(191, 91, 44, 0);
+  }
 }
 @media (max-width: 900px) {
   .hero, .live-layout, .variables-grid { grid-template-columns: 1fr; }
@@ -1135,6 +1175,18 @@ function updateKnee(percentStraight) {
   if (meter) {
     meter.style.transform = 'translate3d(' + ((normalized - 0.5) * 8).toFixed(1) + 'px, ' + (5 - normalized * 9).toFixed(1) + 'px, 0)';
   }
+  var bentLabel = document.getElementById('bent-label');
+  var straightLabel = document.getElementById('straight-label');
+  var bentActive = normalized <= 0.3;
+  var straightActive = normalized >= 0.7;
+  if (bentLabel) {
+    bentLabel.classList.toggle('is-active', bentActive);
+    bentLabel.classList.toggle('is-bent', bentActive);
+  }
+  if (straightLabel) {
+    straightLabel.classList.toggle('is-active', straightActive);
+    straightLabel.classList.toggle('is-straight', straightActive);
+  }
 }
 
 function scoreChip(score) {
@@ -1247,22 +1299,15 @@ function applyHistoryGoal(goal, app) {
   }
 }
 
-function applyLivePayload(payload, app) {
+function applyMotionPayload(payload, app) {
   var nextPercent = Number(payload.percentStraight || 0);
-  console.log('[app] applyLivePayload reading=' + payload.reading + ' percent=' + payload.percentStraight);
+  console.log('[app] applyMotionPayload reading=' + payload.reading + ' percent=' + payload.percentStraight);
   if (app && typeof app.setValue === 'function') {
     app.setValue('goal', payload.goal || 0);
   }
   setText('reading', String(payload.reading));
   setText('percent-straight', Number(payload.percentStraight || 0).toFixed(1) + '%');
-  setText('last-score', Number(payload.lastScore || 0).toFixed(1));
-  setText('step-count', String(payload.stepCount || 0));
-  setText('today-average', Number(payload.todayAverage || 0).toFixed(1));
-  setText('goal-inline', String(payload.goal || 0));
   setText('speed', Number(payload.speed || 0).toFixed(1));
-  setText('live-shaky', Number(payload.shaky || 0).toFixed(1));
-  setText('live-descent', Number(payload.uncontrolledDescent || 0).toFixed(1));
-  setText('live-compensation', Number(payload.compensation || 0).toFixed(1));
   updateKnee(nextPercent);
   var syncPill = document.getElementById('sync-pill');
   if (syncPill) {
@@ -1279,6 +1324,20 @@ function applyLivePayload(payload, app) {
     signalCopy.textContent = payload.inStep ? 'Live observable pulse detecting active movement' : 'Observable live telemetry active';
   }
   setDemoCopy(payload.inStep ? 'Tracking real movement from the live sensor' : 'Waiting for live knee movement');
+}
+
+function applyLivePayload(payload, app) {
+  console.log('[app] applyLivePayload lastScore=' + payload.lastScore + ' steps=' + payload.stepCount);
+  if (app && typeof app.setValue === 'function') {
+    app.setValue('goal', payload.goal || 0);
+  }
+  setText('last-score', Number(payload.lastScore || 0).toFixed(1));
+  setText('step-count', String(payload.stepCount || 0));
+  setText('today-average', Number(payload.todayAverage || 0).toFixed(1));
+  setText('goal-inline', String(payload.goal || 0));
+  setText('live-shaky', Number(payload.shaky || 0).toFixed(1));
+  setText('live-descent', Number(payload.uncontrolledDescent || 0).toFixed(1));
+  setText('live-compensation', Number(payload.compensation || 0).toFixed(1));
 }
 
 function applyVariablesPayload(payload) {
@@ -1350,6 +1409,7 @@ window.summarizeDailyAverages = summarizeDailyAverages;
 window.renderHistoryDiagnostics = renderHistoryDiagnostics;
 window.renderDailyDiagnostics = renderDailyDiagnostics;
 window.applyHistoryGoal = applyHistoryGoal;
+window.applyMotionPayload = applyMotionPayload;
 window.applyLivePayload = applyLivePayload;
 window.applyVariablesPayload = applyVariablesPayload;
 window.applyVariablesSaveResponse = applyVariablesSaveResponse;
@@ -1360,7 +1420,8 @@ window.ngInitializeApp = ngInitializeApp;
   var ngApp = ngCreateApp();
   window.ngApp = ngApp;
   ngApp.registerObservable({ name: 'selectedView$', alias: 'selectedView', kind: 'state', path: '', seed: 'live', intervalMs: 0, steps: [{ kind: 'tap', argument: 'showView', args: ['showView'] }, { kind: 'effect-class', argument: 'is-transitioning', args: ['#{{value}}-view', 'is-transitioning', '460'] }] });
-  ngApp.registerObservable({ name: 'liveState$', alias: 'liveState', kind: 'poll', path: '/api/live', seed: null, intervalMs: 500, steps: [{ kind: 'tap', argument: 'applyLivePayload', args: ['applyLivePayload'] }, { kind: 'effect-class-at', argument: '0', args: ['[data-telemetry-card]', '0', 'is-live', '1000', 'changed', 'reading'] }, { kind: 'effect-class-at', argument: '1', args: ['[data-telemetry-card]', '1', 'is-live', '1000', 'changed', 'percentStraight'] }, { kind: 'effect-class-at', argument: '2', args: ['[data-telemetry-card]', '2', 'is-live', '1000', 'changed', 'lastScore'] }, { kind: 'effect-class-at', argument: '3', args: ['[data-telemetry-card]', '3', 'is-live', '1000', 'changed', 'stepCount'] }, { kind: 'effect-class', argument: 'is-energized', args: ['.meter-card', 'is-energized', '360', 'changed', 'percentStraight'] }, { kind: 'effect-style-var', argument: '--surface-shift', args: [':root', '--surface-shift', 'ternary-bool', 'inStep', '-2px', '0px'] }] });
+  ngApp.registerObservable({ name: 'motionState$', alias: 'motionState', kind: 'poll', path: '/api/motion', seed: null, intervalMs: 33, steps: [{ kind: 'tap', argument: 'applyMotionPayload', args: ['applyMotionPayload'] }, { kind: 'effect-class-at', argument: '0', args: ['[data-telemetry-card]', '0', 'is-live', '1000', 'changed', 'reading'] }, { kind: 'effect-class-at', argument: '1', args: ['[data-telemetry-card]', '1', 'is-live', '1000', 'changed', 'percentStraight'] }, { kind: 'effect-class', argument: 'is-energized', args: ['.meter-card', 'is-energized', '360', 'changed', 'percentStraight'] }, { kind: 'effect-style-var', argument: '--surface-shift', args: [':root', '--surface-shift', 'ternary-bool', 'inStep', '-2px', '0px'] }] });
+  ngApp.registerObservable({ name: 'liveState$', alias: 'liveState', kind: 'poll', path: '/api/live', seed: null, intervalMs: 250, steps: [{ kind: 'tap', argument: 'applyLivePayload', args: ['applyLivePayload'] }, { kind: 'effect-class-at', argument: '2', args: ['[data-telemetry-card]', '2', 'is-live', '1000', 'changed', 'lastScore'] }, { kind: 'effect-class-at', argument: '3', args: ['[data-telemetry-card]', '3', 'is-live', '1000', 'changed', 'stepCount'] }] });
   ngApp.registerObservable({ name: 'historyRows$', alias: 'historyRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history', args: ['history'] }, { kind: 'map', argument: 'formatHistoryRow', args: ['formatHistoryRow'] }, { kind: 'tap', argument: 'renderHistoryRows', args: ['renderHistoryRows'] }, { kind: 'effect-stagger-class', argument: 'table-row-enter', args: ['#history-body tr', 'table-row-enter', '420', '16'] }] });
   ngApp.registerObservable({ name: 'dailyAverageRows$', alias: 'dailyAverageRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages', args: ['dailyAverages'] }, { kind: 'map', argument: 'formatDailyAverageRow', args: ['formatDailyAverageRow'] }, { kind: 'tap', argument: 'renderDailyAverageRows', args: ['renderDailyAverageRows'] }, { kind: 'effect-stagger-class', argument: 'table-row-enter', args: ['#daily-average-body tr', 'table-row-enter', '420', '24'] }] });
   ngApp.registerObservable({ name: 'historyGoal$', alias: 'historyGoal', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'goal', args: ['goal'] }, { kind: 'tap', argument: 'applyHistoryGoal', args: ['applyHistoryGoal'] }] });
