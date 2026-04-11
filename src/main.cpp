@@ -1,241 +1,437 @@
 #include <Arduino.h>
-#include <WiFi.h>
+#include <Preferences.h>
 #include <WebServer.h>
+#include <WiFi.h>
 
-// On a standard ESP32, GPIO23 is not ADC-capable.
-// Move the potentiometer signal wire to an ADC pin like 34, 35, 32, or 33.
+#include "rehab_metrics.h"
+#include "rehab_types.h"
+#include "sample_history.h"
+#include "web_page.h"
+
+namespace {
+
 constexpr int POT_PIN = 34;
+constexpr char AP_SSID[] = "ESP32-Pot-Reader";
+constexpr char PREF_NAMESPACE[] = "rehab";
+constexpr char PREF_KEY_HISTORY[] = "history";
+constexpr char PREF_KEY_VARS[] = "vars";
+constexpr uint32_t VARIABLES_MAGIC = 0x56415253UL;
 
-const char *AP_SSID = "ESP32-Pot-Reader";
+struct PersistedVariables {
+  uint32_t magic;
+  RehabConfig config;
+};
+
+RehabConfig rehab_config = {
+    3100,
+    3700,
+    78.0f,
+    0.0f,
+    40,
+    0.24f,
+    0.16f,
+    0.18f,
+    0.58f,
+    0.08f,
+    5000};
+PersistedVariables persisted_variables = {VARIABLES_MAGIC, rehab_config};
 
 WebServer server(80);
+Preferences preferences;
+PersistedHistory storage = {};
+LiveMetrics live = {};
+WorkingStep working = {};
+RehabTrackerState tracker = {};
 
-const char INDEX_HTML[] PROGMEM = R"HTML(
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ESP32 Potentiometer</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #f6efe5;
-      --text: #241a14;
-      --accent: #d66b2d;
-      --accent-soft: #f2b488;
-      --panel: rgba(255, 250, 244, 0.88);
+bool time_synced = false;
+int timezone_offset_minutes = 0;
+int64_t epoch_offset_ms = 0;
+
+void save_history();
+void save_variables();
+
+uint64_t current_epoch_ms(void *) {
+  if (!time_synced) {
+    return 0;
+  }
+
+  return static_cast<uint64_t>(epoch_offset_ms + static_cast<int64_t>(millis()));
+}
+
+void refresh_live_summary() {
+  live.step_count = storage.count;
+  live.last_score = storage.count > 0 ? storage.records[storage.count - 1].score : 0.0f;
+  live.time_synced = time_synced;
+}
+
+void load_variables() {
+  preferences.begin(PREF_NAMESPACE, true);
+  const size_t bytes = preferences.getBytesLength(PREF_KEY_VARS);
+  if (bytes == sizeof(persisted_variables)) {
+    preferences.getBytes(PREF_KEY_VARS, &persisted_variables, sizeof(persisted_variables));
+  }
+  preferences.end();
+
+  if (persisted_variables.magic != VARIABLES_MAGIC) {
+    persisted_variables.magic = VARIABLES_MAGIC;
+    persisted_variables.config = rehab_config;
+    save_variables();
+  } else {
+    rehab_config = persisted_variables.config;
+  }
+}
+
+void load_history() {
+  bool had_records = false;
+
+  preferences.begin(PREF_NAMESPACE, true);
+  const size_t bytes = preferences.getBytesLength(PREF_KEY_HISTORY);
+  if (bytes == sizeof(storage)) {
+    preferences.getBytes(PREF_KEY_HISTORY, &storage, sizeof(storage));
+  }
+  preferences.end();
+
+  if (storage.magic != STORAGE_MAGIC || storage.count > MAX_HISTORY || storage.next_id == 0) {
+    memset(&storage, 0, sizeof(storage));
+    storage.magic = STORAGE_MAGIC;
+    storage.next_id = 1;
+  }
+
+  had_records = storage.count > 0;
+  seed_sample_history(&storage);
+  refresh_live_summary();
+
+  if (!had_records && storage.count > 0) {
+    save_history();
+  }
+}
+
+void save_history() {
+  storage.magic = STORAGE_MAGIC;
+  preferences.begin(PREF_NAMESPACE, false);
+  preferences.putBytes(PREF_KEY_HISTORY, &storage, sizeof(storage));
+  preferences.end();
+}
+
+void save_variables() {
+  persisted_variables.magic = VARIABLES_MAGIC;
+  persisted_variables.config = rehab_config;
+  preferences.begin(PREF_NAMESPACE, false);
+  preferences.putBytes(PREF_KEY_VARS, &persisted_variables, sizeof(persisted_variables));
+  preferences.end();
+}
+
+String build_live_json() {
+  String json;
+  json.reserve(320);
+  json += "{";
+  json += "\"reading\":";
+  json += String(live.raw_reading);
+  json += ",\"percentStraight\":";
+  json += String(live.percent_straight, 1);
+  json += ",\"angleDeg\":";
+  json += String(live.knee_angle_deg, 1);
+  json += ",\"speed\":";
+  json += String(live.speed_percent_per_sec, 1);
+  json += ",\"accel\":";
+  json += String(live.accel_percent_per_sec2, 1);
+  json += ",\"inStep\":";
+  json += live.in_step ? "true" : "false";
+  json += ",\"lastScore\":";
+  json += String(live.last_score, 1);
+  json += ",\"stepCount\":";
+  json += String(live.step_count);
+  json += ",\"todayAverage\":";
+  json += String(rehab_today_average_score(&storage, time_synced, current_epoch_ms(nullptr), timezone_offset_minutes), 1);
+  json += ",\"goal\":";
+  json += String(DAILY_GOAL_SCORE);
+  json += ",\"timeSynced\":";
+  json += time_synced ? "true" : "false";
+  json += "}";
+  return json;
+}
+
+String build_variables_json() {
+  String json;
+  json.reserve(480);
+  json += "{";
+  json += "\"minReading\":";
+  json += String(rehab_config.min_reading);
+  json += ",\"maxReading\":";
+  json += String(rehab_config.max_reading);
+  json += ",\"bentAngle\":";
+  json += String(rehab_config.bent_angle, 2);
+  json += ",\"straightAngle\":";
+  json += String(rehab_config.straight_angle, 2);
+  json += ",\"sampleIntervalMs\":";
+  json += String(rehab_config.sample_interval_ms);
+  json += ",\"filterAlpha\":";
+  json += String(rehab_config.filter_alpha, 3);
+  json += ",\"motionThreshold\":";
+  json += String(rehab_config.motion_threshold, 3);
+  json += ",\"stepRangeThreshold\":";
+  json += String(rehab_config.step_range_threshold, 3);
+  json += ",\"startReadyThreshold\":";
+  json += String(rehab_config.start_ready_threshold, 3);
+  json += ",\"returnMargin\":";
+  json += String(rehab_config.return_margin, 3);
+  json += ",\"maxStepDurationMs\":";
+  json += String(rehab_config.max_step_duration_ms);
+  json += ",\"sampleHistoryEnabled\":";
+  json += ENABLE_SAMPLE_HISTORY ? "true" : "false";
+  json += "}";
+  return json;
+}
+
+String build_history_json() {
+  struct DaySummary {
+    int64_t key;
+    float total;
+    uint16_t count;
+  };
+
+  DaySummary summaries[14] = {};
+  size_t summary_count = 0;
+  String json;
+
+  for (int i = static_cast<int>(storage.count) - 1; i >= 0; --i) {
+    const int64_t key = rehab_local_day_key(storage.records[i].timestamp_ms, timezone_offset_minutes);
+    if (key < 0) {
+      continue;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(circle at top, #ffd7bb 0%, transparent 35%),
-        linear-gradient(160deg, var(--bg), #f0dcc5);
-      color: var(--text);
-      font-family: Arial, sans-serif;
-    }
-
-    main {
-      width: min(92vw, 800px);
-      padding: 3rem 2rem;
-      text-align: center;
-      background: var(--panel);
-      border: 2px solid rgba(36, 26, 20, 0.08);
-      border-radius: 28px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
-      backdrop-filter: blur(10px);
-    }
-
-    p {
-      margin: 0 0 1rem;
-      font-size: 1rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #715548;
-    }
-
-    h1 {
-      margin: 0.2rem 0 0;
-      font-size: clamp(3.2rem, 12vw, 6rem);
-      line-height: 1;
-      color: var(--accent);
-    }
-
-    .layout {
-      display: grid;
-      gap: 2rem;
-      align-items: center;
-      justify-items: center;
-    }
-
-    .meter {
-      width: min(100%, 420px);
-      padding: 1rem;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.55);
-    }
-
-    .subtext {
-      margin-top: 0.5rem;
-      font-size: 0.95rem;
-      color: #715548;
-    }
-
-    .joint-labels {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-top: 0.8rem;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #715548;
-    }
-
-    svg {
-      width: min(100%, 360px);
-      height: auto;
-      overflow: visible;
-    }
-
-    .limb {
-      fill: none;
-      stroke: var(--accent);
-      stroke-linecap: round;
-      stroke-width: 24;
-    }
-
-    .joint {
-      fill: var(--text);
-    }
-
-    .guide {
-      fill: none;
-      stroke: rgba(36, 26, 20, 0.12);
-      stroke-width: 12;
-      stroke-linecap: round;
-      stroke-dasharray: 10 14;
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <div class="layout">
-      <div class="meter">
-        <p>Knee Position</p>
-        <svg viewBox="0 0 280 320" aria-label="Knee joint animation">
-          <line class="guide" x1="140" y1="64" x2="140" y2="174"></line>
-          <g id="leg">
-            <line class="limb" x1="140" y1="64" x2="140" y2="174"></line>
-            <line class="limb" id="lower-leg" x1="140" y1="174" x2="140" y2="274"></line>
-            <circle class="joint" cx="140" cy="64" r="14"></circle>
-            <circle class="joint" cx="140" cy="174" r="16"></circle>
-            <circle class="joint" id="ankle" cx="140" cy="274" r="14"></circle>
-          </g>
-        </svg>
-        <div class="joint-labels">
-          <span>Bent</span>
-          <span>Straight</span>
-        </div>
-      </div>
-
-      <div>
-        <p>Potentiometer Reading</p>
-        <h1 id="reading">0</h1>
-        <div class="subtext" id="angle-text">0% straight</div>
-      </div>
-    </div>
-  </main>
-
-  <script>
-    const MIN_READING = 3100;
-    const MAX_READING = 3700;
-    const BENT_ANGLE = 78;
-    const STRAIGHT_ANGLE = 0;
-
-    function clamp(value, min, max) {
-      return Math.min(max, Math.max(min, value));
-    }
-
-    function mapReadingToAngle(reading) {
-      const normalized = clamp((reading - MIN_READING) / (MAX_READING - MIN_READING), 0, 1);
-      const angle = BENT_ANGLE + (STRAIGHT_ANGLE - BENT_ANGLE) * normalized;
-      return { normalized, angle };
-    }
-
-    function updateKnee(reading) {
-      const lowerLeg = document.getElementById("lower-leg");
-      const ankle = document.getElementById("ankle");
-      const angleText = document.getElementById("angle-text");
-      const { normalized, angle } = mapReadingToAngle(reading);
-      const radians = angle * Math.PI / 180;
-      const kneeX = 140;
-      const kneeY = 174;
-      const shinLength = 100;
-      const ankleX = kneeX + Math.sin(radians) * shinLength;
-      const ankleY = kneeY + Math.cos(radians) * shinLength;
-
-      lowerLeg.setAttribute("x1", kneeX);
-      lowerLeg.setAttribute("y1", kneeY);
-      lowerLeg.setAttribute("x2", ankleX.toFixed(1));
-      lowerLeg.setAttribute("y2", ankleY.toFixed(1));
-      ankle.setAttribute("cx", ankleX.toFixed(1));
-      ankle.setAttribute("cy", ankleY.toFixed(1));
-      angleText.textContent = `${Math.round(normalized * 100)}% straight`;
-    }
-
-    async function refreshReading() {
-      try {
-        const response = await fetch("/value");
-        const value = Number(await response.text());
-        document.getElementById("reading").textContent = value;
-        updateKnee(value);
-      } catch (error) {
-        document.getElementById("reading").textContent = "ERR";
-        document.getElementById("angle-text").textContent = "Signal error";
+    bool found = false;
+    for (size_t s = 0; s < summary_count; ++s) {
+      if (summaries[s].key == key) {
+        summaries[s].total += storage.records[i].score;
+        ++summaries[s].count;
+        found = true;
+        break;
       }
     }
 
-    updateKnee(MIN_READING);
-    refreshReading();
-    setInterval(refreshReading, 500);
-  </script>
-</body>
-</html>
-)HTML";
+    if (!found && summary_count < 14) {
+      summaries[summary_count].key = key;
+      summaries[summary_count].total = storage.records[i].score;
+      summaries[summary_count].count = 1;
+      ++summary_count;
+    }
+  }
 
-void handleRoot() {
+  json.reserve(22000);
+  json += "{";
+  json += "\"goal\":";
+  json += String(DAILY_GOAL_SCORE);
+  json += ",\"history\":[";
+
+  for (int i = static_cast<int>(storage.count) - 1; i >= 0; --i) {
+    const StepRecord &record = storage.records[i];
+    if (i != static_cast<int>(storage.count) - 1) {
+      json += ",";
+    }
+
+    json += "{";
+    json += "\"id\":";
+    json += String(record.id);
+    json += ",\"timestampMs\":";
+    json += String(static_cast<unsigned long long>(record.timestamp_ms));
+    json += ",\"score\":";
+    json += String(record.score, 1);
+    json += ",\"shakiness\":";
+    json += String(record.shakiness_penalty, 1);
+    json += ",\"uncontrolledDescent\":";
+    json += String(record.descent_penalty, 1);
+    json += ",\"compensation\":";
+    json += String(record.compensation_penalty, 1);
+    json += ",\"durationMs\":";
+    json += String(record.duration_ms, 0);
+    json += ",\"descentMs\":";
+    json += String(record.descent_ms, 0);
+    json += ",\"ascentMs\":";
+    json += String(record.ascent_ms, 0);
+    json += ",\"range\":";
+    json += String(record.range, 1);
+    json += ",\"startPercent\":";
+    json += String(record.start_percent, 1);
+    json += ",\"endPercent\":";
+    json += String(record.end_percent, 1);
+    json += ",\"minPercent\":";
+    json += String(record.min_percent, 1);
+    json += ",\"maxPercent\":";
+    json += String(record.max_percent, 1);
+    json += ",\"descentAvgSpeed\":";
+    json += String(record.descent_avg_speed, 1);
+    json += ",\"ascentAvgSpeed\":";
+    json += String(record.ascent_avg_speed, 1);
+    json += ",\"descentPeakSpeed\":";
+    json += String(record.descent_peak_speed, 1);
+    json += ",\"ascentPeakSpeed\":";
+    json += String(record.ascent_peak_speed, 1);
+    json += ",\"oscillations\":";
+    json += String(record.oscillation_count);
+    json += "}";
+  }
+
+  json += "],\"dailyAverages\":[";
+  for (size_t i = 0; i < summary_count; ++i) {
+    const int64_t day_start_utc_ms =
+        summaries[i].key * 86400000LL + static_cast<int64_t>(timezone_offset_minutes) * 60000LL;
+    const float average =
+        summaries[i].total / static_cast<float>(summaries[i].count > 0 ? summaries[i].count : 1);
+
+    if (i != 0) {
+      json += ",";
+    }
+
+    json += "{";
+    json += "\"dayStartMs\":";
+    json += String(static_cast<long long>(day_start_utc_ms));
+    json += ",\"averageScore\":";
+    json += String(average, 1);
+    json += ",\"count\":";
+    json += String(summaries[i].count);
+    json += "}";
+  }
+
+  json += "]}";
+  return json;
+}
+
+void handle_root() {
   server.send_P(200, "text/html", INDEX_HTML);
 }
 
-void handleValue() {
-  server.send(200, "text/plain", String(analogRead(POT_PIN)));
+void handle_variables_page() {
+  server.send_P(200, "text/html", INDEX_HTML);
 }
+
+void handle_value() {
+  server.send(200, "text/plain", String(live.raw_reading));
+}
+
+void handle_live() {
+  server.send(200, "application/json", build_live_json());
+}
+
+void handle_history() {
+  server.send(200, "application/json", build_history_json());
+}
+
+void handle_variables() {
+  server.send(200, "application/json", build_variables_json());
+}
+
+bool update_int_arg(const char *name, int *value) {
+  if (!server.hasArg(name)) {
+    return false;
+  }
+  *value = server.arg(name).toInt();
+  return true;
+}
+
+bool update_float_arg(const char *name, float *value) {
+  if (!server.hasArg(name)) {
+    return false;
+  }
+  *value = server.arg(name).toFloat();
+  return true;
+}
+
+void handle_variables_update() {
+  RehabConfig updated = rehab_config;
+
+  update_int_arg("minReading", &updated.min_reading);
+  update_int_arg("maxReading", &updated.max_reading);
+  update_float_arg("bentAngle", &updated.bent_angle);
+  update_float_arg("straightAngle", &updated.straight_angle);
+  if (server.hasArg("sampleIntervalMs")) {
+    updated.sample_interval_ms = static_cast<unsigned long>(server.arg("sampleIntervalMs").toInt());
+  }
+  update_float_arg("filterAlpha", &updated.filter_alpha);
+  update_float_arg("motionThreshold", &updated.motion_threshold);
+  update_float_arg("stepRangeThreshold", &updated.step_range_threshold);
+  update_float_arg("startReadyThreshold", &updated.start_ready_threshold);
+  update_float_arg("returnMargin", &updated.return_margin);
+  if (server.hasArg("maxStepDurationMs")) {
+    updated.max_step_duration_ms = static_cast<unsigned long>(server.arg("maxStepDurationMs").toInt());
+  }
+
+  if (updated.max_reading <= updated.min_reading ||
+      updated.sample_interval_ms < 10 ||
+      updated.filter_alpha <= 0.0f || updated.filter_alpha > 1.0f ||
+      updated.motion_threshold <= 0.0f ||
+      updated.step_range_threshold <= 0.0f ||
+      updated.start_ready_threshold < 0.0f || updated.start_ready_threshold > 1.0f ||
+      updated.return_margin < 0.0f || updated.return_margin > 1.0f ||
+      updated.max_step_duration_ms < 250) {
+    server.send(400, "application/json", "{\"ok\":false,\"message\":\"Invalid variable values\"}");
+    return;
+  }
+
+  rehab_config = updated;
+  const int current_reading = analogRead(POT_PIN);
+  rehab_tracker_init(&tracker, current_reading, &rehab_config);
+  live.raw_reading = current_reading;
+  live.normalized = tracker.filtered_norm;
+  live.knee_angle_deg = rehab_normalized_to_angle(tracker.filtered_norm, &rehab_config);
+  live.percent_straight = tracker.filtered_norm * 100.0f;
+  memset(&working, 0, sizeof(working));
+  live.in_step = false;
+  save_variables();
+
+  server.send(200, "application/json", build_variables_json());
+}
+
+void handle_time_sync() {
+  if (server.hasArg("epochMs")) {
+    epoch_offset_ms = atoll(server.arg("epochMs").c_str()) - static_cast<int64_t>(millis());
+    time_synced = true;
+    live.time_synced = true;
+  }
+
+  if (server.hasArg("offsetMinutes")) {
+    timezone_offset_minutes = server.arg("offsetMinutes").toInt();
+  }
+
+  server.send(200, "application/json", "{\"ok\":true}");
+}
+
+}  // namespace
 
 void setup() {
   Serial.begin(115200);
-  delay(500);
+  delay(300);
 
   analogReadResolution(12);
   pinMode(POT_PIN, INPUT);
 
+  load_variables();
+  load_history();
+
+  const int initial_reading = analogRead(POT_PIN);
+  rehab_tracker_init(&tracker, initial_reading, &rehab_config);
+
+  live.raw_reading = initial_reading;
+  live.normalized = tracker.filtered_norm;
+  live.knee_angle_deg = rehab_normalized_to_angle(tracker.filtered_norm, &rehab_config);
+  live.percent_straight = tracker.filtered_norm * 100.0f;
+  refresh_live_summary();
+
   WiFi.mode(WIFI_AP);
   WiFi.softAP(AP_SSID);
 
-  server.on("/", handleRoot);
-  server.on("/value", handleValue);
+  server.on("/", handle_root);
+  server.on("/variables", handle_variables_page);
+  server.on("/value", handle_value);
+  server.on("/api/live", handle_live);
+  server.on("/api/history", handle_history);
+  server.on("/api/variables", HTTP_GET, handle_variables);
+  server.on("/api/variables", HTTP_POST, handle_variables_update);
+  server.on("/api/time-sync", handle_time_sync);
   server.begin();
 
   Serial.println();
-  Serial.println("ESP32 potentiometer web server started.");
+  Serial.println("ESP32 knee rehab tracker started.");
   Serial.print("Connect to Wi-Fi: ");
   Serial.println(AP_SSID);
   Serial.print("Open: http://");
@@ -243,5 +439,19 @@ void setup() {
 }
 
 void loop() {
+  if (rehab_update_sensor_processing(&tracker,
+                                     &working,
+                                     &live,
+                                     &storage,
+                                     analogRead(POT_PIN),
+                                     millis(),
+                                     time_synced,
+                                     timezone_offset_minutes,
+                                     current_epoch_ms,
+                                     nullptr,
+                                     &rehab_config)) {
+    save_history();
+  }
+
   server.handleClient();
 }
