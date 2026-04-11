@@ -1,26 +1,20 @@
-[TRACE src/cli.c:166] cli_run argc=3
-[TRACE src/cli.c:179] cli_run input_dir=C:\Users\ccw10\Documents\s-sleeve\angular_app output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated runtime_header_path=embedded
-[TRACE src/generator.c:555] generator_prepare_output_directory output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated
+[TRACE src/cli.c:175] cli_run argc=3
+[TRACE src/cli.c:189] cli_run input_dir=C:\Users\ccw10\Documents\s-sleeve\angular_app output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated runtime_header_path=embedded
+[TRACE src/generator.c:394] generator_prepare_output_directory output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated
 [TRACE src/output_fs.c:75] output_fs_prepare_clean_directory start path=C:\Users\ccw10\Documents\s-sleeve\src\generated
 [TRACE src/output_fs.c:14] output_fs_remove_tree_internal enter path=C:\Users\ccw10\Documents\s-sleeve\src\generated
-[TRACE src/output_fs.c:49] output_fs_remove_tree_internal delete file=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
-[TRACE src/output_fs.c:49] output_fs_remove_tree_internal delete file=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
-[TRACE src/output_fs.c:49] output_fs_remove_tree_internal delete file=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
-[TRACE src/output_fs.c:49] output_fs_remove_tree_internal delete file=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
-[TRACE src/output_fs.c:49] output_fs_remove_tree_internal delete file=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
-[TRACE src/output_fs.c:49] output_fs_remove_tree_internal delete file=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
 [TRACE src/output_fs.c:70] output_fs_remove_tree_internal removed path=C:\Users\ccw10\Documents\s-sleeve\src\generated
 [TRACE src/output_fs.c:91] output_fs_prepare_clean_directory ready path=C:\Users\ccw10\Documents\s-sleeve\src\generated
-[TRACE src/path_scan.c:91] path_scan_directory start root=C:\Users\ccw10\Documents\s-sleeve\angular_app
-[TRACE src/path_scan.c:33] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app
-[TRACE src/path_scan.c:50] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app name=.
-[TRACE src/path_scan.c:50] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app name=..
-[TRACE src/path_scan.c:60] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css attributes=32
-[TRACE src/path_scan.c:74] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css
+[TRACE src/path_scan.c:94] path_scan_directory start root=C:\Users\ccw10\Documents\s-sleeve\angular_app
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css
 [TRACE src/file_io.c:33] file_read_all size=6326 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css
 [TRACE src/file_io.c:60] file_read_all success bytes=6326 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css
-[TRACE src/cli.c:62] tokenize_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css bytes=6326
+[TRACE src/cli.c:70] tokenize_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css bytes=6326
 == FILE C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css ==
 1:1 PUNCT      ":"
 1:2 IDENTIFIER "root"
@@ -2854,16 +2848,16 @@ SUMMARY kind=style total=2821 significant=2073 identifiers=747 strings=1 templat
 AST style rules=61 balanced=yes max_depth=2
 VALIDATION OK
 
-[TRACE src/cli.c:107] tokenize_file capture css path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css bytes=6326
-[TRACE src/cli.c:113] tokenize_file success path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css
+[TRACE src/cli.c:115] tokenize_file capture css path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css bytes=6326
+[TRACE src/cli.c:121] tokenize_file success path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.css
 
 [TRACE src/file_io.c:69] file_buffer_free size=0
-[TRACE src/path_scan.c:60] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html attributes=32
-[TRACE src/path_scan.c:74] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html
 [TRACE src/file_io.c:33] file_read_all size=8119 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html
 [TRACE src/file_io.c:60] file_read_all success bytes=8119 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html
-[TRACE src/cli.c:62] tokenize_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html bytes=8119
+[TRACE src/cli.c:70] tokenize_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html bytes=8119
 == FILE C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html ==
 1:1 PUNCT      "<"
 1:2 PUNCT      "!"
@@ -5190,16 +5184,16 @@ SUMMARY kind=template total=2314 significant=1845 identifiers=671 strings=201 te
 AST template elements=158 interpolations=0 attr_bindings=0
 VALIDATION OK
 
-[TRACE src/cli.c:102] tokenize_file capture html path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html bytes=8119
-[TRACE src/cli.c:113] tokenize_file success path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html
+[TRACE src/cli.c:110] tokenize_file capture html path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html bytes=8119
+[TRACE src/cli.c:121] tokenize_file success path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.html
 
 [TRACE src/file_io.c:69] file_buffer_free size=0
-[TRACE src/path_scan.c:60] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng attributes=32
-[TRACE src/path_scan.c:74] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng
-[TRACE src/file_io.c:33] file_read_all size=1285 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng
-[TRACE src/file_io.c:60] file_read_all success bytes=1285 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng
-[TRACE src/cli.c:62] tokenize_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng bytes=1285
+[TRACE src/file_io.c:33] file_read_all size=1510 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng
+[TRACE src/file_io.c:60] file_read_all success bytes=1510 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng
+[TRACE src/cli.c:70] tokenize_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng bytes=1510
 == FILE C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng ==
 1:1 PUNCT      "@"
 1:2 IDENTIFIER "Component"
@@ -5236,475 +5230,693 @@ VALIDATION OK
 6:26 WHITESPACE " "
 6:27 PUNCT      "{"
 6:28 WHITESPACE "\n  "
-7:3 IDENTIFIER "selectedView"
-7:15 WHITESPACE " "
-7:16 PUNCT      "="
-7:17 WHITESPACE " "
-7:18 STRING     "'live'"
-7:24 PUNCT      ";"
-7:25 WHITESPACE "\n  "
-8:3 IDENTIFIER "goal"
-8:7 WHITESPACE " "
-8:8 PUNCT      "="
-8:9 WHITESPACE " "
-8:10 NUMBER     "85"
-8:12 PUNCT      ";"
-8:13 WHITESPACE "\n\n  "
-10:3 IDENTIFIER "reading"
-10:10 WHITESPACE " "
-10:11 PUNCT      "="
-10:12 WHITESPACE " "
-10:13 NUMBER     "3500"
-10:17 PUNCT      ";"
-10:18 WHITESPACE "\n  "
-11:3 IDENTIFIER "percentStraight"
-11:18 WHITESPACE " "
-11:19 PUNCT      "="
-11:20 WHITESPACE " "
-11:21 NUMBER     "67"
-11:23 PUNCT      ";"
-11:24 WHITESPACE "\n  "
-12:3 IDENTIFIER "speed"
-12:8 WHITESPACE " "
-12:9 PUNCT      "="
-12:10 WHITESPACE " "
-12:11 NUMBER     "0.0"
-12:14 PUNCT      ";"
-12:15 WHITESPACE "\n  "
-13:3 IDENTIFIER "lastScore"
-13:12 WHITESPACE " "
-13:13 PUNCT      "="
-13:14 WHITESPACE " "
-13:15 NUMBER     "92.0"
-13:19 PUNCT      ";"
-13:20 WHITESPACE "\n  "
-14:3 IDENTIFIER "stepCount"
-14:12 WHITESPACE " "
-14:13 PUNCT      "="
-14:14 WHITESPACE " "
-14:15 NUMBER     "1"
-14:16 PUNCT      ";"
-14:17 WHITESPACE "\n  "
-15:3 IDENTIFIER "todayAverage"
-15:15 WHITESPACE " "
-15:16 PUNCT      "="
-15:17 WHITESPACE " "
-15:18 NUMBER     "92.0"
-15:22 PUNCT      ";"
-15:23 WHITESPACE "\n  "
-16:3 IDENTIFIER "timeSynced"
-16:13 WHITESPACE " "
-16:14 PUNCT      "="
-16:15 WHITESPACE " "
-16:16 IDENTIFIER "true"
-16:20 PUNCT      ";"
-16:21 WHITESPACE "\n  "
-17:3 IDENTIFIER "inStep"
-17:9 WHITESPACE " "
-17:10 PUNCT      "="
-17:11 WHITESPACE " "
-17:12 IDENTIFIER "false"
-17:17 PUNCT      ";"
-17:18 WHITESPACE "\n\n  "
-19:3 IDENTIFIER "shaky"
-19:8 WHITESPACE " "
-19:9 PUNCT      "="
-19:10 WHITESPACE " "
-19:11 NUMBER     "1.2"
-19:14 PUNCT      ";"
-19:15 WHITESPACE "\n  "
-20:3 IDENTIFIER "uncontrolledDescent"
-20:22 WHITESPACE " "
-20:23 PUNCT      "="
-20:24 WHITESPACE " "
-20:25 NUMBER     "0.4"
-20:28 PUNCT      ";"
-20:29 WHITESPACE "\n  "
-21:3 IDENTIFIER "compensation"
+7:3 IDENTIFIER "selectedView$"
+7:16 WHITESPACE " "
+7:17 PUNCT      "="
+7:18 WHITESPACE " "
+7:19 IDENTIFIER "rx"
+7:21 PUNCT      "."
+7:22 IDENTIFIER "state"
+7:27 PUNCT      "("
+7:28 STRING     "'live'"
+7:34 PUNCT      ")"
+7:35 PUNCT      ";"
+7:36 WHITESPACE "\n  "
+8:3 IDENTIFIER "liveState$"
+8:13 WHITESPACE " "
+8:14 PUNCT      "="
+8:15 WHITESPACE " "
+8:16 IDENTIFIER "rx"
+8:18 PUNCT      "."
+8:19 IDENTIFIER "poll"
+8:23 PUNCT      "("
+8:24 STRING     "'/state'"
+8:32 PUNCT      ","
+8:33 WHITESPACE " "
+8:34 NUMBER     "1000"
+8:38 PUNCT      ")"
+8:39 PUNCT      ";"
+8:40 WHITESPACE "\n  "
+9:3 IDENTIFIER "historyState$"
+9:16 WHITESPACE " "
+9:17 PUNCT      "="
+9:18 WHITESPACE " "
+9:19 IDENTIFIER "rx"
+9:21 PUNCT      "."
+9:22 IDENTIFIER "poll"
+9:26 PUNCT      "("
+9:27 STRING     "'/api/history'"
+9:41 PUNCT      ","
+9:42 WHITESPACE " "
+9:43 NUMBER     "4000"
+9:47 PUNCT      ")"
+9:48 PUNCT      ";"
+9:49 WHITESPACE "\n  "
+10:3 IDENTIFIER "variablesState$"
+10:18 WHITESPACE " "
+10:19 PUNCT      "="
+10:20 WHITESPACE " "
+10:21 IDENTIFIER "rx"
+10:23 PUNCT      "."
+10:24 IDENTIFIER "poll"
+10:28 PUNCT      "("
+10:29 STRING     "'/api/variables'"
+10:45 PUNCT      ","
+10:46 WHITESPACE " "
+10:47 NUMBER     "8000"
+10:51 PUNCT      ")"
+10:52 PUNCT      ";"
+10:53 WHITESPACE "\n  "
+11:3 IDENTIFIER "saveVariables$"
+11:17 WHITESPACE " "
+11:18 PUNCT      "="
+11:19 WHITESPACE " "
+11:20 IDENTIFIER "rx"
+11:22 PUNCT      "."
+11:23 IDENTIFIER "post"
+11:27 PUNCT      "("
+11:28 STRING     "'/api/variables'"
+11:44 PUNCT      ")"
+11:45 PUNCT      ";"
+11:46 WHITESPACE "\n\n  "
+13:3 IDENTIFIER "selectedView"
+13:15 WHITESPACE " "
+13:16 PUNCT      "="
+13:17 WHITESPACE " "
+13:18 STRING     "'live'"
+13:24 PUNCT      ";"
+13:25 WHITESPACE "\n  "
+14:3 IDENTIFIER "goal"
+14:7 WHITESPACE " "
+14:8 PUNCT      "="
+14:9 WHITESPACE " "
+14:10 NUMBER     "85"
+14:12 PUNCT      ";"
+14:13 WHITESPACE "\n\n  "
+16:3 IDENTIFIER "reading"
+16:10 WHITESPACE " "
+16:11 PUNCT      "="
+16:12 WHITESPACE " "
+16:13 NUMBER     "3500"
+16:17 PUNCT      ";"
+16:18 WHITESPACE "\n  "
+17:3 IDENTIFIER "percentStraight"
+17:18 WHITESPACE " "
+17:19 PUNCT      "="
+17:20 WHITESPACE " "
+17:21 NUMBER     "67"
+17:23 PUNCT      ";"
+17:24 WHITESPACE "\n  "
+18:3 IDENTIFIER "speed"
+18:8 WHITESPACE " "
+18:9 PUNCT      "="
+18:10 WHITESPACE " "
+18:11 NUMBER     "0.0"
+18:14 PUNCT      ";"
+18:15 WHITESPACE "\n  "
+19:3 IDENTIFIER "lastScore"
+19:12 WHITESPACE " "
+19:13 PUNCT      "="
+19:14 WHITESPACE " "
+19:15 NUMBER     "92.0"
+19:19 PUNCT      ";"
+19:20 WHITESPACE "\n  "
+20:3 IDENTIFIER "stepCount"
+20:12 WHITESPACE " "
+20:13 PUNCT      "="
+20:14 WHITESPACE " "
+20:15 NUMBER     "1"
+20:16 PUNCT      ";"
+20:17 WHITESPACE "\n  "
+21:3 IDENTIFIER "todayAverage"
 21:15 WHITESPACE " "
 21:16 PUNCT      "="
 21:17 WHITESPACE " "
-21:18 NUMBER     "0.3"
-21:21 PUNCT      ";"
-21:22 WHITESPACE "\n\n  "
-23:3 IDENTIFIER "lowerLegX2"
-23:13 WHITESPACE " "
-23:14 PUNCT      "="
-23:15 WHITESPACE " "
-23:16 STRING     "'183.4'"
-23:23 PUNCT      ";"
-23:24 WHITESPACE "\n  "
-24:3 IDENTIFIER "lowerLegY2"
-24:13 WHITESPACE " "
-24:14 PUNCT      "="
-24:15 WHITESPACE " "
-24:16 STRING     "'264.1'"
-24:23 PUNCT      ";"
-24:24 WHITESPACE "\n  "
-25:3 IDENTIFIER "ankleX"
-25:9 WHITESPACE " "
-25:10 PUNCT      "="
-25:11 WHITESPACE " "
-25:12 STRING     "'183.4'"
-25:19 PUNCT      ";"
-25:20 WHITESPACE "\n  "
-26:3 IDENTIFIER "ankleY"
-26:9 WHITESPACE " "
-26:10 PUNCT      "="
-26:11 WHITESPACE " "
-26:12 STRING     "'264.1'"
-26:19 PUNCT      ";"
-26:20 WHITESPACE "\n\n  "
-28:3 IDENTIFIER "ngOnInit"
-28:11 PUNCT      "("
-28:12 PUNCT      ")"
-28:13 WHITESPACE " "
-28:14 PUNCT      "{"
-28:15 PUNCT      "}"
-28:16 WHITESPACE "\n\n  "
-30:3 IDENTIFIER "switchView"
-30:13 PUNCT      "("
-30:14 IDENTIFIER "view"
-30:18 PUNCT      ")"
-30:19 WHITESPACE " "
-30:20 PUNCT      "{"
-30:21 WHITESPACE "\n    "
-31:5 IDENTIFIER "this"
-31:9 PUNCT      "."
-31:10 IDENTIFIER "selectedView"
-31:22 WHITESPACE " "
-31:23 PUNCT      "="
-31:24 WHITESPACE " "
-31:25 IDENTIFIER "view"
-31:29 PUNCT      ";"
-31:30 WHITESPACE "\n  "
-32:3 PUNCT      "}"
-32:4 WHITESPACE "\n\n  "
-34:3 IDENTIFIER "clamp"
-34:8 PUNCT      "("
-34:9 IDENTIFIER "value"
-34:14 PUNCT      ","
-34:15 WHITESPACE " "
-34:16 IDENTIFIER "min"
-34:19 PUNCT      ","
-34:20 WHITESPACE " "
-34:21 IDENTIFIER "max"
-34:24 PUNCT      ")"
-34:25 WHITESPACE " "
-34:26 PUNCT      "{"
-34:27 WHITESPACE "\n    "
-35:5 IDENTIFIER "return"
-35:11 WHITESPACE " "
-35:12 IDENTIFIER "Math"
-35:16 PUNCT      "."
-35:17 IDENTIFIER "min"
-35:20 PUNCT      "("
-35:21 IDENTIFIER "max"
-35:24 PUNCT      ","
-35:25 WHITESPACE " "
-35:26 IDENTIFIER "Math"
-35:30 PUNCT      "."
-35:31 IDENTIFIER "max"
-35:34 PUNCT      "("
-35:35 IDENTIFIER "min"
-35:38 PUNCT      ","
-35:39 WHITESPACE " "
-35:40 IDENTIFIER "value"
-35:45 PUNCT      ")"
-35:46 PUNCT      ")"
-35:47 PUNCT      ";"
-35:48 WHITESPACE "\n  "
-36:3 PUNCT      "}"
-36:4 WHITESPACE "\n\n  "
-38:3 IDENTIFIER "mapPercentToAngle"
-38:20 PUNCT      "("
-38:21 IDENTIFIER "percentStraight"
-38:36 PUNCT      ")"
-38:37 WHITESPACE " "
-38:38 PUNCT      "{"
-38:39 WHITESPACE "\n    "
-39:5 IDENTIFIER "const"
-39:10 WHITESPACE " "
-39:11 IDENTIFIER "normalized"
-39:21 WHITESPACE " "
-39:22 PUNCT      "="
-39:23 WHITESPACE " "
-39:24 IDENTIFIER "this"
-39:28 PUNCT      "."
-39:29 IDENTIFIER "clamp"
-39:34 PUNCT      "("
-39:35 IDENTIFIER "percentStraight"
-39:50 WHITESPACE " "
-39:51 PUNCT      "/"
-39:52 WHITESPACE " "
-39:53 NUMBER     "100"
-39:56 PUNCT      ","
-39:57 WHITESPACE " "
-39:58 NUMBER     "0"
-39:59 PUNCT      ","
-39:60 WHITESPACE " "
-39:61 NUMBER     "1"
-39:62 PUNCT      ")"
-39:63 PUNCT      ";"
-39:64 WHITESPACE "\n    "
-40:5 IDENTIFIER "return"
-40:11 WHITESPACE " "
-40:12 NUMBER     "78"
-40:14 WHITESPACE " "
-40:15 PUNCT      "+"
-40:16 WHITESPACE " "
-40:17 PUNCT      "("
-40:18 NUMBER     "0"
-40:19 WHITESPACE " "
-40:20 PUNCT      "-"
-40:21 WHITESPACE " "
-40:22 NUMBER     "78"
+21:18 NUMBER     "92.0"
+21:22 PUNCT      ";"
+21:23 WHITESPACE "\n  "
+22:3 IDENTIFIER "timeSynced"
+22:13 WHITESPACE " "
+22:14 PUNCT      "="
+22:15 WHITESPACE " "
+22:16 IDENTIFIER "true"
+22:20 PUNCT      ";"
+22:21 WHITESPACE "\n  "
+23:3 IDENTIFIER "inStep"
+23:9 WHITESPACE " "
+23:10 PUNCT      "="
+23:11 WHITESPACE " "
+23:12 IDENTIFIER "false"
+23:17 PUNCT      ";"
+23:18 WHITESPACE "\n\n  "
+25:3 IDENTIFIER "shaky"
+25:8 WHITESPACE " "
+25:9 PUNCT      "="
+25:10 WHITESPACE " "
+25:11 NUMBER     "1.2"
+25:14 PUNCT      ";"
+25:15 WHITESPACE "\n  "
+26:3 IDENTIFIER "uncontrolledDescent"
+26:22 WHITESPACE " "
+26:23 PUNCT      "="
+26:24 WHITESPACE " "
+26:25 NUMBER     "0.4"
+26:28 PUNCT      ";"
+26:29 WHITESPACE "\n  "
+27:3 IDENTIFIER "compensation"
+27:15 WHITESPACE " "
+27:16 PUNCT      "="
+27:17 WHITESPACE " "
+27:18 NUMBER     "0.3"
+27:21 PUNCT      ";"
+27:22 WHITESPACE "\n\n  "
+29:3 IDENTIFIER "lowerLegX2"
+29:13 WHITESPACE " "
+29:14 PUNCT      "="
+29:15 WHITESPACE " "
+29:16 STRING     "'183.4'"
+29:23 PUNCT      ";"
+29:24 WHITESPACE "\n  "
+30:3 IDENTIFIER "lowerLegY2"
+30:13 WHITESPACE " "
+30:14 PUNCT      "="
+30:15 WHITESPACE " "
+30:16 STRING     "'264.1'"
+30:23 PUNCT      ";"
+30:24 WHITESPACE "\n  "
+31:3 IDENTIFIER "ankleX"
+31:9 WHITESPACE " "
+31:10 PUNCT      "="
+31:11 WHITESPACE " "
+31:12 STRING     "'183.4'"
+31:19 PUNCT      ";"
+31:20 WHITESPACE "\n  "
+32:3 IDENTIFIER "ankleY"
+32:9 WHITESPACE " "
+32:10 PUNCT      "="
+32:11 WHITESPACE " "
+32:12 STRING     "'264.1'"
+32:19 PUNCT      ";"
+32:20 WHITESPACE "\n\n  "
+34:3 IDENTIFIER "ngOnInit"
+34:11 PUNCT      "("
+34:12 PUNCT      ")"
+34:13 WHITESPACE " "
+34:14 PUNCT      "{"
+34:15 PUNCT      "}"
+34:16 WHITESPACE "\n\n  "
+36:3 IDENTIFIER "switchView"
+36:13 PUNCT      "("
+36:14 IDENTIFIER "view"
+36:18 PUNCT      ")"
+36:19 WHITESPACE " "
+36:20 PUNCT      "{"
+36:21 WHITESPACE "\n    "
+37:5 IDENTIFIER "this"
+37:9 PUNCT      "."
+37:10 IDENTIFIER "selectedView"
+37:22 WHITESPACE " "
+37:23 PUNCT      "="
+37:24 WHITESPACE " "
+37:25 IDENTIFIER "view"
+37:29 PUNCT      ";"
+37:30 WHITESPACE "\n  "
+38:3 PUNCT      "}"
+38:4 WHITESPACE "\n\n  "
+40:3 IDENTIFIER "clamp"
+40:8 PUNCT      "("
+40:9 IDENTIFIER "value"
+40:14 PUNCT      ","
+40:15 WHITESPACE " "
+40:16 IDENTIFIER "min"
+40:19 PUNCT      ","
+40:20 WHITESPACE " "
+40:21 IDENTIFIER "max"
 40:24 PUNCT      ")"
 40:25 WHITESPACE " "
-40:26 PUNCT      "*"
-40:27 WHITESPACE " "
-40:28 IDENTIFIER "normalized"
-40:38 PUNCT      ";"
-40:39 WHITESPACE "\n  "
-41:3 PUNCT      "}"
-41:4 WHITESPACE "\n\n  "
-43:3 IDENTIFIER "updateKnee"
-43:13 PUNCT      "("
-43:14 IDENTIFIER "percentStraight"
-43:29 PUNCT      ")"
-43:30 WHITESPACE " "
-43:31 PUNCT      "{"
-43:32 WHITESPACE "\n    "
-44:5 IDENTIFIER "const"
-44:10 WHITESPACE " "
-44:11 IDENTIFIER "angle"
-44:16 WHITESPACE " "
-44:17 PUNCT      "="
-44:18 WHITESPACE " "
-44:19 IDENTIFIER "this"
-44:23 PUNCT      "."
-44:24 IDENTIFIER "mapPercentToAngle"
-44:41 PUNCT      "("
-44:42 IDENTIFIER "percentStraight"
-44:57 PUNCT      ")"
-44:58 PUNCT      ";"
-44:59 WHITESPACE "\n    "
+40:26 PUNCT      "{"
+40:27 WHITESPACE "\n    "
+41:5 IDENTIFIER "return"
+41:11 WHITESPACE " "
+41:12 IDENTIFIER "Math"
+41:16 PUNCT      "."
+41:17 IDENTIFIER "min"
+41:20 PUNCT      "("
+41:21 IDENTIFIER "max"
+41:24 PUNCT      ","
+41:25 WHITESPACE " "
+41:26 IDENTIFIER "Math"
+41:30 PUNCT      "."
+41:31 IDENTIFIER "max"
+41:34 PUNCT      "("
+41:35 IDENTIFIER "min"
+41:38 PUNCT      ","
+41:39 WHITESPACE " "
+41:40 IDENTIFIER "value"
+41:45 PUNCT      ")"
+41:46 PUNCT      ")"
+41:47 PUNCT      ";"
+41:48 WHITESPACE "\n  "
+42:3 PUNCT      "}"
+42:4 WHITESPACE "\n\n  "
+44:3 IDENTIFIER "mapPercentToAngle"
+44:20 PUNCT      "("
+44:21 IDENTIFIER "percentStraight"
+44:36 PUNCT      ")"
+44:37 WHITESPACE " "
+44:38 PUNCT      "{"
+44:39 WHITESPACE "\n    "
 45:5 IDENTIFIER "const"
 45:10 WHITESPACE " "
-45:11 IDENTIFIER "radians"
-45:18 WHITESPACE " "
-45:19 PUNCT      "="
-45:20 WHITESPACE " "
-45:21 IDENTIFIER "angle"
-45:26 WHITESPACE " "
-45:27 PUNCT      "*"
-45:28 WHITESPACE " "
-45:29 IDENTIFIER "Math"
-45:33 PUNCT      "."
-45:34 IDENTIFIER "PI"
-45:36 WHITESPACE " "
-45:37 PUNCT      "/"
-45:38 WHITESPACE " "
-45:39 NUMBER     "180"
-45:42 PUNCT      ";"
-45:43 WHITESPACE "\n    "
-46:5 IDENTIFIER "const"
-46:10 WHITESPACE " "
-46:11 IDENTIFIER "kneeX"
+45:11 IDENTIFIER "normalized"
+45:21 WHITESPACE " "
+45:22 PUNCT      "="
+45:23 WHITESPACE " "
+45:24 IDENTIFIER "this"
+45:28 PUNCT      "."
+45:29 IDENTIFIER "clamp"
+45:34 PUNCT      "("
+45:35 IDENTIFIER "percentStraight"
+45:50 WHITESPACE " "
+45:51 PUNCT      "/"
+45:52 WHITESPACE " "
+45:53 NUMBER     "100"
+45:56 PUNCT      ","
+45:57 WHITESPACE " "
+45:58 NUMBER     "0"
+45:59 PUNCT      ","
+45:60 WHITESPACE " "
+45:61 NUMBER     "1"
+45:62 PUNCT      ")"
+45:63 PUNCT      ";"
+45:64 WHITESPACE "\n    "
+46:5 IDENTIFIER "return"
+46:11 WHITESPACE " "
+46:12 NUMBER     "78"
+46:14 WHITESPACE " "
+46:15 PUNCT      "+"
 46:16 WHITESPACE " "
-46:17 PUNCT      "="
-46:18 WHITESPACE " "
-46:19 NUMBER     "140"
-46:22 PUNCT      ";"
-46:23 WHITESPACE "\n    "
-47:5 IDENTIFIER "const"
-47:10 WHITESPACE " "
-47:11 IDENTIFIER "kneeY"
-47:16 WHITESPACE " "
-47:17 PUNCT      "="
-47:18 WHITESPACE " "
-47:19 NUMBER     "174"
-47:22 PUNCT      ";"
-47:23 WHITESPACE "\n    "
-48:5 IDENTIFIER "const"
-48:10 WHITESPACE " "
-48:11 IDENTIFIER "shinLength"
-48:21 WHITESPACE " "
-48:22 PUNCT      "="
-48:23 WHITESPACE " "
-48:24 NUMBER     "100"
-48:27 PUNCT      ";"
-48:28 WHITESPACE "\n    "
-49:5 IDENTIFIER "const"
-49:10 WHITESPACE " "
-49:11 IDENTIFIER "ankleX"
-49:17 WHITESPACE " "
-49:18 PUNCT      "="
-49:19 WHITESPACE " "
-49:20 IDENTIFIER "kneeX"
-49:25 WHITESPACE " "
-49:26 PUNCT      "+"
-49:27 WHITESPACE " "
-49:28 IDENTIFIER "Math"
-49:32 PUNCT      "."
-49:33 IDENTIFIER "sin"
-49:36 PUNCT      "("
-49:37 IDENTIFIER "radians"
-49:44 PUNCT      ")"
-49:45 WHITESPACE " "
-49:46 PUNCT      "*"
-49:47 WHITESPACE " "
-49:48 IDENTIFIER "shinLength"
-49:58 PUNCT      ";"
-49:59 WHITESPACE "\n    "
+46:17 PUNCT      "("
+46:18 NUMBER     "0"
+46:19 WHITESPACE " "
+46:20 PUNCT      "-"
+46:21 WHITESPACE " "
+46:22 NUMBER     "78"
+46:24 PUNCT      ")"
+46:25 WHITESPACE " "
+46:26 PUNCT      "*"
+46:27 WHITESPACE " "
+46:28 IDENTIFIER "normalized"
+46:38 PUNCT      ";"
+46:39 WHITESPACE "\n  "
+47:3 PUNCT      "}"
+47:4 WHITESPACE "\n\n  "
+49:3 IDENTIFIER "updateKnee"
+49:13 PUNCT      "("
+49:14 IDENTIFIER "percentStraight"
+49:29 PUNCT      ")"
+49:30 WHITESPACE " "
+49:31 PUNCT      "{"
+49:32 WHITESPACE "\n    "
 50:5 IDENTIFIER "const"
 50:10 WHITESPACE " "
-50:11 IDENTIFIER "ankleY"
-50:17 WHITESPACE " "
-50:18 PUNCT      "="
-50:19 WHITESPACE " "
-50:20 IDENTIFIER "kneeY"
-50:25 WHITESPACE " "
-50:26 PUNCT      "+"
-50:27 WHITESPACE " "
-50:28 IDENTIFIER "Math"
-50:32 PUNCT      "."
-50:33 IDENTIFIER "cos"
-50:36 PUNCT      "("
-50:37 IDENTIFIER "radians"
-50:44 PUNCT      ")"
-50:45 WHITESPACE " "
-50:46 PUNCT      "*"
-50:47 WHITESPACE " "
-50:48 IDENTIFIER "shinLength"
+50:11 IDENTIFIER "angle"
+50:16 WHITESPACE " "
+50:17 PUNCT      "="
+50:18 WHITESPACE " "
+50:19 IDENTIFIER "this"
+50:23 PUNCT      "."
+50:24 IDENTIFIER "mapPercentToAngle"
+50:41 PUNCT      "("
+50:42 IDENTIFIER "percentStraight"
+50:57 PUNCT      ")"
 50:58 PUNCT      ";"
-50:59 WHITESPACE "\n\n    "
-52:5 IDENTIFIER "this"
-52:9 PUNCT      "."
-52:10 IDENTIFIER "lowerLegX2"
-52:20 WHITESPACE " "
-52:21 PUNCT      "="
-52:22 WHITESPACE " "
-52:23 IDENTIFIER "ankleX"
-52:29 PUNCT      "."
-52:30 IDENTIFIER "toFixed"
-52:37 PUNCT      "("
-52:38 NUMBER     "1"
-52:39 PUNCT      ")"
-52:40 PUNCT      ";"
-52:41 WHITESPACE "\n    "
-53:5 IDENTIFIER "this"
-53:9 PUNCT      "."
-53:10 IDENTIFIER "lowerLegY2"
-53:20 WHITESPACE " "
-53:21 PUNCT      "="
-53:22 WHITESPACE " "
-53:23 IDENTIFIER "ankleY"
-53:29 PUNCT      "."
-53:30 IDENTIFIER "toFixed"
-53:37 PUNCT      "("
-53:38 NUMBER     "1"
-53:39 PUNCT      ")"
-53:40 PUNCT      ";"
-53:41 WHITESPACE "\n    "
-54:5 IDENTIFIER "this"
-54:9 PUNCT      "."
-54:10 IDENTIFIER "ankleX"
-54:16 WHITESPACE " "
-54:17 PUNCT      "="
-54:18 WHITESPACE " "
-54:19 IDENTIFIER "ankleX"
-54:25 PUNCT      "."
-54:26 IDENTIFIER "toFixed"
-54:33 PUNCT      "("
-54:34 NUMBER     "1"
-54:35 PUNCT      ")"
-54:36 PUNCT      ";"
-54:37 WHITESPACE "\n    "
-55:5 IDENTIFIER "this"
-55:9 PUNCT      "."
-55:10 IDENTIFIER "ankleY"
-55:16 WHITESPACE " "
-55:17 PUNCT      "="
-55:18 WHITESPACE " "
-55:19 IDENTIFIER "ankleY"
-55:25 PUNCT      "."
-55:26 IDENTIFIER "toFixed"
-55:33 PUNCT      "("
-55:34 NUMBER     "1"
-55:35 PUNCT      ")"
-55:36 PUNCT      ";"
-55:37 WHITESPACE "\n  "
-56:3 PUNCT      "}"
-56:4 WHITESPACE "\n"
-57:1 PUNCT      "}"
-57:2 WHITESPACE "\n"
-58:1 EOF        ""
-[TRACE src/parser/src/parser.c:188] parser_summarize_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng length=1285 kind=component
-[TRACE src/parser/src/parser.c:199] parser_summarize_file token summary path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng total=439 significant=283
-[TRACE src/parser/src/parser.c:145] parser_parse_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng length=1285 token_count=439 kind=component
+50:59 WHITESPACE "\n    "
+51:5 IDENTIFIER "const"
+51:10 WHITESPACE " "
+51:11 IDENTIFIER "radians"
+51:18 WHITESPACE " "
+51:19 PUNCT      "="
+51:20 WHITESPACE " "
+51:21 IDENTIFIER "angle"
+51:26 WHITESPACE " "
+51:27 PUNCT      "*"
+51:28 WHITESPACE " "
+51:29 IDENTIFIER "Math"
+51:33 PUNCT      "."
+51:34 IDENTIFIER "PI"
+51:36 WHITESPACE " "
+51:37 PUNCT      "/"
+51:38 WHITESPACE " "
+51:39 NUMBER     "180"
+51:42 PUNCT      ";"
+51:43 WHITESPACE "\n    "
+52:5 IDENTIFIER "const"
+52:10 WHITESPACE " "
+52:11 IDENTIFIER "kneeX"
+52:16 WHITESPACE " "
+52:17 PUNCT      "="
+52:18 WHITESPACE " "
+52:19 NUMBER     "140"
+52:22 PUNCT      ";"
+52:23 WHITESPACE "\n    "
+53:5 IDENTIFIER "const"
+53:10 WHITESPACE " "
+53:11 IDENTIFIER "kneeY"
+53:16 WHITESPACE " "
+53:17 PUNCT      "="
+53:18 WHITESPACE " "
+53:19 NUMBER     "174"
+53:22 PUNCT      ";"
+53:23 WHITESPACE "\n    "
+54:5 IDENTIFIER "const"
+54:10 WHITESPACE " "
+54:11 IDENTIFIER "shinLength"
+54:21 WHITESPACE " "
+54:22 PUNCT      "="
+54:23 WHITESPACE " "
+54:24 NUMBER     "100"
+54:27 PUNCT      ";"
+54:28 WHITESPACE "\n    "
+55:5 IDENTIFIER "const"
+55:10 WHITESPACE " "
+55:11 IDENTIFIER "ankleX"
+55:17 WHITESPACE " "
+55:18 PUNCT      "="
+55:19 WHITESPACE " "
+55:20 IDENTIFIER "kneeX"
+55:25 WHITESPACE " "
+55:26 PUNCT      "+"
+55:27 WHITESPACE " "
+55:28 IDENTIFIER "Math"
+55:32 PUNCT      "."
+55:33 IDENTIFIER "sin"
+55:36 PUNCT      "("
+55:37 IDENTIFIER "radians"
+55:44 PUNCT      ")"
+55:45 WHITESPACE " "
+55:46 PUNCT      "*"
+55:47 WHITESPACE " "
+55:48 IDENTIFIER "shinLength"
+55:58 PUNCT      ";"
+55:59 WHITESPACE "\n    "
+56:5 IDENTIFIER "const"
+56:10 WHITESPACE " "
+56:11 IDENTIFIER "ankleY"
+56:17 WHITESPACE " "
+56:18 PUNCT      "="
+56:19 WHITESPACE " "
+56:20 IDENTIFIER "kneeY"
+56:25 WHITESPACE " "
+56:26 PUNCT      "+"
+56:27 WHITESPACE " "
+56:28 IDENTIFIER "Math"
+56:32 PUNCT      "."
+56:33 IDENTIFIER "cos"
+56:36 PUNCT      "("
+56:37 IDENTIFIER "radians"
+56:44 PUNCT      ")"
+56:45 WHITESPACE " "
+56:46 PUNCT      "*"
+56:47 WHITESPACE " "
+56:48 IDENTIFIER "shinLength"
+56:58 PUNCT      ";"
+56:59 WHITESPACE "\n\n    "
+58:5 IDENTIFIER "this"
+58:9 PUNCT      "."
+58:10 IDENTIFIER "lowerLegX2"
+58:20 WHITESPACE " "
+58:21 PUNCT      "="
+58:22 WHITESPACE " "
+58:23 IDENTIFIER "ankleX"
+58:29 PUNCT      "."
+58:30 IDENTIFIER "toFixed"
+58:37 PUNCT      "("
+58:38 NUMBER     "1"
+58:39 PUNCT      ")"
+58:40 PUNCT      ";"
+58:41 WHITESPACE "\n    "
+59:5 IDENTIFIER "this"
+59:9 PUNCT      "."
+59:10 IDENTIFIER "lowerLegY2"
+59:20 WHITESPACE " "
+59:21 PUNCT      "="
+59:22 WHITESPACE " "
+59:23 IDENTIFIER "ankleY"
+59:29 PUNCT      "."
+59:30 IDENTIFIER "toFixed"
+59:37 PUNCT      "("
+59:38 NUMBER     "1"
+59:39 PUNCT      ")"
+59:40 PUNCT      ";"
+59:41 WHITESPACE "\n    "
+60:5 IDENTIFIER "this"
+60:9 PUNCT      "."
+60:10 IDENTIFIER "ankleX"
+60:16 WHITESPACE " "
+60:17 PUNCT      "="
+60:18 WHITESPACE " "
+60:19 IDENTIFIER "ankleX"
+60:25 PUNCT      "."
+60:26 IDENTIFIER "toFixed"
+60:33 PUNCT      "("
+60:34 NUMBER     "1"
+60:35 PUNCT      ")"
+60:36 PUNCT      ";"
+60:37 WHITESPACE "\n    "
+61:5 IDENTIFIER "this"
+61:9 PUNCT      "."
+61:10 IDENTIFIER "ankleY"
+61:16 WHITESPACE " "
+61:17 PUNCT      "="
+61:18 WHITESPACE " "
+61:19 IDENTIFIER "ankleY"
+61:25 PUNCT      "."
+61:26 IDENTIFIER "toFixed"
+61:33 PUNCT      "("
+61:34 NUMBER     "1"
+61:35 PUNCT      ")"
+61:36 PUNCT      ";"
+61:37 WHITESPACE "\n  "
+62:3 PUNCT      "}"
+62:4 WHITESPACE "\n"
+63:1 PUNCT      "}"
+63:2 WHITESPACE "\n"
+64:1 EOF        ""
+[TRACE src/parser/src/parser.c:188] parser_summarize_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng length=1510 kind=component
+[TRACE src/parser/src/parser.c:199] parser_summarize_file token summary path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng total=508 significant=334
+[TRACE src/parser/src/parser.c:145] parser_parse_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng length=1510 token_count=508 kind=component
 [TRACE src/parser/src/parser.c:172] parser_parse_file finish path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng result=0 ast_kind=component
 [TRACE src/parser/src/parser.c:212] parser_summarize_file finish path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng decorators=1 classes=1 interpolations=0 attr_bindings=0
-[TRACE src/parser/src/parser.c:145] parser_parse_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng length=1285 token_count=439 kind=component
+[TRACE src/parser/src/parser.c:145] parser_parse_file start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng length=1510 token_count=508 kind=component
 [TRACE src/parser/src/parser.c:172] parser_parse_file finish path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng result=0 ast_kind=component
-SUMMARY kind=component total=439 significant=283 identifiers=101 strings=8 templates=0 numbers=24 punctuation=150 comments=0 decorators=1 classes=1 interpolations=0 attr_bindings=0 braces=0/0
-AST component decorator=yes class=AppComponent members=22 [selectedView:field, goal:field, reading:field, percentStraight:field, speed:field, lastScore:field, stepCount:field, todayAverage:field, timeSynced:field, inStep:field, shaky:field, uncontrolledDescent:field, compensation:field, lowerLegX2:field, lowerLegY2:field, ankleX:field, ankleY:field, ngOnInit:method, switchView:method, clamp:method, mapPercentToAngle:method, updateKnee:method]
+SUMMARY kind=component total=508 significant=334 identifiers=116 strings=13 templates=0 numbers=27 punctuation=178 comments=0 decorators=1 classes=1 interpolations=0 attr_bindings=0 braces=0/0
+AST component decorator=yes class=AppComponent members=30 [selectedView$:field, state:method, liveState$:field, poll:method, historyState$:field, variablesState$:field, saveVariables$:field, post:method, selectedView:field, goal:field, reading:field, percentStraight:field, speed:field, lastScore:field, stepCount:field, todayAverage:field, timeSynced:field, inStep:field, shaky:field, uncontrolledDescent:field, compensation:field, lowerLegX2:field, lowerLegY2:field, ankleX:field, ankleY:field, ngOnInit:method, switchView:method, clamp:method, mapPercentToAngle:method, updateKnee:method]
 VALIDATION OK
 
-[TRACE src/cli.c:99] tokenize_file capture component path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng bytes=1285
-[TRACE src/cli.c:113] tokenize_file success path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng
+[TRACE src/cli.c:107] tokenize_file capture component path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng bytes=1510
+[TRACE src/cli.c:121] tokenize_file success path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.component.ng
 
-[TRACE src/file_io.c:69] file_buffer_free size=1285
-[TRACE src/path_scan.c:86] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app
-[TRACE src/cli.c:131] cli_generate_outputs output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated html_bytes=8119 css_bytes=6326
-[TRACE src/generator.c:564] generator_generate_embedded_bundle output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated html_bytes=8119 css_bytes=6326 js_bytes=11722
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=index.html path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
-[TRACE src/generator.c:33] generator_write_text_asset filename=index.html bytes=8119
-[TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
-[TRACE src/output_fs.c:136] output_fs_write_text bytes=8119 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
-[TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=styles.css path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
-[TRACE src/generator.c:33] generator_write_text_asset filename=styles.css bytes=6326
-[TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
-[TRACE src/output_fs.c:136] output_fs_write_text bytes=6326 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
-[TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=app.js path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
-[TRACE src/generator.c:33] generator_write_text_asset filename=app.js bytes=11722
-[TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
-[TRACE src/output_fs.c:136] output_fs_write_text bytes=11722 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
-[TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.h path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
-[TRACE src/generator.c:33] generator_write_text_asset filename=web_runtime_generated.h bytes=918
+[TRACE src/file_io.c:69] file_buffer_free size=1510
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
+[TRACE src/cli.c:61] tokenize_file skip non-ast asset path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes attributes=16
+[TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET attributes=16
+[TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api attributes=16
+[TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json
+[TRACE src/cli.c:61] tokenize_file skip non-ast asset path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
+[TRACE src/cli.c:61] tokenize_file skip non-ast asset path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
+[TRACE src/cli.c:61] tokenize_file skip non-ast asset path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
+[TRACE src/cli.c:61] tokenize_file skip non-ast asset path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
+[TRACE src/cli.c:61] tokenize_file skip non-ast asset path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
+[TRACE src/cli.c:61] tokenize_file skip non-ast asset path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
+[TRACE src/cli.c:61] tokenize_file skip non-ast asset path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST attributes=16
+[TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api attributes=16
+[TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json
+[TRACE src/cli.c:61] tokenize_file skip non-ast asset path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app
+[TRACE src/cli.c:139] cli_generate_outputs output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated html_bytes=8119 css_bytes=6326
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\angular_app filename=app.js path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
+[TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
+[TRACE src/file_io.c:33] file_read_all size=5671 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
+[TRACE src/file_io.c:60] file_read_all success bytes=5671 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\angular_app filename=routes path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
+[TRACE src/output_fs.c:150] output_fs_file_exists path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes exists=1
+[TRACE src/generator.c:244] generator_collect_route_assets root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
+[TRACE src/path_scan.c:94] path_scan_directory start root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET attributes=16
+[TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api attributes=16
+[TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json
+[TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json
+[TRACE src/file_io.c:33] file_read_all size=550 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json
+[TRACE src/file_io.c:60] file_read_all success bytes=550 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json
+[TRACE src/generator.c:225] generator_collect_route_file method=GET path=/api/history bytes=550
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
+[TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
+[TRACE src/file_io.c:33] file_read_all size=217 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
+[TRACE src/file_io.c:60] file_read_all success bytes=217 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
+[TRACE src/generator.c:225] generator_collect_route_file method=GET path=/api/live bytes=217
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
+[TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
+[TRACE src/file_io.c:33] file_read_all size=12 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
+[TRACE src/file_io.c:60] file_read_all success bytes=12 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
+[TRACE src/generator.c:225] generator_collect_route_file method=GET path=/api/time-sync bytes=12
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
+[TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
+[TRACE src/file_io.c:33] file_read_all size=305 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
+[TRACE src/file_io.c:60] file_read_all success bytes=305 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
+[TRACE src/generator.c:225] generator_collect_route_file method=GET path=/api/variables bytes=305
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
+[TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
+[TRACE src/file_io.c:33] file_read_all size=294 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
+[TRACE src/file_io.c:60] file_read_all success bytes=294 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
+[TRACE src/generator.c:225] generator_collect_route_file method=GET path=/state bytes=294
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
+[TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
+[TRACE src/file_io.c:33] file_read_all size=5 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
+[TRACE src/file_io.c:60] file_read_all success bytes=5 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
+[TRACE src/generator.c:225] generator_collect_route_file method=GET path=/value bytes=5
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
+[TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
+[TRACE src/file_io.c:33] file_read_all size=1429 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
+[TRACE src/file_io.c:60] file_read_all success bytes=1429 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
+[TRACE src/generator.c:225] generator_collect_route_file method=GET path=/variables bytes=1429
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST attributes=16
+[TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api attributes=16
+[TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api
+[TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api name=.
+[TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api name=..
+[TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json attributes=32
+[TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json
+[TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json
+[TRACE src/file_io.c:33] file_read_all size=39 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json
+[TRACE src/file_io.c:60] file_read_all success bytes=39 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json
+[TRACE src/generator.c:225] generator_collect_route_file method=POST path=/api/variables bytes=39
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST
+[TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.h path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
+[TRACE src/generator.c:50] generator_write_text_asset filename=web_runtime_generated.h bytes=631
 [TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
-[TRACE src/output_fs.c:136] output_fs_write_text bytes=918 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
+[TRACE src/output_fs.c:136] output_fs_write_text bytes=631 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
 [TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
-[TRACE src/generator.c:33] generator_write_text_asset filename=web_runtime_generated.cpp bytes=6481
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
+[TRACE src/generator.c:50] generator_write_text_asset filename=web_runtime_generated.cpp bytes=5741
 [TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
-[TRACE src/output_fs.c:136] output_fs_write_text bytes=6481 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
+[TRACE src/output_fs.c:136] output_fs_write_text bytes=5741 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
 [TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_page_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
-[TRACE src/generator.c:47] generator_emit_cpp_bundle path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_page_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
+[TRACE src/generator.c:264] generator_emit_cpp_bundle path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
 [TRACE src/asset_writer.c:12] asset_writer_write_prolog
 [TRACE src/asset_writer.c:23] asset_writer_write_asset symbol=INDEX_HTML tag=HTML_ASSET bytes=8119
 [TRACE src/asset_writer.c:23] asset_writer_write_asset symbol=STYLES_CSS tag=CSS_ASSET bytes=6326
-[TRACE src/asset_writer.c:23] asset_writer_write_asset symbol=APP_JS tag=JS_ASSET bytes=11722
+[TRACE src/asset_writer.c:23] asset_writer_write_asset symbol=APP_JS tag=JS_ASSET bytes=5671
 [TRACE src/asset_writer.c:36] asset_writer_write_epilog
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.h path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=index.html path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
+[TRACE src/generator.c:50] generator_write_text_asset filename=index.html bytes=8119
+[TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
+[TRACE src/output_fs.c:136] output_fs_write_text bytes=8119 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
+[TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=styles.css path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
+[TRACE src/generator.c:50] generator_write_text_asset filename=styles.css bytes=6326
+[TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
+[TRACE src/output_fs.c:136] output_fs_write_text bytes=6326 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
+[TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=app.js path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
+[TRACE src/generator.c:50] generator_write_text_asset filename=app.js bytes=5671
+[TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
+[TRACE src/output_fs.c:136] output_fs_write_text bytes=5671 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
+[TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
+[TRACE src/file_io.c:69] file_buffer_free size=550
+[TRACE src/file_io.c:69] file_buffer_free size=217
+[TRACE src/file_io.c:69] file_buffer_free size=12
+[TRACE src/file_io.c:69] file_buffer_free size=305
+[TRACE src/file_io.c:69] file_buffer_free size=294
+[TRACE src/file_io.c:69] file_buffer_free size=5
+[TRACE src/file_io.c:69] file_buffer_free size=1429
+[TRACE src/file_io.c:69] file_buffer_free size=39
+[TRACE src/file_io.c:69] file_buffer_free size=5671
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.h path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
 [TRACE src/output_fs.c:150] output_fs_file_exists path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h exists=1
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
 [TRACE src/output_fs.c:150] output_fs_file_exists path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp exists=1
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_page_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_page_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
 [TRACE src/output_fs.c:150] output_fs_file_exists path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp exists=1
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=index.html path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=index.html path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html
 [TRACE src/output_fs.c:150] output_fs_file_exists path=C:\Users\ccw10\Documents\s-sleeve\src\generated\index.html exists=1
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=styles.css path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=styles.css path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css
 [TRACE src/output_fs.c:150] output_fs_file_exists path=C:\Users\ccw10\Documents\s-sleeve\src\generated\styles.css exists=1
-[TRACE src/generator.c:24] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=app.js path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
+[TRACE src/generator.c:41] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=app.js path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
 [TRACE src/output_fs.c:150] output_fs_file_exists path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js exists=1
-EMBEDDED GENERATION VALIDATION OK
-[TRACE src/cli.c:204] cli_run finished scan files=3 tokens=5574 validated=3
-Processed 3 files, 5574 tokens, 3 validated summaries.
+EMBEDDED BUNDLE VALIDATION OK
+[TRACE src/cli.c:214] cli_run finished scan files=3 tokens=5643 validated=3
+Processed 3 files, 5643 tokens, 3 validated summaries.
 Generated embedded bundle in C:\Users\ccw10\Documents\s-sleeve\src\generated
 [TRACE src/file_io.c:69] file_buffer_free size=8119
 [TRACE src/file_io.c:69] file_buffer_free size=6326
