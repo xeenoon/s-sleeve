@@ -1,0 +1,164 @@
+<div class="shell">
+  <section class="hero">
+    <div class="panel">
+      <p class="eyebrow">Rehab Tracker</p>
+      <h1 class="headline">{{ live.todayAverage.toFixed(1) }}/100</h1>
+      <p class="subline">Daily average step quality with a goal of <strong>{{ goal }}</strong>.</p>
+    </div>
+
+    <div class="panel">
+      <div class="status-row">
+        <div class="tabs">
+          <button type="button" [class.active]="selectedView === 'live'" (click)="switchView('live')">Live</button>
+          <button type="button" [class.active]="selectedView === 'history'" (click)="switchView('history')">History</button>
+        </div>
+        <div class="status-pill" [class.warn]="!live.timeSynced">
+          {{ live.timeSynced ? 'Phone time synced for daily tracking' : 'Waiting for phone time sync' }}
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="metric-card">
+          <div class="metric-label">Current Reading</div>
+          <div class="metric-value">{{ live.reading }}</div>
+          <div class="metric-detail">Raw potentiometer value</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Straightness</div>
+          <div class="metric-value">{{ live.percentStraight.toFixed(1) }}%</div>
+          <div class="metric-detail">Mapped knee position</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Step Score</div>
+          <div class="metric-value">{{ live.lastScore.toFixed(1) }}</div>
+          <div class="metric-detail">Most recent completed step</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Steps Logged</div>
+          <div class="metric-value">{{ live.stepCount }}</div>
+          <div class="metric-detail">Stored in device history</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="selectedView === 'live'" class="live-layout">
+    <div class="panel meter-card">
+      <p class="eyebrow">Knee Position</p>
+      <svg viewBox="0 0 280 320" aria-label="Knee joint animation">
+        <line class="guide" x1="140" y1="64" x2="140" y2="174"></line>
+        <line class="limb" x1="140" y1="64" x2="140" y2="174"></line>
+        <line class="limb" x1="140" y1="174" [attr.x2]="lowerLegX2" [attr.y2]="lowerLegY2"></line>
+        <circle class="joint" cx="140" cy="64" r="14"></circle>
+        <circle class="joint" cx="140" cy="174" r="16"></circle>
+        <circle class="joint" [attr.cx]="ankleX" [attr.cy]="ankleY" r="14"></circle>
+      </svg>
+      <div class="joint-labels">
+        <span>Bent</span>
+        <span>Straight</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="status-row">
+        <div>
+          <p class="eyebrow">Live Movement Quality</p>
+          <div class="status-pill" [class.warn]="!live.inStep">
+            {{ live.inStep ? 'Capturing active movement cycle' : 'Waiting for a full movement cycle' }}
+          </div>
+        </div>
+        <div>
+          <div class="metric-label">Speed</div>
+          <div class="metric-value">{{ live.speed.toFixed(1) }}</div>
+          <div class="metric-detail">% straight per second</div>
+        </div>
+      </div>
+
+      <div class="quality-grid">
+        <div class="quality-card">
+          <div class="metric-label">Shaky Movement</div>
+          <strong>{{ latestStep ? latestStep.shakiness.toFixed(1) : '0.0' }}</strong>
+          <span>From reversals and extra path during a step</span>
+        </div>
+        <div class="quality-card">
+          <div class="metric-label">Uncontrolled Descent</div>
+          <strong>{{ latestStep ? latestStep.uncontrolledDescent.toFixed(1) : '0.0' }}</strong>
+          <span>Penalizes overly fast or spiky lowering</span>
+        </div>
+        <div class="quality-card">
+          <div class="metric-label">Compensation</div>
+          <strong>{{ latestStep ? latestStep.compensation.toFixed(1) : '0.0' }}</strong>
+          <span>Flags phase imbalance and incomplete return</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="selectedView === 'history'" class="history-layout">
+    <div class="table-panel">
+      <p class="eyebrow">Daily Averages</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Average Score</th>
+              <th>Steps</th>
+              <th>Goal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!dailyAverages.length">
+              <td class="empty" colspan="4">No synced history yet.</td>
+            </tr>
+            <tr *ngFor="let day of dailyAverages">
+              <td>{{ formatTimestamp(day.dayStartMs).split(',')[0] }}</td>
+              <td><span [class]="scoreClass(day.averageScore)">{{ day.averageScore.toFixed(1) }}</span></td>
+              <td>{{ day.count }}</td>
+              <td>{{ goal }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="table-panel">
+      <p class="eyebrow">Step History</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Score</th>
+              <th>Shaky</th>
+              <th>Descent</th>
+              <th>Compensation</th>
+              <th>Duration</th>
+              <th>Range</th>
+              <th>Down Speed</th>
+              <th>Up Speed</th>
+              <th>Oscillations</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!stepHistory.length">
+              <td class="empty" colspan="10">No steps recorded yet.</td>
+            </tr>
+            <tr *ngFor="let step of stepHistory">
+              <td>{{ formatTimestamp(step.timestampMs) }}</td>
+              <td><span [class]="scoreClass(step.score)">{{ step.score.toFixed(1) }}</span></td>
+              <td>{{ step.shakiness.toFixed(1) }}</td>
+              <td>{{ step.uncontrolledDescent.toFixed(1) }}</td>
+              <td>{{ step.compensation.toFixed(1) }}</td>
+              <td>{{ step.durationMs.toFixed(0) }} ms</td>
+              <td>{{ step.range.toFixed(1) }}%</td>
+              <td>{{ step.descentAvgSpeed.toFixed(1) }}</td>
+              <td>{{ step.ascentAvgSpeed.toFixed(1) }}</td>
+              <td>{{ step.oscillations }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>

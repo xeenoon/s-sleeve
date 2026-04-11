@@ -1,0 +1,114 @@
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  selectedView = 'live';
+  goal = 85;
+
+  live = {
+    reading: 0,
+    percentStraight: 0,
+    angleDeg: 0,
+    speed: 0,
+    accel: 0,
+    inStep: false,
+    stepCount: 0,
+    lastScore: 0,
+    todayAverage: 0,
+    timeSynced: false
+  };
+
+  latestStep = null;
+  stepHistory = [];
+  dailyAverages = [];
+
+  lowerLegX2 = '140.0';
+  lowerLegY2 = '274.0';
+  ankleX = '140.0';
+  ankleY = '274.0';
+
+  async ngOnInit() {
+    await this.syncClock();
+    await Promise.all([this.refreshLive(), this.refreshHistory()]);
+    setInterval(() => this.refreshLive(), 250);
+    setInterval(() => this.refreshHistory(), 3000);
+  }
+
+  switchView(view) {
+    this.selectedView = view;
+  }
+
+  async syncClock() {
+    const epochMs = Date.now();
+    const offsetMinutes = new Date().getTimezoneOffset();
+
+    try {
+      await fetch(`/api/time-sync?epochMs=${epochMs}&offsetMinutes=${offsetMinutes}`);
+    } catch (error) {}
+  }
+
+  clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  mapPercentToAngle(percentStraight) {
+    const normalized = this.clamp(percentStraight / 100, 0, 1);
+    return 78 + (0 - 78) * normalized;
+  }
+
+  updateKnee(percentStraight) {
+    const angle = this.mapPercentToAngle(percentStraight);
+    const radians = angle * Math.PI / 180;
+    const kneeX = 140;
+    const kneeY = 174;
+    const shinLength = 100;
+    const ankleX = kneeX + Math.sin(radians) * shinLength;
+    const ankleY = kneeY + Math.cos(radians) * shinLength;
+
+    this.lowerLegX2 = ankleX.toFixed(1);
+    this.lowerLegY2 = ankleY.toFixed(1);
+    this.ankleX = ankleX.toFixed(1);
+    this.ankleY = ankleY.toFixed(1);
+  }
+
+  async refreshLive() {
+    try {
+      const response = await fetch('/api/live');
+      const payload = await response.json();
+      this.live = payload;
+      this.goal = payload.goal;
+      this.updateKnee(payload.percentStraight);
+    } catch (error) {}
+  }
+
+  async refreshHistory() {
+    try {
+      const response = await fetch('/api/history');
+      const payload = await response.json();
+      this.stepHistory = payload.history || [];
+      this.dailyAverages = payload.dailyAverages || [];
+      this.goal = payload.goal || this.goal;
+      this.latestStep = this.stepHistory.length > 0 ? this.stepHistory[0] : null;
+    } catch (error) {}
+  }
+
+  formatTimestamp(timestampMs) {
+    if (!timestampMs) {
+      return 'Unsynced';
+    }
+
+    return new Date(timestampMs).toLocaleString();
+  }
+
+  scoreClass(score) {
+    if (score < 55) {
+      return 'score-chip bad';
+    }
+    if (score < 75) {
+      return 'score-chip warn';
+    }
+    return 'score-chip';
+  }
+}
