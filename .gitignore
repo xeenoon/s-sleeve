@@ -1,0 +1,5 @@
+.pio/
+.pio-core/
+.platformio-core/
+.vscode/
+
