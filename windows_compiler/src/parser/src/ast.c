@@ -24,9 +24,10 @@ void ast_file_print(const ast_file_t *file) {
           if (index > 0) {
             log_printf(", ");
           }
-          log_printf("%s:%s",
+          log_printf("%s:%s%s",
                      file->data.component.members[index].name,
-                     file->data.component.members[index].kind == AST_MEMBER_METHOD ? "method" : "field");
+                     file->data.component.members[index].kind == AST_MEMBER_METHOD ? "method" : "field",
+                     file->data.component.members[index].is_observable ? ":observable" : "");
         }
         log_printf("]");
       }

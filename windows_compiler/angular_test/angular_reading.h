@@ -11,9 +11,9 @@
 
 #define ANGULAR_reading_COMPONENT "AppComponent"
 #define ANGULAR_reading_KIND "field"
-#define ANGULAR_reading_RUNTIME_CATEGORY "state-slot"
-#define ANGULAR_reading_STORAGE_TYPE "int"
-#define ANGULAR_reading_PROCESSING_NOTES "raw potentiometer reading mirrored into ng_app_state_t.reading"
+#define ANGULAR_reading_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_reading_STORAGE_TYPE "dynamic"
+#define ANGULAR_reading_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_reading_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {
@@ -28,6 +28,6 @@ typedef struct {
 
 extern const angular_reading_header_t angular_reading_header;
 
-int angular_reading_get(const ng_runtime_t *runtime);
+const char *angular_reading_get(const ng_runtime_t *runtime);
 
 #endif

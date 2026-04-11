@@ -11,9 +11,9 @@
 
 #define ANGULAR_timeSynced_COMPONENT "AppComponent"
 #define ANGULAR_timeSynced_KIND "field"
-#define ANGULAR_timeSynced_RUNTIME_CATEGORY "generic-field"
-#define ANGULAR_timeSynced_STORAGE_TYPE "opaque generated field"
-#define ANGULAR_timeSynced_PROCESSING_NOTES "generated fallback metadata for unsupported component fields"
+#define ANGULAR_timeSynced_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_timeSynced_STORAGE_TYPE "dynamic"
+#define ANGULAR_timeSynced_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_timeSynced_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {
@@ -28,6 +28,6 @@ typedef struct {
 
 extern const angular_timeSynced_header_t angular_timeSynced_header;
 
-void angular_timeSynced_generated_stub(void);
+const char *angular_timeSynced_get(const ng_runtime_t *runtime);
 
 #endif

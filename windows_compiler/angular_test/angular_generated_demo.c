@@ -2,9 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "angular_http_service.h"
-#include "angular_mapPercentToAngle.h"
-#include "angular_ngOnInit.h"
-#include "angular_updateKnee.h"
 #include "helpers/include/net/http_server.h"
 #include "helpers/include/net/http_service.h"
 
@@ -51,22 +48,8 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  angular_ngOnInit_call(&runtime);
-  ng_runtime_set_int(&runtime, "reading", 3500);
-  ng_runtime_set_int(&runtime, "percentStraight", 67);
-  ng_runtime_set_double(&runtime, "angleDeg", angular_mapPercentToAngle_call(&runtime, 67.0));
-  ng_runtime_set_bool(&runtime, "hasSignal", 1);
-  ng_runtime_set_double(&runtime, "speed", 0.0);
-  ng_runtime_set_double(&runtime, "lastScore", 92.0);
-  ng_runtime_set_int(&runtime, "stepCount", 1);
-  ng_runtime_set_double(&runtime, "todayAverage", 92.0);
-  ng_runtime_set_bool(&runtime, "timeSynced", 1);
-  ng_runtime_set_bool(&runtime, "inStep", 0);
-  ng_runtime_set_double(&runtime, "shaky", 1.2);
-  ng_runtime_set_double(&runtime, "uncontrolledDescent", 0.4);
-  ng_runtime_set_double(&runtime, "compensation", 0.3);
-  angular_updateKnee_call(&runtime, 67.0);
-  printf("[demo] starting port=%u max_requests=%d reading=%d\n", port, max_requests, ng_runtime_get_int(&runtime, "reading", 0));
+  ng_runtime_init(&runtime);
+  printf("[demo] starting port=%u max_requests=%d\n", port, max_requests);
   fflush(stdout);
   angular_http_service_init(&service, &runtime, g_index_html, g_styles_css, g_app_js);
   return ng_http_server_serve(port, ng_http_service_handle, &service.service, max_requests);

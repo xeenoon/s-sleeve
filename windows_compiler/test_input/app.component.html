@@ -1,63 +1,155 @@
 <div class="shell">
-  <header class="hero">
-    <div>
-      <p class="eyebrow">Mobility Monitor</p>
-      <h1>Recovery Dashboard</h1>
-      <p class="lede">Track live extension quality and recent step performance from the ESP32 stream.</p>
+  <section class="hero">
+    <div class="panel">
+      <p class="eyebrow">Rehab Tracker</p>
+      <h1 class="headline"><span id="today-average">0.0</span>/100</h1>
+      <p class="subline">Daily average step quality with a goal of <strong id="goal-inline">85</strong>.</p>
     </div>
-    <div class="goal-card">
-      <span>Daily Goal</span>
-      <strong>{{ goal }}</strong>
-    </div>
-  </header>
-
-  <nav class="tabs">
-    <button [class.active]="selectedView === 'live'" (click)="switchView('live')">Live</button>
-    <button [class.active]="selectedView === 'history'" (click)="switchView('history')">History</button>
-  </nav>
-
-  <section class="grid">
-    <article class="panel meter-panel">
-      <div class="panel-head">
-        <div>
-          <p class="eyebrow">Knee Position</p>
-          <h2>{{ live.percentStraight }}% straight</h2>
+    <div class="panel">
+      <div class="status-row">
+        <div class="tabs" id="tabs">
+          <button data-view="live" class="active" type="button">Live</button>
+          <button data-view="history" type="button">History</button>
+          <button data-view="variables" type="button">Variables</button>
         </div>
-        <span class="status" [class.synced]="live.timeSynced">SYNC</span>
+        <div id="sync-pill" class="status-pill">Phone time synced for daily tracking</div>
       </div>
+      <div class="card-grid">
+        <div class="metric-card">
+          <div class="metric-label">Current Reading</div>
+          <div class="metric-value" id="reading">0</div>
+          <div class="metric-detail">Raw potentiometer value</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Straightness</div>
+          <div class="metric-value" id="percent-straight">0%</div>
+          <div class="metric-detail">Mapped knee position</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Step Score</div>
+          <div class="metric-value" id="last-score">0.0</div>
+          <div class="metric-detail">Most recent completed step</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Steps Logged</div>
+          <div class="metric-value" id="step-count">0</div>
+          <div class="metric-detail">Stored in device history</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <svg viewBox="0 0 280 320" aria-label="Knee joint animation">
-        <line class="guide" x1="140" y1="64" x2="140" y2="174"></line>
-        <g id="leg">
+  <section id="live-view">
+    <div class="live-layout">
+      <div class="panel meter-card">
+        <p class="eyebrow">Knee Position</p>
+        <svg viewBox="0 0 280 320" aria-label="Knee joint animation">
+          <line class="guide" x1="140" y1="64" x2="140" y2="174"></line>
           <line class="limb" x1="140" y1="64" x2="140" y2="174"></line>
-          <line class="limb" id="lower-leg" x1="140" y1="174" [attr.x2]="lowerLegX2" [attr.y2]="lowerLegY2"></line>
+          <line class="limb" id="lower-leg" x1="140" y1="174" x2="140.0" y2="274.0"></line>
           <circle class="joint" cx="140" cy="64" r="14"></circle>
           <circle class="joint" cx="140" cy="174" r="16"></circle>
-          <circle class="joint" id="ankle" [attr.cx]="ankleX" [attr.cy]="ankleY" r="14"></circle>
-        </g>
-      </svg>
-    </article>
-
-    <article class="panel">
-      <p class="eyebrow">Live Signal</p>
-      <div class="stats">
-        <div>
-          <span>Reading</span>
-          <strong>{{ live.reading }}</strong>
-        </div>
-        <div>
-          <span>Angle</span>
-          <strong>{{ live.angleDeg }}</strong>
-        </div>
-        <div>
-          <span>Steps</span>
-          <strong>{{ live.stepCount }}</strong>
-        </div>
-        <div>
-          <span>Score</span>
-          <strong>{{ live.lastScore }}</strong>
+          <circle class="joint" id="ankle" cx="140.0" cy="274.0" r="14"></circle>
+        </svg>
+        <div class="joint-labels">
+          <span>Bent</span>
+          <span>Straight</span>
         </div>
       </div>
-    </article>
+      <div class="panel">
+        <div class="status-row">
+          <div>
+            <p class="eyebrow">Live Movement Quality</p>
+            <div id="step-status" class="status-pill warn">Waiting for a full movement cycle</div>
+          </div>
+          <div>
+            <div class="metric-label">Speed</div>
+            <div class="metric-value" id="speed">0.0</div>
+            <div class="metric-detail">% straight per second</div>
+          </div>
+        </div>
+        <div class="quality-grid">
+          <div class="quality-card">
+            <div class="metric-label">Shaky Movement</div>
+            <strong id="live-shaky">0.0</strong>
+            <span>From reversals and extra path during a step</span>
+          </div>
+          <div class="quality-card">
+            <div class="metric-label">Uncontrolled Descent</div>
+            <strong id="live-descent">0.0</strong>
+            <span>Penalizes overly fast or spiky lowering</span>
+          </div>
+          <div class="quality-card">
+            <div class="metric-label">Compensation</div>
+            <strong id="live-compensation">0.0</strong>
+            <span>Flags phase imbalance and incomplete return</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="history-view" class="hidden">
+    <div class="history-layout">
+      <div class="table-panel">
+        <p class="eyebrow">Daily Averages</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Day</th><th>Average Score</th><th>Steps</th><th>Goal</th></tr>
+            </thead>
+            <tbody id="daily-average-body">
+              <tr><td class="empty" colspan="4">No synced history yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="table-panel">
+        <p class="eyebrow">Step History</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th><th>Score</th><th>Shaky</th><th>Descent</th><th>Compensation</th>
+                <th>Duration</th><th>Range</th><th>Down Speed</th><th>Up Speed</th><th>Oscillations</th>
+              </tr>
+            </thead>
+            <tbody id="history-body">
+              <tr><td class="empty" colspan="10">No steps recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="variables-view" class="hidden">
+    <div class="panel">
+      <p class="eyebrow">Calibration Variables</p>
+      <div class="hint">Open this directly at <strong>/variables</strong>. Saving applies immediately to live tracking.</div>
+      <div id="variables-status" class="status-pill warn" style="margin-top:14px;">Variables not loaded yet</div>
+      <div class="variables-grid">
+        <div>
+          <div class="field"><label for="minReading">Min Reading</label><input id="minReading" name="minReading" type="number"></div>
+          <div class="field"><label for="maxReading">Max Reading</label><input id="maxReading" name="maxReading" type="number"></div>
+          <div class="field"><label for="bentAngle">Bent Angle</label><input id="bentAngle" name="bentAngle" type="number" step="0.1"></div>
+          <div class="field"><label for="straightAngle">Straight Angle</label><input id="straightAngle" name="straightAngle" type="number" step="0.1"></div>
+          <div class="field"><label for="sampleIntervalMs">Sample Interval Ms</label><input id="sampleIntervalMs" name="sampleIntervalMs" type="number"></div>
+          <div class="field"><label for="filterAlpha">Filter Alpha</label><input id="filterAlpha" name="filterAlpha" type="number" step="0.001"></div>
+        </div>
+        <div>
+          <div class="field"><label for="motionThreshold">Motion Threshold</label><input id="motionThreshold" name="motionThreshold" type="number" step="0.001"></div>
+          <div class="field"><label for="stepRangeThreshold">Step Range Threshold</label><input id="stepRangeThreshold" name="stepRangeThreshold" type="number" step="0.001"></div>
+          <div class="field"><label for="startReadyThreshold">Start Ready Threshold</label><input id="startReadyThreshold" name="startReadyThreshold" type="number" step="0.001"></div>
+          <div class="field"><label for="returnMargin">Return Margin</label><input id="returnMargin" name="returnMargin" type="number" step="0.001"></div>
+          <div class="field"><label for="maxStepDurationMs">Max Step Duration Ms</label><input id="maxStepDurationMs" name="maxStepDurationMs" type="number"></div>
+          <div class="field"><label for="sampleHistoryEnabled">Sample History</label><input id="sampleHistoryEnabled" name="sampleHistoryEnabled" type="text"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="save-variables" type="button">Save Variables</button>
+        <button id="reload-variables" class="secondary" type="button">Reload</button>
+      </div>
+    </div>
   </section>
 </div>

@@ -11,9 +11,9 @@
 
 #define ANGULAR_speed_COMPONENT "AppComponent"
 #define ANGULAR_speed_KIND "field"
-#define ANGULAR_speed_RUNTIME_CATEGORY "generic-field"
-#define ANGULAR_speed_STORAGE_TYPE "opaque generated field"
-#define ANGULAR_speed_PROCESSING_NOTES "generated fallback metadata for unsupported component fields"
+#define ANGULAR_speed_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_speed_STORAGE_TYPE "dynamic"
+#define ANGULAR_speed_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_speed_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {
@@ -28,6 +28,6 @@ typedef struct {
 
 extern const angular_speed_header_t angular_speed_header;
 
-void angular_speed_generated_stub(void);
+const char *angular_speed_get(const ng_runtime_t *runtime);
 
 #endif

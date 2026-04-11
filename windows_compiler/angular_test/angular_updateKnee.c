@@ -6,9 +6,9 @@ const angular_updateKnee_header_t angular_updateKnee_header = {
   "AppComponent",
   "updateKnee",
   "method",
-  "inferred-method",
+  "generated-method",
   "void",
-  "generated from parsed Angular method body with inferred local types",
+  "generated from parsed component method",
   0
 };
 

@@ -5,11 +5,13 @@ const angular_switchView_header_t angular_switchView_header = {
   "AppComponent",
   "switchView",
   "method",
-  "generic-method",
-  "opaque generated method",
-  "generated fallback metadata for unsupported component methods",
+  "generated-method",
+  "void",
+  "generated from parsed component method",
   0
 };
 
-void angular_switchView_generated_stub(void) {
+void angular_switchView_call(ng_runtime_t *runtime, double view) {
+  (void)runtime;
+  ng_runtime_set_double(runtime, "selectedView", view);
 }

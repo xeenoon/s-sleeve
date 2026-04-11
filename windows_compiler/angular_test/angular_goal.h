@@ -11,9 +11,9 @@
 
 #define ANGULAR_goal_COMPONENT "AppComponent"
 #define ANGULAR_goal_KIND "field"
-#define ANGULAR_goal_RUNTIME_CATEGORY "generic-field"
-#define ANGULAR_goal_STORAGE_TYPE "opaque generated field"
-#define ANGULAR_goal_PROCESSING_NOTES "generated fallback metadata for unsupported component fields"
+#define ANGULAR_goal_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_goal_STORAGE_TYPE "dynamic"
+#define ANGULAR_goal_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_goal_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {
@@ -28,6 +28,6 @@ typedef struct {
 
 extern const angular_goal_header_t angular_goal_header;
 
-void angular_goal_generated_stub(void);
+const char *angular_goal_get(const ng_runtime_t *runtime);
 
 #endif

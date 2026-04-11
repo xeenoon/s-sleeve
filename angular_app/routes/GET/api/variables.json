@@ -1,0 +1,1 @@
+{"minReading":3100,"maxReading":3700,"bentAngle":78.0,"straightAngle":0.0,"sampleIntervalMs":50,"filterAlpha":0.180,"motionThreshold":0.020,"stepRangeThreshold":18.0,"startReadyThreshold":8.0,"returnMargin":5.0,"maxStepDurationMs":2600,"sampleHistoryEnabled":"true","status":"Variables loaded","goal":85}

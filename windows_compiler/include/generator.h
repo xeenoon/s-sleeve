@@ -10,6 +10,7 @@ int generator_validate_component_headers(const char *output_dir, const ast_compo
 int generator_generate_component_sources(const char *output_dir, const ast_component_file_t *component);
 int generator_validate_component_sources(const char *output_dir, const ast_component_file_t *component);
 int generator_generate_demo_files(const char *output_dir,
+                                  const char *input_dir,
                                   const ast_component_file_t *component,
                                   const char *html_source,
                                   const char *css_source);

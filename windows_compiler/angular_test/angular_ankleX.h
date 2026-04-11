@@ -11,9 +11,9 @@
 
 #define ANGULAR_ankleX_COMPONENT "AppComponent"
 #define ANGULAR_ankleX_KIND "field"
-#define ANGULAR_ankleX_RUNTIME_CATEGORY "attribute-buffer"
-#define ANGULAR_ankleX_STORAGE_TYPE "char buffer[16]"
-#define ANGULAR_ankleX_PROCESSING_NOTES "formatted attribute payload for SVG bindings"
+#define ANGULAR_ankleX_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_ankleX_STORAGE_TYPE "dynamic"
+#define ANGULAR_ankleX_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_ankleX_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {

@@ -16,6 +16,7 @@ typedef struct {
   size_t file_count;
   size_t token_count;
   size_t validated_file_count;
+  const char *input_dir;
   const char *output_dir;
   const char *runtime_header_path;
   const char *helpers_root_path;
@@ -57,6 +58,13 @@ static int tokenize_file(const char *path, void *context) {
   parse_summary_t summary;
   ast_file_t ast;
   int is_valid;
+
+  if (strstr(path, "app.component.ng") == NULL &&
+      strstr(path, "app.component.html") == NULL &&
+      strstr(path, "app.component.css") == NULL) {
+    LOG_TRACE("tokenize_file skip non-ast asset path=%s\n", path);
+    return 0;
+  }
 
   if (file_read_all(path, &buffer) != 0) {
     log_errorf("failed to read file: %s\n", path);
@@ -165,6 +173,7 @@ static int cli_generate_outputs(cli_context_t *context) {
   }
 
   if (generator_generate_demo_files(context->output_dir,
+                                    context->input_dir,
                                     &context->component_ast,
                                     context->html_buffer.data,
                                     context->css_buffer.data) != 0) {
@@ -216,6 +225,7 @@ int cli_run(int argc, char **argv) {
   }
 
   input_dir = argv[1];
+  context.input_dir = input_dir;
   if (argc == 3) {
     context.output_dir = argv[2];
   }

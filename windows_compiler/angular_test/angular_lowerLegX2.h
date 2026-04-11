@@ -11,9 +11,9 @@
 
 #define ANGULAR_lowerLegX2_COMPONENT "AppComponent"
 #define ANGULAR_lowerLegX2_KIND "field"
-#define ANGULAR_lowerLegX2_RUNTIME_CATEGORY "attribute-buffer"
-#define ANGULAR_lowerLegX2_STORAGE_TYPE "char buffer[16]"
-#define ANGULAR_lowerLegX2_PROCESSING_NOTES "formatted attribute payload for SVG bindings"
+#define ANGULAR_lowerLegX2_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_lowerLegX2_STORAGE_TYPE "dynamic"
+#define ANGULAR_lowerLegX2_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_lowerLegX2_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {

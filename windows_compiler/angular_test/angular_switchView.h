@@ -11,9 +11,9 @@
 
 #define ANGULAR_switchView_COMPONENT "AppComponent"
 #define ANGULAR_switchView_KIND "method"
-#define ANGULAR_switchView_RUNTIME_CATEGORY "generic-method"
-#define ANGULAR_switchView_STORAGE_TYPE "opaque generated method"
-#define ANGULAR_switchView_PROCESSING_NOTES "generated fallback metadata for unsupported component methods"
+#define ANGULAR_switchView_RUNTIME_CATEGORY "generated-method"
+#define ANGULAR_switchView_STORAGE_TYPE "callable"
+#define ANGULAR_switchView_PROCESSING_NOTES "generated from parsed component method"
 #define ANGULAR_switchView_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {

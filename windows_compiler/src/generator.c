@@ -1,5 +1,6 @@
 #include "generator.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -7,13 +8,54 @@
 #include "js_codegen.h"
 #include "log.h"
 #include "output_fs.h"
+#include "path_scan.h"
 
 typedef struct {
-  const char *runtime_category;
-  const char *storage_type;
-  const char *processing_notes;
+  char runtime_category[64];
+  char storage_type[64];
+  char processing_notes[256];
   int requires_external_fetch;
 } generator_member_spec_t;
+
+typedef enum {
+  GENERATOR_OBSERVABLE_UNKNOWN = 0,
+  GENERATOR_OBSERVABLE_STATE,
+  GENERATOR_OBSERVABLE_POLL,
+  GENERATOR_OBSERVABLE_POST
+} generator_observable_kind_t;
+
+typedef struct {
+  char name[128];
+  char safe_name[128];
+  generator_observable_kind_t kind;
+  char path[256];
+  char seed[128];
+  int interval_ms;
+} generator_observable_spec_t;
+
+#define GENERATOR_MAX_OBSERVABLES 16
+#define GENERATOR_MAX_ROUTES 32
+
+typedef struct {
+  char method[16];
+  char path[256];
+  char content_type[64];
+  file_buffer_t body;
+} generator_route_asset_t;
+
+typedef struct {
+  const char *routes_root;
+  generator_route_asset_t routes[GENERATOR_MAX_ROUTES];
+  size_t route_count;
+} generator_route_collection_t;
+
+typedef enum {
+  GENERATOR_FIELD_VALUE_UNKNOWN = 0,
+  GENERATOR_FIELD_VALUE_INT,
+  GENERATOR_FIELD_VALUE_DOUBLE,
+  GENERATOR_FIELD_VALUE_BOOL,
+  GENERATOR_FIELD_VALUE_STRING
+} generator_field_value_kind_t;
 
 static const char *g_helper_directories[] = {
     "helpers",
@@ -44,6 +86,7 @@ static const char *g_helper_files[] = {
     "include\\net\\http_server.h",
     "include\\net\\http_service.h",
     "include\\runtime\\app_runtime.h",
+    "include\\runtime\\observable.h",
     "include\\support\\list.h",
     "include\\support\\stringbuilder.h",
     "src\\data\\json.c",
@@ -55,6 +98,7 @@ static const char *g_helper_files[] = {
     "src\\net\\http_server.c",
     "src\\net\\http_service.c",
     "src\\runtime\\app_runtime.c",
+    "src\\runtime\\observable.c",
     "src\\support\\stringbuilder.c"};
 
 static const char *g_generated_demo_files[] = {
@@ -73,6 +117,8 @@ static void generator_build_path(char *buffer,
   snprintf(buffer, buffer_size, "%s\\%s", directory, filename);
   LOG_TRACE("generator_build_path directory=%s filename=%s path=%s\n", directory, filename, buffer);
 }
+
+static void generator_escape_c_string(char *buffer, size_t buffer_size, const char *text);
 
 static int generator_prepare_helper_directories(const char *output_dir) {
   size_t index;
@@ -117,99 +163,789 @@ static void generator_make_guard(char *buffer, size_t buffer_size, const char *n
   cursor += (size_t)snprintf(buffer + cursor, buffer_size - cursor, "_H");
 }
 
-static const generator_member_spec_t *generator_lookup_spec(const ast_member_t *member) {
-  static const generator_member_spec_t reading = {
-      "state-slot",
-      "int",
-      "raw potentiometer reading mirrored into ng_app_state_t.reading",
-      0};
-  static const generator_member_spec_t percent_straight = {
-      "derived-state",
-      "int",
-      "derived percentage from normalized knee angle",
-      0};
-  static const generator_member_spec_t has_signal = {
-      "status-flag",
-      "bool",
-      "tracks whether the latest sensor refresh succeeded",
-      0};
-  static const generator_member_spec_t attribute_text = {
-      "attribute-buffer",
-      "char buffer[16]",
-      "formatted attribute payload for SVG bindings",
-      0};
-  static const generator_member_spec_t ng_on_init = {
-      "lifecycle-hook",
-      "ng_init_fn_t",
-      "initializes timers and performs the first render-oriented state setup",
-      0};
-  static const generator_member_spec_t clamp = {
-      "helper-function",
-      "float helper",
-      "pure bounds clamp helper used by derived calculations",
-      0};
-  static const generator_member_spec_t map_reading = {
-      "helper-function",
-      "derived mapping helper",
-      "maps the sensor domain into normalized and angle values",
-      0};
-  static const generator_member_spec_t update_knee = {
-      "recompute-hook",
-      "ng_recompute_fn_t-compatible helper",
-      "recomputes leg geometry and derived display state",
-      0};
-  static const generator_member_spec_t refresh_reading = {
-      "io-effect",
-      "external fetch effect",
-      "assumes an existing C fetch hook is provided by the destination project",
-      1};
-  static const generator_member_spec_t generic_field = {
-      "generic-field",
-      "opaque generated field",
-      "generated fallback metadata for unsupported component fields",
-      0};
-  static const generator_member_spec_t generic_method = {
-      "generic-method",
-      "opaque generated method",
-      "generated fallback metadata for unsupported component methods",
-      0};
+static void generator_make_safe_name(char *buffer, size_t buffer_size, const char *name) {
+  size_t index;
+  size_t cursor = 0;
 
-  if (strcmp(member->name, "reading") == 0) {
-    return &reading;
+  if (buffer_size == 0) {
+    return;
   }
-  if (strcmp(member->name, "percentStraight") == 0) {
-    return &percent_straight;
+
+  for (index = 0; name[index] != '\0' && cursor + 1 < buffer_size; ++index) {
+    char ch = name[index];
+    if ((ch >= 'a' && ch <= 'z') ||
+        (ch >= 'A' && ch <= 'Z') ||
+        (ch >= '0' && ch <= '9') ||
+        ch == '_') {
+      buffer[cursor++] = ch;
+    } else {
+      buffer[cursor++] = '_';
+    }
   }
-  if (strcmp(member->name, "hasSignal") == 0) {
-    return &has_signal;
+
+  buffer[cursor] = '\0';
+}
+
+static void generator_trim_copy(char *buffer, size_t buffer_size, const char *start, size_t length) {
+  size_t begin = 0;
+  size_t end = length;
+
+  while (begin < length && (start[begin] == ' ' || start[begin] == '\t' || start[begin] == '\r' || start[begin] == '\n')) {
+    begin += 1;
   }
-  if (strcmp(member->name, "lowerLegX2") == 0 ||
-      strcmp(member->name, "lowerLegY2") == 0 ||
-      strcmp(member->name, "ankleX") == 0 ||
-      strcmp(member->name, "ankleY") == 0) {
-    return &attribute_text;
+  while (end > begin &&
+         (start[end - 1] == ' ' || start[end - 1] == '\t' || start[end - 1] == '\r' || start[end - 1] == '\n')) {
+    end -= 1;
   }
-  if (strcmp(member->name, "ngOnInit") == 0) {
-    return &ng_on_init;
+
+  if (buffer_size == 0) {
+    return;
   }
-  if (strcmp(member->name, "clamp") == 0) {
-    return &clamp;
+
+  if (end - begin >= buffer_size) {
+    end = begin + buffer_size - 1;
   }
-  if (strcmp(member->name, "mapReadingToAngle") == 0) {
-    return &map_reading;
+
+  memcpy(buffer, start + begin, end - begin);
+  buffer[end - begin] = '\0';
+}
+
+static int generator_parse_quoted_argument(const char *text,
+                                           const char *prefix,
+                                           char *buffer,
+                                           size_t buffer_size) {
+  const char *start = strstr(text, prefix);
+  const char *quote;
+  const char *end;
+
+  if (start == NULL) {
+    return 1;
   }
-  if (strcmp(member->name, "updateKnee") == 0) {
-    return &update_knee;
+
+  start += strlen(prefix);
+  quote = strchr(start, '\'');
+  if (quote == NULL) {
+    return 1;
   }
-  if (strcmp(member->name, "refreshReading") == 0) {
-    return &refresh_reading;
+  quote += 1;
+  end = strchr(quote, '\'');
+  if (end == NULL) {
+    return 1;
+  }
+
+  generator_trim_copy(buffer, buffer_size, quote, (size_t)(end - quote));
+  return 0;
+}
+
+static int generator_parse_observable_spec(const ast_member_t *member, generator_observable_spec_t *spec) {
+  memset(spec, 0, sizeof(*spec));
+  snprintf(spec->name, sizeof(spec->name), "%s", member->name);
+  generator_make_safe_name(spec->safe_name, sizeof(spec->safe_name), member->name);
+  spec->interval_ms = 0;
+
+  if (!member->is_observable) {
+    return 1;
+  }
+
+  if (strstr(member->initializer, "rx.state(") != NULL) {
+    spec->kind = GENERATOR_OBSERVABLE_STATE;
+    if (generator_parse_quoted_argument(member->initializer, "rx.state(", spec->seed, sizeof(spec->seed)) != 0) {
+      snprintf(spec->seed, sizeof(spec->seed), "live");
+    }
+    return 0;
+  }
+
+  if (strstr(member->initializer, "rx.poll(") != NULL) {
+    const char *comma;
+    spec->kind = GENERATOR_OBSERVABLE_POLL;
+    if (generator_parse_quoted_argument(member->initializer, "rx.poll(", spec->path, sizeof(spec->path)) != 0) {
+      return 1;
+    }
+    comma = strrchr(member->initializer, ',');
+    if (comma != NULL) {
+      spec->interval_ms = atoi(comma + 1);
+    }
+    if (spec->interval_ms <= 0) {
+      spec->interval_ms = 1000;
+    }
+    return 0;
+  }
+
+  if (strstr(member->initializer, "rx.post(") != NULL) {
+    spec->kind = GENERATOR_OBSERVABLE_POST;
+    if (generator_parse_quoted_argument(member->initializer, "rx.post(", spec->path, sizeof(spec->path)) != 0) {
+      return 1;
+    }
+    return 0;
+  }
+
+  return 1;
+}
+
+static size_t __attribute__((unused)) generator_collect_observable_specs(const ast_component_file_t *component,
+                                                                         generator_observable_spec_t *specs,
+                                                                         size_t max_specs) {
+  size_t index;
+  size_t count = 0;
+
+  for (index = 0; index < component->member_count && count < max_specs; ++index) {
+    if (component->members[index].is_observable &&
+        generator_parse_observable_spec(&component->members[index], &specs[count]) == 0) {
+      LOG_TRACE("generator observable member=%s kind=%d path=%s interval=%d seed=%s\n",
+                specs[count].name,
+                (int)specs[count].kind,
+                specs[count].path,
+                specs[count].interval_ms,
+                specs[count].seed);
+      count += 1;
+    }
+  }
+
+  return count;
+}
+
+static int generator_is_string_literal(const char *text) {
+  size_t length;
+  if (text == NULL) {
+    return 0;
+  }
+  length = strlen(text);
+  return length >= 2 && text[0] == '\'' && text[length - 1] == '\'';
+}
+
+static int generator_is_bool_literal(const char *text) {
+  return text != NULL && (strcmp(text, "true") == 0 || strcmp(text, "false") == 0);
+}
+
+static int generator_is_numeric_literal(const char *text, int *has_decimal) {
+  size_t index = 0;
+  int seen_digit = 0;
+  int seen_decimal = 0;
+
+  if (has_decimal != NULL) {
+    *has_decimal = 0;
+  }
+  if (text == NULL || text[0] == '\0') {
+    return 0;
+  }
+  if (text[index] == '-' || text[index] == '+') {
+    index += 1;
+  }
+  for (; text[index] != '\0'; ++index) {
+    char ch = text[index];
+    if (ch >= '0' && ch <= '9') {
+      seen_digit = 1;
+      continue;
+    }
+    if (ch == '.' && !seen_decimal) {
+      seen_decimal = 1;
+      continue;
+    }
+    return 0;
+  }
+  if (has_decimal != NULL) {
+    *has_decimal = seen_decimal;
+  }
+  return seen_digit;
+}
+
+static generator_field_value_kind_t generator_infer_field_value_kind(const ast_member_t *member) {
+  int has_decimal = 0;
+  if (member == NULL || member->kind != AST_MEMBER_FIELD || member->initializer[0] == '\0') {
+    return GENERATOR_FIELD_VALUE_UNKNOWN;
+  }
+  if (generator_is_string_literal(member->initializer)) {
+    return GENERATOR_FIELD_VALUE_STRING;
+  }
+  if (generator_is_bool_literal(member->initializer)) {
+    return GENERATOR_FIELD_VALUE_BOOL;
+  }
+  if (generator_is_numeric_literal(member->initializer, &has_decimal)) {
+    return has_decimal ? GENERATOR_FIELD_VALUE_DOUBLE : GENERATOR_FIELD_VALUE_INT;
+  }
+  return GENERATOR_FIELD_VALUE_UNKNOWN;
+}
+
+static void generator_strip_string_literal(char *buffer, size_t buffer_size, const char *literal) {
+  size_t length;
+  if (buffer_size == 0) {
+    return;
+  }
+  if (!generator_is_string_literal(literal)) {
+    snprintf(buffer, buffer_size, "%s", literal != NULL ? literal : "");
+    return;
+  }
+  length = strlen(literal);
+  if (length <= 2) {
+    buffer[0] = '\0';
+    return;
+  }
+  generator_trim_copy(buffer, buffer_size, literal + 1, length - 2);
+}
+
+static void generator_default_literal(char *buffer,
+                                      size_t buffer_size,
+                                      const ast_member_t *member,
+                                      generator_field_value_kind_t kind) {
+  char string_value[256];
+
+  if (buffer_size == 0) {
+    return;
+  }
+
+  if (member == NULL || member->initializer[0] == '\0' || kind == GENERATOR_FIELD_VALUE_UNKNOWN) {
+    snprintf(buffer, buffer_size, "0");
+    return;
+  }
+
+  switch (kind) {
+    case GENERATOR_FIELD_VALUE_INT:
+    case GENERATOR_FIELD_VALUE_DOUBLE:
+      snprintf(buffer, buffer_size, "%s", member->initializer);
+      return;
+    case GENERATOR_FIELD_VALUE_BOOL:
+      snprintf(buffer, buffer_size, "%s", strcmp(member->initializer, "true") == 0 ? "1" : "0");
+      return;
+    case GENERATOR_FIELD_VALUE_STRING:
+      generator_strip_string_literal(string_value, sizeof(string_value), member->initializer);
+      generator_escape_c_string(buffer, buffer_size, string_value);
+      return;
+    case GENERATOR_FIELD_VALUE_UNKNOWN:
+    default:
+      snprintf(buffer, buffer_size, "0");
+      return;
+  }
+}
+
+static void generator_fill_member_spec(const ast_member_t *member, generator_member_spec_t *spec) {
+  generator_field_value_kind_t field_kind;
+  memset(spec, 0, sizeof(*spec));
+  spec->requires_external_fetch = member != NULL ? member->uses_external_fetch : 0;
+
+  if (member == NULL) {
+    snprintf(spec->runtime_category, sizeof(spec->runtime_category), "generated-member");
+    snprintf(spec->storage_type, sizeof(spec->storage_type), "opaque");
+    snprintf(spec->processing_notes, sizeof(spec->processing_notes), "generated without source metadata");
+    return;
+  }
+
+  if (member->is_observable) {
+    snprintf(spec->runtime_category, sizeof(spec->runtime_category), "observable");
+    snprintf(spec->storage_type, sizeof(spec->storage_type), "source-defined observable");
+    snprintf(spec->processing_notes, sizeof(spec->processing_notes), "derived from observable initializer");
+    return;
   }
 
   if (member->kind == AST_MEMBER_METHOD) {
-    return &generic_method;
+    snprintf(spec->runtime_category, sizeof(spec->runtime_category), "generated-method");
+    snprintf(spec->storage_type, sizeof(spec->storage_type), "callable");
+    snprintf(spec->processing_notes, sizeof(spec->processing_notes), "generated from parsed component method");
+    return;
   }
 
-  return &generic_field;
+  field_kind = generator_infer_field_value_kind(member);
+  snprintf(spec->runtime_category, sizeof(spec->runtime_category), "runtime-slot");
+  switch (field_kind) {
+    case GENERATOR_FIELD_VALUE_INT:
+      snprintf(spec->storage_type, sizeof(spec->storage_type), "int");
+      break;
+    case GENERATOR_FIELD_VALUE_DOUBLE:
+      snprintf(spec->storage_type, sizeof(spec->storage_type), "double");
+      break;
+    case GENERATOR_FIELD_VALUE_BOOL:
+      snprintf(spec->storage_type, sizeof(spec->storage_type), "bool");
+      break;
+    case GENERATOR_FIELD_VALUE_STRING:
+      snprintf(spec->storage_type, sizeof(spec->storage_type), "string");
+      break;
+    case GENERATOR_FIELD_VALUE_UNKNOWN:
+    default:
+      snprintf(spec->storage_type, sizeof(spec->storage_type), "dynamic");
+      break;
+  }
+  snprintf(spec->processing_notes, sizeof(spec->processing_notes), "generated field accessor derived from initializer");
+}
+
+static const char *generator_content_type_for_extension(const char *path) {
+  const char *dot = strrchr(path, '.');
+  if (dot == NULL) {
+    return "text/plain; charset=utf-8";
+  }
+  if (strcmp(dot, ".json") == 0) {
+    return "application/json";
+  }
+  if (strcmp(dot, ".html") == 0) {
+    return "text/html; charset=utf-8";
+  }
+  if (strcmp(dot, ".css") == 0) {
+    return "text/css; charset=utf-8";
+  }
+  if (strcmp(dot, ".js") == 0) {
+    return "application/javascript; charset=utf-8";
+  }
+  if (strcmp(dot, ".txt") == 0) {
+    return "text/plain; charset=utf-8";
+  }
+  return "application/octet-stream";
+}
+
+static void generator_route_path_from_relative(char *buffer,
+                                               size_t buffer_size,
+                                               const char *relative_path) {
+  size_t cursor = 0;
+  size_t index = 0;
+  size_t last_dot = 0;
+
+  if (buffer_size == 0) {
+    return;
+  }
+
+  buffer[cursor++] = '/';
+  while (relative_path[index] != '\0' && cursor + 2 < buffer_size) {
+    char ch = relative_path[index];
+    if (ch == '\\') {
+      buffer[cursor++] = '/';
+    } else {
+      buffer[cursor++] = ch;
+      if (ch == '.') {
+        last_dot = cursor - 1;
+      }
+    }
+    index += 1;
+  }
+  buffer[cursor] = '\0';
+
+  if (last_dot > 0) {
+    buffer[last_dot] = '\0';
+  }
+}
+
+static int generator_collect_route_file(const char *path, void *context) {
+  generator_route_collection_t *collection = (generator_route_collection_t *)context;
+  const char *relative_path;
+  const char *separator;
+  generator_route_asset_t *route;
+  size_t prefix_length;
+
+  prefix_length = strlen(collection->routes_root);
+  if (_strnicmp(path, collection->routes_root, prefix_length) != 0) {
+    return 0;
+  }
+  relative_path = path + prefix_length;
+  if (*relative_path == '\\' || *relative_path == '/') {
+    relative_path += 1;
+  }
+  separator = strchr(relative_path, '\\');
+  if (separator == NULL) {
+    LOG_TRACE("generator_collect_route_file skip malformed path=%s\n", path);
+    return 0;
+  }
+  if (collection->route_count >= GENERATOR_MAX_ROUTES) {
+    log_errorf("too many generated routes under %s\n", collection->routes_root);
+    return 1;
+  }
+
+  route = &collection->routes[collection->route_count];
+  memset(route, 0, sizeof(*route));
+  generator_trim_copy(route->method, sizeof(route->method), relative_path, (size_t)(separator - relative_path));
+  generator_route_path_from_relative(route->path, sizeof(route->path), separator + 1);
+  snprintf(route->content_type, sizeof(route->content_type), "%s", generator_content_type_for_extension(path));
+
+  if (file_read_all(path, &route->body) != 0) {
+    log_errorf("failed to read route asset: %s\n", path);
+    return 1;
+  }
+
+  LOG_TRACE("generator_collect_route_file method=%s path=%s content_type=%s bytes=%zu source=%s\n",
+            route->method,
+            route->path,
+            route->content_type,
+            route->body.size,
+            path);
+  collection->route_count += 1;
+  return 0;
+}
+
+static int generator_collect_route_assets(const char *input_dir,
+                                          generator_route_collection_t *collection) {
+  char routes_root[512];
+
+  memset(collection, 0, sizeof(*collection));
+  generator_build_path(routes_root, sizeof(routes_root), input_dir, "routes");
+  collection->routes_root = _strdup(routes_root);
+  if (collection->routes_root == NULL) {
+    return 1;
+  }
+
+  if (!output_fs_file_exists(routes_root)) {
+    LOG_TRACE("generator_collect_route_assets no routes directory path=%s\n", routes_root);
+    return 0;
+  }
+
+  return path_scan_directory(routes_root, generator_collect_route_file, collection);
+}
+
+static void generator_free_route_assets(generator_route_collection_t *collection) {
+  size_t index;
+  for (index = 0; index < collection->route_count; ++index) {
+    file_buffer_free(&collection->routes[index].body);
+  }
+  if (collection->routes_root != NULL) {
+    free((void *)collection->routes_root);
+  }
+}
+
+static void generator_escape_c_string(char *buffer, size_t buffer_size, const char *text) {
+  size_t cursor = 0;
+  size_t index = 0;
+
+  if (buffer_size == 0) {
+    return;
+  }
+
+  while (text[index] != '\0' && cursor + 2 < buffer_size) {
+    char ch = text[index++];
+    if (ch == '\\' || ch == '"') {
+      buffer[cursor++] = '\\';
+      buffer[cursor++] = ch;
+    } else if (ch == '\r') {
+      buffer[cursor++] = '\\';
+      buffer[cursor++] = 'r';
+    } else if (ch == '\n') {
+      buffer[cursor++] = '\\';
+      buffer[cursor++] = 'n';
+    } else {
+      buffer[cursor++] = ch;
+    }
+  }
+  buffer[cursor] = '\0';
+}
+
+static const ast_member_t *generator_find_member(const ast_component_file_t *component, const char *name) {
+  size_t index;
+  for (index = 0; index < component->member_count; ++index) {
+    if (strcmp(component->members[index].name, name) == 0) {
+      return &component->members[index];
+    }
+  }
+  return NULL;
+}
+
+static void generator_unquote_literal(char *text) {
+  size_t length = strlen(text);
+  if (length >= 2 &&
+      ((text[0] == '\'' && text[length - 1] == '\'') || (text[0] == '"' && text[length - 1] == '"'))) {
+    memmove(text, text + 1, length - 2);
+    text[length - 2] = '\0';
+  }
+}
+
+static int generator_extract_object_property(const char *initializer,
+                                             const char *property_name,
+                                             char *buffer,
+                                             size_t buffer_size) {
+  const char *match;
+  const char *colon;
+  const char *cursor;
+  size_t depth = 0;
+
+  if (initializer == NULL || property_name == NULL) {
+    return 1;
+  }
+
+  match = strstr(initializer, property_name);
+  while (match != NULL) {
+    if (match == initializer || *(match - 1) == '{' || *(match - 1) == ' ' || *(match - 1) == '\n' || *(match - 1) == ',') {
+      break;
+    }
+    match = strstr(match + 1, property_name);
+  }
+
+  if (match == NULL) {
+    return 1;
+  }
+
+  colon = strchr(match, ':');
+  if (colon == NULL) {
+    return 1;
+  }
+
+  cursor = colon + 1;
+  while (*cursor == ' ' || *cursor == '\t' || *cursor == '\r' || *cursor == '\n') {
+    cursor += 1;
+  }
+
+  {
+    const char *start = cursor;
+    while (*cursor != '\0') {
+      if (*cursor == '\'' || *cursor == '"') {
+        char quote = *cursor++;
+        while (*cursor != '\0' && *cursor != quote) {
+          if (*cursor == '\\' && *(cursor + 1) != '\0') {
+            cursor += 2;
+          } else {
+            cursor += 1;
+          }
+        }
+        if (*cursor == quote) {
+          cursor += 1;
+        }
+        continue;
+      }
+      if (*cursor == '{' || *cursor == '[' || *cursor == '(') {
+        depth += 1;
+      } else if ((*cursor == '}' || *cursor == ']' || *cursor == ')') && depth > 0) {
+        depth -= 1;
+      } else if ((*(cursor) == ',' || *(cursor) == '}') && depth == 0) {
+        break;
+      }
+      cursor += 1;
+    }
+
+    generator_trim_copy(buffer, buffer_size, start, (size_t)(cursor - start));
+    generator_unquote_literal(buffer);
+    return 0;
+  }
+}
+
+static int generator_resolve_expression_default(const ast_component_file_t *component,
+                                                const char *expression,
+                                                char *buffer,
+                                                size_t buffer_size);
+
+static int generator_evaluate_equality(const ast_component_file_t *component,
+                                       const char *expression,
+                                       char *buffer,
+                                       size_t buffer_size) {
+  const char *eq = strstr(expression, "===");
+  char left[128];
+  char right[128];
+  char left_value[128];
+  char right_value[128];
+
+  if (eq == NULL) {
+    return 1;
+  }
+
+  generator_trim_copy(left, sizeof(left), expression, (size_t)(eq - expression));
+  generator_trim_copy(right, sizeof(right), eq + 3, strlen(eq + 3));
+
+  if (generator_resolve_expression_default(component, left, left_value, sizeof(left_value)) != 0) {
+    return 1;
+  }
+  if (generator_resolve_expression_default(component, right, right_value, sizeof(right_value)) != 0) {
+    snprintf(right_value, sizeof(right_value), "%s", right);
+    generator_unquote_literal(right_value);
+  }
+
+  snprintf(buffer, buffer_size, "%s", strcmp(left_value, right_value) == 0 ? "true" : "false");
+  return 0;
+}
+
+static int generator_resolve_expression_default(const ast_component_file_t *component,
+                                                const char *expression,
+                                                char *buffer,
+                                                size_t buffer_size) {
+  char trimmed[256];
+  const ast_member_t *member;
+  const char *dot;
+
+  generator_trim_copy(trimmed, sizeof(trimmed), expression, strlen(expression));
+  if (trimmed[0] == '\0') {
+    return 1;
+  }
+
+  if (strstr(trimmed, "===") != NULL) {
+    return generator_evaluate_equality(component, trimmed, buffer, buffer_size);
+  }
+
+  if ((trimmed[0] == '\'' || trimmed[0] == '"')) {
+    snprintf(buffer, buffer_size, "%s", trimmed);
+    generator_unquote_literal(buffer);
+    return 0;
+  }
+
+  dot = strchr(trimmed, '.');
+  if (dot != NULL) {
+    char root[128];
+    char property[128];
+
+    generator_trim_copy(root, sizeof(root), trimmed, (size_t)(dot - trimmed));
+    generator_trim_copy(property, sizeof(property), dot + 1, strlen(dot + 1));
+    member = generator_find_member(component, root);
+    if (member != NULL && member->initializer[0] != '\0') {
+      return generator_extract_object_property(member->initializer, property, buffer, buffer_size);
+    }
+    return 1;
+  }
+
+  member = generator_find_member(component, trimmed);
+  if (member != NULL && member->initializer[0] != '\0') {
+    snprintf(buffer, buffer_size, "%s", member->initializer);
+    generator_trim_copy(buffer, buffer_size, buffer, strlen(buffer));
+    generator_unquote_literal(buffer);
+    return 0;
+  }
+
+  if (strcmp(trimmed, "true") == 0 || strcmp(trimmed, "false") == 0) {
+    snprintf(buffer, buffer_size, "%s", trimmed);
+    return 0;
+  }
+
+  return 1;
+}
+
+static int generator_compile_template_html(const ast_component_file_t *component,
+                                           const char *html_source,
+                                           char *buffer,
+                                           size_t buffer_size) {
+  size_t index = 0;
+  size_t cursor = 0;
+  size_t interpolation_count = 0;
+  size_t attr_count = 0;
+  size_t class_count = 0;
+  size_t click_count = 0;
+
+  while (html_source[index] != '\0' && cursor + 1 < buffer_size) {
+    if (html_source[index] == '{' && html_source[index + 1] == '{') {
+      size_t expr_start = index + 2;
+      size_t expr_end = expr_start;
+      char expr[256];
+      char value[256];
+
+      while (html_source[expr_end] != '\0' &&
+             !(html_source[expr_end] == '}' && html_source[expr_end + 1] == '}')) {
+        expr_end += 1;
+      }
+      generator_trim_copy(expr, sizeof(expr), html_source + expr_start, expr_end - expr_start);
+      if (generator_resolve_expression_default(component, expr, value, sizeof(value)) != 0) {
+        value[0] = '\0';
+      }
+      LOG_TRACE("template interpolation expr=%s value=%s\n", expr, value);
+      interpolation_count += 1;
+      cursor += (size_t)snprintf(buffer + cursor,
+                                 buffer_size - cursor,
+                                 "<span data-ng-text=\"%s\">%s</span>",
+                                 expr,
+                                 value);
+      index = html_source[expr_end] != '\0' ? expr_end + 2 : expr_end;
+      continue;
+    }
+
+    if (html_source[index] == '[') {
+      if (strncmp(html_source + index, "[attr.", 6) == 0) {
+        size_t name_start = index + 6;
+        size_t name_end = name_start;
+        const char *equals_sign;
+        const char *quote_start;
+        const char *quote_end;
+        char attr_name[64];
+        char expr[256];
+        char value[256];
+
+        while (html_source[name_end] != '\0' && html_source[name_end] != ']') {
+          name_end += 1;
+        }
+        equals_sign = strchr(html_source + name_end, '=');
+        quote_start = equals_sign != NULL ? strchr(equals_sign, '"') : NULL;
+        quote_end = quote_start != NULL ? strchr(quote_start + 1, '"') : NULL;
+        if (html_source[name_end] == '\0' ||
+            equals_sign == NULL ||
+            quote_start == NULL ||
+            quote_end == NULL) {
+          LOG_TRACE("template attr binding malformed near=%.32s\n", html_source + index);
+          buffer[cursor++] = html_source[index++];
+          continue;
+        }
+        generator_trim_copy(attr_name, sizeof(attr_name), html_source + name_start, name_end - name_start);
+        generator_trim_copy(expr, sizeof(expr), quote_start + 1, (size_t)(quote_end - (quote_start + 1)));
+        if (generator_resolve_expression_default(component, expr, value, sizeof(value)) != 0) {
+          value[0] = '\0';
+        }
+        LOG_TRACE("template attr binding attr=%s expr=%s value=%s\n", attr_name, expr, value);
+        attr_count += 1;
+        cursor += (size_t)snprintf(buffer + cursor,
+                                   buffer_size - cursor,
+                                   "%s=\"%s\" data-ng-attr-%s=\"%s\"",
+                                   attr_name,
+                                   value,
+                                   attr_name,
+                                   expr);
+        index = (size_t)(quote_end - html_source) + 1;
+        continue;
+      }
+
+      if (strncmp(html_source + index, "[class.", 7) == 0) {
+        size_t name_start = index + 7;
+        size_t name_end = name_start;
+        const char *equals_sign;
+        const char *quote_start;
+        const char *quote_end;
+        char class_name[64];
+        char expr[256];
+        char value[64];
+
+        while (html_source[name_end] != '\0' && html_source[name_end] != ']') {
+          name_end += 1;
+        }
+        equals_sign = strchr(html_source + name_end, '=');
+        quote_start = equals_sign != NULL ? strchr(equals_sign, '"') : NULL;
+        quote_end = quote_start != NULL ? strchr(quote_start + 1, '"') : NULL;
+        if (html_source[name_end] == '\0' ||
+            equals_sign == NULL ||
+            quote_start == NULL ||
+            quote_end == NULL) {
+          LOG_TRACE("template class binding malformed near=%.32s\n", html_source + index);
+          buffer[cursor++] = html_source[index++];
+          continue;
+        }
+        generator_trim_copy(class_name, sizeof(class_name), html_source + name_start, name_end - name_start);
+        generator_trim_copy(expr, sizeof(expr), quote_start + 1, (size_t)(quote_end - (quote_start + 1)));
+        if (generator_resolve_expression_default(component, expr, value, sizeof(value)) != 0) {
+          snprintf(value, sizeof(value), "false");
+        }
+        LOG_TRACE("template class binding class=%s expr=%s value=%s\n", class_name, expr, value);
+        class_count += 1;
+        cursor += (size_t)snprintf(buffer + cursor,
+                                   buffer_size - cursor,
+                                   "data-ng-class-%s=\"%s\"",
+                                   class_name,
+                                   expr);
+        index = (size_t)(quote_end - html_source) + 1;
+        continue;
+      }
+    }
+
+    if (html_source[index] == '(' && strncmp(html_source + index, "(click)", 7) == 0) {
+      size_t expr_start = index + 9;
+      size_t expr_end = expr_start;
+      char expr[256];
+
+      while (html_source[expr_end] != '\0' && html_source[expr_end] != '"') {
+        expr_end += 1;
+      }
+      generator_trim_copy(expr, sizeof(expr), html_source + expr_start, expr_end - expr_start);
+      LOG_TRACE("template click binding expr=%s\n", expr);
+      click_count += 1;
+      cursor += (size_t)snprintf(buffer + cursor,
+                                 buffer_size - cursor,
+                                 "data-ng-click=\"%s\"",
+                                 expr);
+      index = expr_end + 1;
+      continue;
+    }
+
+    buffer[cursor++] = html_source[index++];
+  }
+
+  buffer[cursor] = '\0';
+  LOG_TRACE("template compile done interpolations=%zu attrs=%zu classes=%zu clicks=%zu output_bytes=%zu\n",
+            interpolation_count,
+            attr_count,
+            class_count,
+            click_count,
+            cursor);
+  return 0;
 }
 
 static void generator_fill_member_prototype(const ast_component_file_t *component,
@@ -217,55 +953,35 @@ static void generator_fill_member_prototype(const ast_component_file_t *componen
                                             char *buffer,
                                             size_t buffer_size) {
   js_codegen_result_t codegen;
+  char safe_name[128];
+  generator_field_value_kind_t field_kind;
+  generator_make_safe_name(safe_name, sizeof(safe_name), member->name);
 
-  if (strcmp(member->name, "reading") == 0) {
-    snprintf(buffer, buffer_size, "int angular_reading_get(const ng_runtime_t *runtime);");
-    return;
+  if (member->kind == AST_MEMBER_FIELD) {
+    field_kind = generator_infer_field_value_kind(member);
+    switch (field_kind) {
+      case GENERATOR_FIELD_VALUE_INT:
+        snprintf(buffer, buffer_size, "int angular_%s_get(const ng_runtime_t *runtime);", safe_name);
+        return;
+      case GENERATOR_FIELD_VALUE_DOUBLE:
+        snprintf(buffer, buffer_size, "double angular_%s_get(const ng_runtime_t *runtime);", safe_name);
+        return;
+      case GENERATOR_FIELD_VALUE_BOOL:
+        snprintf(buffer, buffer_size, "bool angular_%s_get(const ng_runtime_t *runtime);", safe_name);
+        return;
+      case GENERATOR_FIELD_VALUE_STRING:
+      case GENERATOR_FIELD_VALUE_UNKNOWN:
+      default:
+        snprintf(buffer, buffer_size, "const char *angular_%s_get(const ng_runtime_t *runtime);", safe_name);
+        return;
+    }
   }
-  if (strcmp(member->name, "percentStraight") == 0) {
-    snprintf(buffer, buffer_size, "int angular_percentStraight_get(const ng_runtime_t *runtime);");
-    return;
-  }
-  if (strcmp(member->name, "hasSignal") == 0) {
-    snprintf(buffer, buffer_size, "bool angular_hasSignal_get(const ng_runtime_t *runtime);");
-    return;
-  }
-  if (strcmp(member->name, "lowerLegX2") == 0) {
-    snprintf(buffer, buffer_size, "const char *angular_lowerLegX2_get(const ng_runtime_t *runtime);");
-    return;
-  }
-  if (strcmp(member->name, "lowerLegY2") == 0) {
-    snprintf(buffer, buffer_size, "const char *angular_lowerLegY2_get(const ng_runtime_t *runtime);");
-    return;
-  }
-  if (strcmp(member->name, "ankleX") == 0) {
-    snprintf(buffer, buffer_size, "const char *angular_ankleX_get(const ng_runtime_t *runtime);");
-    return;
-  }
-  if (strcmp(member->name, "ankleY") == 0) {
-    snprintf(buffer, buffer_size, "const char *angular_ankleY_get(const ng_runtime_t *runtime);");
-    return;
-  }
-  if (strcmp(member->name, "ngOnInit") == 0) {
-    snprintf(buffer, buffer_size, "void angular_ngOnInit_call(ng_runtime_t *runtime);");
-    return;
-  }
-  if (strcmp(member->name, "clamp") == 0) {
-    snprintf(buffer, buffer_size, "double angular_clamp_call(ng_runtime_t *runtime, double value, double min_value, double max_value);");
-    return;
-  }
-  if (strcmp(member->name, "mapReadingToAngle") == 0) {
-    snprintf(buffer, buffer_size, "ng_angle_map_t angular_mapReadingToAngle_call(int reading);");
-    return;
-  }
-  if (strcmp(member->name, "updateKnee") == 0) {
-    snprintf(buffer, buffer_size, "void angular_updateKnee_call(ng_runtime_t *runtime, double percentStraight);");
-    return;
-  }
-  if (strcmp(member->name, "refreshReading") == 0) {
+
+  if (member->uses_external_fetch) {
     snprintf(buffer,
              buffer_size,
-             "int angular_refreshReading_call(ng_runtime_t *runtime, ng_fetch_text_fn fetch_fn, void *fetch_context);");
+             "int angular_%s_call(ng_runtime_t *runtime, ng_fetch_text_fn fetch_fn, void *fetch_context);",
+             safe_name);
     return;
   }
 
@@ -274,167 +990,164 @@ static void generator_fill_member_prototype(const ast_component_file_t *componen
     return;
   }
 
-  snprintf(buffer, buffer_size, "void angular_%s_generated_stub(void);", member->name);
+  snprintf(buffer, buffer_size, "void angular_%s_generated_stub(void);", safe_name);
 }
 
 static void generator_fill_member_definition(const ast_component_file_t *component,
                                              const ast_member_t *member,
                                              char *buffer,
                                              size_t buffer_size) {
-  if (strcmp(member->name, "reading") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_reading_header_t angular_reading_header = {\n"
-             "  \"%s\",\n"
-             "  \"reading\",\n"
-             "  \"field\",\n"
-             "  \"state-slot\",\n"
-             "  \"int\",\n"
-             "  \"raw potentiometer reading mirrored into ng_app_state_t.reading\",\n"
-             "  0\n"
-             "};\n\n"
-             "int angular_reading_get(const ng_runtime_t *runtime) {\n"
-             "  return ng_runtime_get_int(runtime, \"reading\", 0);\n"
-             "}\n",
-             component->class_name);
-    return;
+  char safe_name[128];
+  generator_member_spec_t spec;
+  generator_field_value_kind_t field_kind;
+  char default_literal[512];
+  generator_make_safe_name(safe_name, sizeof(safe_name), member->name);
+  generator_fill_member_spec(member, &spec);
+
+  if (member->kind == AST_MEMBER_FIELD) {
+    field_kind = generator_infer_field_value_kind(member);
+    generator_default_literal(default_literal, sizeof(default_literal), member, field_kind);
+
+    switch (field_kind) {
+      case GENERATOR_FIELD_VALUE_INT:
+        snprintf(buffer,
+                 buffer_size,
+                 "const angular_%s_header_t angular_%s_header = {\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"field\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  %d\n"
+                 "};\n\n"
+                 "int angular_%s_get(const ng_runtime_t *runtime) {\n"
+                 "  return ng_runtime_get_int(runtime, \"%s\", %s);\n"
+                 "}\n",
+                 safe_name,
+                 safe_name,
+                 component->class_name,
+                 member->name,
+                 spec.runtime_category,
+                 spec.storage_type,
+                 spec.processing_notes,
+                 spec.requires_external_fetch,
+                 safe_name,
+                 member->name,
+                 default_literal);
+        return;
+      case GENERATOR_FIELD_VALUE_DOUBLE:
+        snprintf(buffer,
+                 buffer_size,
+                 "const angular_%s_header_t angular_%s_header = {\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"field\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  %d\n"
+                 "};\n\n"
+                 "double angular_%s_get(const ng_runtime_t *runtime) {\n"
+                 "  return ng_runtime_get_double(runtime, \"%s\", %s);\n"
+                 "}\n",
+                 safe_name,
+                 safe_name,
+                 component->class_name,
+                 member->name,
+                 spec.runtime_category,
+                 spec.storage_type,
+                 spec.processing_notes,
+                 spec.requires_external_fetch,
+                 safe_name,
+                 member->name,
+                 default_literal);
+        return;
+      case GENERATOR_FIELD_VALUE_BOOL:
+        snprintf(buffer,
+                 buffer_size,
+                 "const angular_%s_header_t angular_%s_header = {\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"field\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  %d\n"
+                 "};\n\n"
+                 "bool angular_%s_get(const ng_runtime_t *runtime) {\n"
+                 "  return ng_runtime_get_bool(runtime, \"%s\", %s) != 0;\n"
+                 "}\n",
+                 safe_name,
+                 safe_name,
+                 component->class_name,
+                 member->name,
+                 spec.runtime_category,
+                 spec.storage_type,
+                 spec.processing_notes,
+                 spec.requires_external_fetch,
+                 safe_name,
+                 member->name,
+                 default_literal);
+        return;
+      case GENERATOR_FIELD_VALUE_STRING:
+        snprintf(buffer,
+                 buffer_size,
+                 "const angular_%s_header_t angular_%s_header = {\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"field\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  %d\n"
+                 "};\n\n"
+                 "const char *angular_%s_get(const ng_runtime_t *runtime) {\n"
+                 "  return ng_runtime_get_string(runtime, \"%s\", \"%s\");\n"
+                 "}\n",
+                 safe_name,
+                 safe_name,
+                 component->class_name,
+                 member->name,
+                 spec.runtime_category,
+                 spec.storage_type,
+                 spec.processing_notes,
+                 spec.requires_external_fetch,
+                 safe_name,
+                 member->name,
+                 default_literal);
+        return;
+      case GENERATOR_FIELD_VALUE_UNKNOWN:
+      default:
+        snprintf(buffer,
+                 buffer_size,
+                 "const angular_%s_header_t angular_%s_header = {\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"field\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  \"%s\",\n"
+                 "  %d\n"
+                 "};\n\n"
+                 "const char *angular_%s_get(const ng_runtime_t *runtime) {\n"
+                 "  return ng_runtime_get_string(runtime, \"%s\", \"\");\n"
+                 "}\n",
+                 safe_name,
+                 safe_name,
+                 component->class_name,
+                 member->name,
+                 spec.runtime_category,
+                 spec.storage_type,
+                 spec.processing_notes,
+                 spec.requires_external_fetch,
+                 safe_name,
+                 member->name);
+        return;
+    }
   }
-  if (strcmp(member->name, "percentStraight") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_percentStraight_header_t angular_percentStraight_header = {\n"
-             "  \"%s\",\n"
-             "  \"percentStraight\",\n"
-             "  \"field\",\n"
-             "  \"derived-state\",\n"
-             "  \"int\",\n"
-             "  \"derived percentage from normalized knee angle\",\n"
-             "  0\n"
-             "};\n\n"
-             "int angular_percentStraight_get(const ng_runtime_t *runtime) {\n"
-             "  return ng_runtime_get_int(runtime, \"percentStraight\", 0);\n"
-             "}\n",
-             component->class_name);
-    return;
-  }
-  if (strcmp(member->name, "hasSignal") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_hasSignal_header_t angular_hasSignal_header = {\n"
-             "  \"%s\",\n"
-             "  \"hasSignal\",\n"
-             "  \"field\",\n"
-             "  \"status-flag\",\n"
-             "  \"bool\",\n"
-             "  \"tracks whether the latest sensor refresh succeeded\",\n"
-             "  0\n"
-             "};\n\n"
-             "bool angular_hasSignal_get(const ng_runtime_t *runtime) {\n"
-             "  return ng_runtime_get_bool(runtime, \"hasSignal\", 0) != 0;\n"
-             "}\n",
-             component->class_name);
-    return;
-  }
-  if (strcmp(member->name, "lowerLegX2") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_lowerLegX2_header_t angular_lowerLegX2_header = {\n"
-             "  \"%s\",\n"
-             "  \"lowerLegX2\",\n"
-             "  \"field\",\n"
-             "  \"attribute-buffer\",\n"
-             "  \"char buffer[16]\",\n"
-             "  \"formatted attribute payload for SVG bindings\",\n"
-             "  0\n"
-             "};\n\n"
-             "const char *angular_lowerLegX2_get(const ng_runtime_t *runtime) {\n"
-             "  return ng_runtime_get_string(runtime, \"lowerLegX2\", \"140.0\");\n"
-             "}\n",
-             component->class_name);
-    return;
-  }
-  if (strcmp(member->name, "lowerLegY2") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_lowerLegY2_header_t angular_lowerLegY2_header = {\n"
-             "  \"%s\",\n"
-             "  \"lowerLegY2\",\n"
-             "  \"field\",\n"
-             "  \"attribute-buffer\",\n"
-             "  \"char buffer[16]\",\n"
-             "  \"formatted attribute payload for SVG bindings\",\n"
-             "  0\n"
-             "};\n\n"
-             "const char *angular_lowerLegY2_get(const ng_runtime_t *runtime) {\n"
-             "  return ng_runtime_get_string(runtime, \"lowerLegY2\", \"274.0\");\n"
-             "}\n",
-             component->class_name);
-    return;
-  }
-  if (strcmp(member->name, "ankleX") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_ankleX_header_t angular_ankleX_header = {\n"
-             "  \"%s\",\n"
-             "  \"ankleX\",\n"
-             "  \"field\",\n"
-             "  \"attribute-buffer\",\n"
-             "  \"char buffer[16]\",\n"
-             "  \"formatted attribute payload for SVG bindings\",\n"
-             "  0\n"
-             "};\n\n"
-             "const char *angular_ankleX_get(const ng_runtime_t *runtime) {\n"
-             "  return ng_runtime_get_string(runtime, \"ankleX\", \"140.0\");\n"
-             "}\n",
-             component->class_name);
-    return;
-  }
-  if (strcmp(member->name, "ankleY") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_ankleY_header_t angular_ankleY_header = {\n"
-             "  \"%s\",\n"
-             "  \"ankleY\",\n"
-             "  \"field\",\n"
-             "  \"attribute-buffer\",\n"
-             "  \"char buffer[16]\",\n"
-             "  \"formatted attribute payload for SVG bindings\",\n"
-             "  0\n"
-             "};\n\n"
-             "const char *angular_ankleY_get(const ng_runtime_t *runtime) {\n"
-             "  return ng_runtime_get_string(runtime, \"ankleY\", \"274.0\");\n"
-             "}\n",
-             component->class_name);
-    return;
-  }
-  if (strcmp(member->name, "ngOnInit") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_ngOnInit_header_t angular_ngOnInit_header = {\n"
-             "  \"%s\",\n"
-             "  \"ngOnInit\",\n"
-             "  \"method\",\n"
-             "  \"lifecycle-hook\",\n"
-             "  \"ng_init_fn_t\",\n"
-             "  \"initializes timers and performs the first render-oriented state setup\",\n"
-             "  0\n"
-             "};\n\n"
-             "void angular_ngOnInit_call(ng_runtime_t *runtime) {\n"
-             "  ng_runtime_init(runtime);\n"
-             "  ng_runtime_set_string(runtime, \"selectedView\", \"live\");\n"
-             "  ng_runtime_set_int(runtime, \"goal\", 85);\n"
-             "  ng_runtime_set_string(runtime, \"lowerLegX2\", \"140.0\");\n"
-             "  ng_runtime_set_string(runtime, \"lowerLegY2\", \"274.0\");\n"
-             "  ng_runtime_set_string(runtime, \"ankleX\", \"140.0\");\n"
-             "  ng_runtime_set_string(runtime, \"ankleY\", \"274.0\");\n"
-             "  ng_runtime_set_bool(runtime, \"hasSignal\", 0);\n"
-             "}\n",
-             component->class_name);
-    return;
-  }
-  if (strcmp(member->name, "clamp") == 0 ||
-      strcmp(member->name, "mapPercentToAngle") == 0 ||
-      strcmp(member->name, "updateKnee") == 0) {
+
+  if (member->kind == AST_MEMBER_METHOD) {
     js_codegen_result_t codegen;
     if (js_codegen_compile_method(component, member, &codegen) == 0 && codegen.supported) {
       snprintf(buffer,
@@ -443,90 +1156,53 @@ static void generator_fill_member_definition(const ast_component_file_t *compone
                "  \"%s\",\n"
                "  \"%s\",\n"
                "  \"method\",\n"
-               "  \"inferred-method\",\n"
                "  \"%s\",\n"
-               "  \"generated from parsed Angular method body with inferred local types\",\n"
-               "  0\n"
+               "  \"%s\",\n"
+               "  \"%s\",\n"
+               "  %d\n"
                "};\n\n"
                "%s",
-               member->name,
-               member->name,
+               safe_name,
+               safe_name,
                component->class_name,
                member->name,
+               spec.runtime_category,
                js_type_name(codegen.return_type),
+               spec.processing_notes,
+               spec.requires_external_fetch,
                codegen.definition);
       return;
     }
-  }
-  if (strcmp(member->name, "clamp") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_clamp_header_t angular_clamp_header = {\n"
-             "  \"%s\",\n"
-             "  \"clamp\",\n"
-             "  \"method\",\n"
-             "  \"helper-function\",\n"
-             "  \"float helper\",\n"
-             "  \"pure bounds clamp helper used by derived calculations\",\n"
-             "  0\n"
-             "};\n\n"
-             "double angular_clamp_call(ng_runtime_t *runtime, double value, double min_value, double max_value) {\n"
-             "  (void)runtime;\n"
-             "  return ng_clamp_double(value, min_value, max_value);\n"
-             "}\n",
-             component->class_name);
-    return;
-  }
-  if (strcmp(member->name, "mapReadingToAngle") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_mapReadingToAngle_header_t angular_mapReadingToAngle_header = {\n"
-             "  \"%s\",\n"
-             "  \"mapReadingToAngle\",\n"
-             "  \"method\",\n"
-             "  \"helper-function\",\n"
-             "  \"derived mapping helper\",\n"
-             "  \"maps the sensor domain into normalized and angle values\",\n"
-             "  0\n"
-             "};\n\n"
-             "ng_angle_map_t angular_mapReadingToAngle_call(int reading) {\n"
-             "  return ng_map_reading_to_angle(reading,\n"
-             "                                 NG_KNEE_APP_BENT_READING,\n"
-             "                                 NG_KNEE_APP_STRAIGHT_READING,\n"
-             "                                 NG_KNEE_APP_BENT_ANGLE_DEG,\n"
-             "                                 NG_KNEE_APP_STRAIGHT_ANGLE_DEG);\n"
-             "}\n",
-             component->class_name);
-    return;
-  }
-  if (strcmp(member->name, "updateKnee") == 0) {
-    snprintf(buffer, buffer_size, "void angular_updateKnee_generated_stub(void) {}\n");
-    return;
-  }
-  if (strcmp(member->name, "refreshReading") == 0) {
-    snprintf(buffer,
-             buffer_size,
-             "const angular_refreshReading_header_t angular_refreshReading_header = {\n"
-             "  \"%s\",\n"
-             "  \"refreshReading\",\n"
-             "  \"method\",\n"
-             "  \"io-effect\",\n"
-             "  \"external fetch effect\",\n"
-             "  \"assumes an existing C fetch hook is provided by the destination project\",\n"
-             "  1\n"
-             "};\n\n"
-             "int angular_refreshReading_call(ng_runtime_t *runtime, ng_fetch_text_fn fetch_fn, void *fetch_context) {\n"
-             "  int value = 0;\n"
-             "  if (ng_fetch_sensor_value(fetch_fn, fetch_context, &value) != 0) {\n"
-             "    ng_runtime_set_bool(runtime, \"hasSignal\", 0);\n"
-             "    return 1;\n"
-             "  }\n"
-             "  ng_runtime_set_int(runtime, \"reading\", value);\n"
-             "  ng_runtime_set_bool(runtime, \"hasSignal\", 1);\n"
-             "  return 0;\n"
-             "}\n",
-             component->class_name);
-    return;
+
+    if (member->uses_external_fetch) {
+      snprintf(buffer,
+               buffer_size,
+               "const angular_%s_header_t angular_%s_header = {\n"
+               "  \"%s\",\n"
+               "  \"%s\",\n"
+               "  \"method\",\n"
+               "  \"%s\",\n"
+               "  \"%s\",\n"
+               "  \"%s\",\n"
+               "  %d\n"
+               "};\n\n"
+               "int angular_%s_call(ng_runtime_t *runtime, ng_fetch_text_fn fetch_fn, void *fetch_context) {\n"
+               "  (void)runtime;\n"
+               "  (void)fetch_fn;\n"
+               "  (void)fetch_context;\n"
+               "  return 0;\n"
+               "}\n",
+               safe_name,
+               safe_name,
+               component->class_name,
+               member->name,
+               spec.runtime_category,
+               spec.storage_type,
+               "declared as external fetch effect; destination project supplies the implementation contract",
+               1,
+               safe_name);
+      return;
+    }
   }
 
   snprintf(buffer,
@@ -538,20 +1214,20 @@ static void generator_fill_member_definition(const ast_component_file_t *compone
            "  \"%s\",\n"
            "  \"%s\",\n"
            "  \"%s\",\n"
-           "  0\n"
+           "  %d\n"
            "};\n\n"
            "void angular_%s_generated_stub(void) {\n"
            "}\n",
-           member->name,
-           member->name,
+           safe_name,
+           safe_name,
            component->class_name,
            member->name,
            member->kind == AST_MEMBER_METHOD ? "method" : "field",
-           member->kind == AST_MEMBER_METHOD ? "generic-method" : "generic-field",
-           member->kind == AST_MEMBER_METHOD ? "opaque generated method" : "opaque generated field",
-           member->kind == AST_MEMBER_METHOD ? "generated fallback metadata for unsupported component methods"
-                                            : "generated fallback metadata for unsupported component fields",
-           member->name);
+           spec.runtime_category,
+           spec.storage_type,
+           spec.processing_notes,
+           spec.requires_external_fetch,
+           safe_name);
 }
 
 static int generator_emit_member_source(const char *output_dir,
@@ -562,21 +1238,31 @@ static int generator_emit_member_source(const char *output_dir,
   char definition[4096];
   char body[5120];
   char extra_includes[512];
+  char safe_name[128];
+  size_t index;
 
   extra_includes[0] = '\0';
+  generator_make_safe_name(safe_name, sizeof(safe_name), member->name);
 
-  snprintf(filename, sizeof(filename), "angular_%s.c", member->name);
+  snprintf(filename, sizeof(filename), "angular_%s.c", safe_name);
   generator_build_path(path, sizeof(path), output_dir, filename);
   generator_fill_member_definition(component, member, definition, sizeof(definition));
-  if (strstr(member->body, "this.clamp(") != NULL && strcmp(member->name, "clamp") != 0) {
+  for (index = 0; index < component->member_count; ++index) {
+    char needle[160];
+    char dependency_safe_name[128];
+    if (component->members[index].kind != AST_MEMBER_METHOD ||
+        strcmp(component->members[index].name, member->name) == 0) {
+      continue;
+    }
+    snprintf(needle, sizeof(needle), "this.%s(", component->members[index].name);
+    if (strstr(member->body, needle) == NULL) {
+      continue;
+    }
+    generator_make_safe_name(dependency_safe_name, sizeof(dependency_safe_name), component->members[index].name);
     snprintf(extra_includes + strlen(extra_includes),
              sizeof(extra_includes) - strlen(extra_includes),
-             "#include \"angular_clamp.h\"\n");
-  }
-  if (strstr(member->body, "this.mapPercentToAngle(") != NULL && strcmp(member->name, "mapPercentToAngle") != 0) {
-    snprintf(extra_includes + strlen(extra_includes),
-             sizeof(extra_includes) - strlen(extra_includes),
-             "#include \"angular_mapPercentToAngle.h\"\n");
+             "#include \"angular_%s.h\"\n",
+             dependency_safe_name);
   }
   snprintf(body,
            sizeof(body),
@@ -584,223 +1270,128 @@ static int generator_emit_member_source(const char *output_dir,
            "%s"
            "#include \"helpers/include/math/number_utils.h\"\n\n"
            "%s",
-           member->name,
+           safe_name,
            extra_includes,
            definition);
   return output_fs_write_text(path, body);
 }
 
-static int generator_emit_http_service_header(const char *output_dir) {
-  const char *header_text =
-      "#ifndef ANGULAR_HTTP_SERVICE_H\n"
-      "#define ANGULAR_HTTP_SERVICE_H\n\n"
-      "#include \"helpers/include/runtime/app_runtime.h\"\n"
-      "#include \"helpers/include/net/http_service.h\"\n\n"
-      "typedef struct {\n"
-      "  ng_runtime_t *runtime;\n"
-      "  ng_http_service_t service;\n"
-      "  ng_http_route_t routes[8];\n"
-      "} angular_http_service_t;\n\n"
-      "void angular_http_service_init(angular_http_service_t *service,\n"
-      "                               ng_runtime_t *runtime,\n"
-      "                               const char *html_page,\n"
-      "                               const char *css_text,\n"
-      "                               const char *js_text);\n\n"
-      "#endif\n";
+static int generator_emit_http_service_header(const char *output_dir, size_t route_count) {
+  char header_text[4096];
+
+  snprintf(header_text,
+           sizeof(header_text),
+           "#ifndef ANGULAR_HTTP_SERVICE_H\n"
+           "#define ANGULAR_HTTP_SERVICE_H\n\n"
+           "#include \"helpers/include/runtime/app_runtime.h\"\n"
+           "#include \"helpers/include/net/http_service.h\"\n\n"
+           "#define ANGULAR_GENERATED_ROUTE_COUNT %zu\n\n"
+           "typedef struct {\n"
+           "  const char *method;\n"
+           "  const char *path;\n"
+           "  const char *content_type;\n"
+           "  const char *body;\n"
+           "} angular_generated_route_t;\n\n"
+           "typedef struct {\n"
+           "  ng_runtime_t *runtime;\n"
+           "  ng_http_service_t service;\n"
+           "  ng_http_route_t routes[ANGULAR_GENERATED_ROUTE_COUNT > 0 ? ANGULAR_GENERATED_ROUTE_COUNT : 1];\n"
+           "  angular_generated_route_t generated_routes[ANGULAR_GENERATED_ROUTE_COUNT > 0 ? ANGULAR_GENERATED_ROUTE_COUNT : 1];\n"
+           "} angular_http_service_t;\n\n"
+           "void angular_http_service_init(angular_http_service_t *service,\n"
+           "                               ng_runtime_t *runtime,\n"
+           "                               const char *html_page,\n"
+           "                               const char *css_text,\n"
+           "                               const char *js_text);\n\n"
+           "#endif\n",
+           route_count);
 
   return generator_write_text_asset(output_dir, "angular_http_service.h", header_text);
 }
 
-static int generator_emit_http_service_source(const char *output_dir) {
-  const char *source_text =
-      "#include \"angular_http_service.h\"\n\n"
-      "#include <stdio.h>\n"
-      "#include <string.h>\n\n"
-      "#include \"angular_mapPercentToAngle.h\"\n"
-      "#include \"angular_updateKnee.h\"\n"
-      "#include \"helpers/include/data/json_utils.h\"\n"
-      "#include \"helpers/include/math/number_utils.h\"\n\n"
-      "static void angular_http_log(const char *message) {\n"
-      "  fprintf(stdout, \"[angular_http] %s\\n\", message);\n"
-      "  fflush(stdout);\n"
-      "}\n\n"
-      "static void angular_http_write_state_json(ng_runtime_t *runtime, char *buffer, size_t buffer_size) {\n"
-      "  angular_http_log(\"write state json\");\n"
-      "  snprintf(buffer,\n"
-      "           buffer_size,\n"
-      "           \"{\\\"reading\\\":%d,\\\"percentStraight\\\":%d,\\\"hasSignal\\\":%s,\\\"goal\\\":%d,\\\"todayAverage\\\":%.1f,\\\"speed\\\":%.1f,\\\"lastScore\\\":%.1f,\\\"stepCount\\\":%d,\\\"timeSynced\\\":%s,\\\"inStep\\\":%s,\\\"shaky\\\":%.1f,\\\"uncontrolledDescent\\\":%.1f,\\\"compensation\\\":%.1f,\\\"lowerLegX2\\\":\\\"%s\\\",\\\"lowerLegY2\\\":\\\"%s\\\",\\\"ankleX\\\":\\\"%s\\\",\\\"ankleY\\\":\\\"%s\\\"}\",\n"
-      "           ng_runtime_get_int(runtime, \"reading\", 0),\n"
-      "           ng_runtime_get_int(runtime, \"percentStraight\", 0),\n"
-      "           ng_runtime_get_bool(runtime, \"hasSignal\", 0) ? \"true\" : \"false\",\n"
-      "           ng_runtime_get_int(runtime, \"goal\", 85),\n"
-      "           ng_runtime_get_double(runtime, \"todayAverage\", 92.0),\n"
-      "           ng_runtime_get_double(runtime, \"speed\", 0.0),\n"
-      "           ng_runtime_get_double(runtime, \"lastScore\", 92.0),\n"
-      "           ng_runtime_get_int(runtime, \"stepCount\", 1),\n"
-      "           ng_runtime_get_bool(runtime, \"timeSynced\", 1) ? \"true\" : \"false\",\n"
-      "           ng_runtime_get_bool(runtime, \"inStep\", 0) ? \"true\" : \"false\",\n"
-      "           ng_runtime_get_double(runtime, \"shaky\", 1.2),\n"
-      "           ng_runtime_get_double(runtime, \"uncontrolledDescent\", 0.4),\n"
-      "           ng_runtime_get_double(runtime, \"compensation\", 0.3),\n"
-      "           ng_runtime_get_string(runtime, \"lowerLegX2\", \"140.0\"),\n"
-      "           ng_runtime_get_string(runtime, \"lowerLegY2\", \"274.0\"),\n"
-      "           ng_runtime_get_string(runtime, \"ankleX\", \"140.0\"),\n"
-      "           ng_runtime_get_string(runtime, \"ankleY\", \"274.0\"));\n"
-      "}\n\n"
-      "static int angular_http_percent_from_reading(int reading) {\n"
-      "  double normalized = ng_clamp_double(((double)reading - 3100.0) / 600.0, 0.0, 1.0);\n"
-      "  return ng_round_to_int(normalized * 100.0);\n"
-      "}\n\n"
-      "static int angular_http_write_api_live(void *context,\n"
-      "                                       const ng_http_request_t *request,\n"
-      "                                       ng_http_response_t *response) {\n"
-      "  angular_http_service_t *service = (angular_http_service_t *)context;\n"
-      "  (void)request;\n"
-      "  angular_http_log(\"route /api/live\");\n"
-      "  snprintf(response->body,\n"
-      "           sizeof(response->body),\n"
-      "           \"{\\\"reading\\\":%d,\\\"percentStraight\\\":%d,\\\"angleDeg\\\":%.1f,\\\"speed\\\":%.1f,\\\"inStep\\\":%s,\\\"stepCount\\\":%d,\\\"lastScore\\\":%.1f,\\\"todayAverage\\\":%.1f,\\\"timeSynced\\\":%s,\\\"goal\\\":%d,\\\"shaky\\\":%.1f,\\\"uncontrolledDescent\\\":%.1f,\\\"compensation\\\":%.1f}\",\n"
-      "           ng_runtime_get_int(service->runtime, \"reading\", 0),\n"
-      "           ng_runtime_get_int(service->runtime, \"percentStraight\", 0),\n"
-      "           ng_runtime_get_double(service->runtime, \"angleDeg\", 0.0),\n"
-      "           ng_runtime_get_double(service->runtime, \"speed\", 0.0),\n"
-      "           ng_runtime_get_bool(service->runtime, \"inStep\", 0) ? \"true\" : \"false\",\n"
-      "           ng_runtime_get_int(service->runtime, \"stepCount\", 1),\n"
-      "           ng_runtime_get_double(service->runtime, \"lastScore\", 92.0),\n"
-      "           ng_runtime_get_double(service->runtime, \"todayAverage\", 92.0),\n"
-      "           ng_runtime_get_bool(service->runtime, \"timeSynced\", 1) ? \"true\" : \"false\",\n"
-      "           ng_runtime_get_int(service->runtime, \"goal\", 85),\n"
-      "           ng_runtime_get_double(service->runtime, \"shaky\", 1.2),\n"
-      "           ng_runtime_get_double(service->runtime, \"uncontrolledDescent\", 0.4),\n"
-      "           ng_runtime_get_double(service->runtime, \"compensation\", 0.3));\n"
-      "  return 0;\n"
-      "}\n\n"
-      "static int angular_http_write_api_history(void *context,\n"
-      "                                          const ng_http_request_t *request,\n"
-      "                                          ng_http_response_t *response) {\n"
-      "  angular_http_service_t *service = (angular_http_service_t *)context;\n"
-      "  (void)request;\n"
-      "  angular_http_log(\"route /api/history\");\n"
-      "  snprintf(response->body,\n"
-      "           sizeof(response->body),\n"
-      "           \"{\\\"goal\\\":%d,\\\"history\\\":[{\\\"timestampMs\\\":1713013200000,\\\"score\\\":92.0,\\\"shakiness\\\":1.2,\\\"uncontrolledDescent\\\":0.4,\\\"compensation\\\":0.3,\\\"durationMs\\\":1280.0,\\\"range\\\":%d,\\\"descentAvgSpeed\\\":0.8,\\\"ascentAvgSpeed\\\":0.9,\\\"oscillations\\\":1},{\\\"timestampMs\\\":1713016800000,\\\"score\\\":88.0,\\\"shakiness\\\":1.0,\\\"uncontrolledDescent\\\":0.5,\\\"compensation\\\":0.2,\\\"durationMs\\\":1335.0,\\\"range\\\":%d,\\\"descentAvgSpeed\\\":0.7,\\\"ascentAvgSpeed\\\":0.8,\\\"oscillations\\\":0}],\\\"dailyAverages\\\":[{\\\"dayStartMs\\\":1712966400000,\\\"averageScore\\\":92.0,\\\"count\\\":1},{\\\"dayStartMs\\\":1713052800000,\\\"averageScore\\\":90.0,\\\"count\\\":2}]}\",\n"
-      "           ng_runtime_get_int(service->runtime, \"goal\", 85),\n"
-      "           ng_runtime_get_int(service->runtime, \"percentStraight\", 0),\n"
-      "           ng_runtime_get_int(service->runtime, \"percentStraight\", 0));\n"
-      "  return 0;\n"
-      "}\n\n"
-      "static int angular_http_write_api_variables(void *context,\n"
-      "                                            const ng_http_request_t *request,\n"
-      "                                            ng_http_response_t *response) {\n"
-      "  angular_http_service_t *service = (angular_http_service_t *)context;\n"
-      "  (void)request;\n"
-      "  angular_http_log(\"route /api/variables GET\");\n"
-      "  snprintf(response->body,\n"
-      "           sizeof(response->body),\n"
-      "           \"{\\\"minReading\\\":3100,\\\"maxReading\\\":3700,\\\"bentAngle\\\":78.0,\\\"straightAngle\\\":0.0,\\\"sampleIntervalMs\\\":50,\\\"filterAlpha\\\":0.180,\\\"motionThreshold\\\":0.020,\\\"stepRangeThreshold\\\":18.0,\\\"startReadyThreshold\\\":8.0,\\\"returnMargin\\\":5.0,\\\"maxStepDurationMs\\\":2600,\\\"sampleHistoryEnabled\\\":\\\"true\\\",\\\"status\\\":\\\"Loaded from mock compiler runtime\\\",\\\"goal\\\":%d}\",\n"
-      "           ng_runtime_get_int(service->runtime, \"goal\", 85));\n"
-      "  return 0;\n"
-      "}\n\n"
-      "static int angular_http_write_api_variables_post(void *context,\n"
-      "                                                 const ng_http_request_t *request,\n"
-      "                                                 ng_http_response_t *response) {\n"
-      "  angular_http_service_t *service = (angular_http_service_t *)context;\n"
-      "  (void)request;\n"
-      "  angular_http_log(\"route /api/variables POST\");\n"
-      "  ng_runtime_set_int(service->runtime, \"goal\", 85);\n"
-      "  strcpy(response->body, \"{\\\"ok\\\":true,\\\"status\\\":\\\"Variables saved to mock compiler runtime\\\"}\");\n"
-      "  return 0;\n"
-      "}\n\n"
-      "static int angular_http_write_state(void *context,\n"
-      "                                    const ng_http_request_t *request,\n"
-      "                                    ng_http_response_t *response) {\n"
-      "  angular_http_service_t *service = (angular_http_service_t *)context;\n"
-      "  (void)request;\n"
-      "  angular_http_log(\"route /state\");\n"
-      "  angular_http_write_state_json(service->runtime, response->body, sizeof(response->body));\n"
-      "  return 0;\n"
-      "}\n\n"
-      "static int angular_http_write_value(void *context,\n"
-      "                                    const ng_http_request_t *request,\n"
-      "                                    ng_http_response_t *response) {\n"
-      "  angular_http_service_t *service = (angular_http_service_t *)context;\n"
-      "  (void)request;\n"
-      "  angular_http_log(\"route /value\");\n"
-      "  strcpy(response->content_type, \"text/plain\");\n"
-      "  snprintf(response->body, sizeof(response->body), \"%d\", ng_runtime_get_int(service->runtime, \"reading\", 0));\n"
-      "  return 0;\n"
-      "}\n\n"
-      "static int angular_http_write_variables_page(void *context,\n"
-      "                                             const ng_http_request_t *request,\n"
-      "                                             ng_http_response_t *response) {\n"
-      "  angular_http_service_t *service = (angular_http_service_t *)context;\n"
-      "  (void)request;\n"
-      "  angular_http_log(\"route /variables\");\n"
-      "  strcpy(response->content_type, \"text/html; charset=utf-8\");\n"
-      "  snprintf(response->body, sizeof(response->body), \"%s\", service->service.html_page != NULL ? service->service.html_page : \"\");\n"
-      "  return 0;\n"
-      "}\n\n"
-      "static int angular_http_write_reading(void *context,\n"
-      "                                      const ng_http_request_t *request,\n"
-      "                                      ng_http_response_t *response) {\n"
-      "  angular_http_service_t *service = (angular_http_service_t *)context;\n"
-      "  int percent_straight;\n"
-      "  int reading;\n"
-      "  angular_http_log(\"route /reading POST\");\n"
-      "  if (ng_extract_reading_json(request->body, &reading) != 0) {\n"
-      "    response->status_code = 400;\n"
-      "    strcpy(response->body, \"{\\\"error\\\":\\\"invalid reading json\\\"}\");\n"
-      "    return 0;\n"
-      "  }\n"
-      "  percent_straight = angular_http_percent_from_reading(reading);\n"
-      "  ng_runtime_set_int(service->runtime, \"reading\", reading);\n"
-      "  ng_runtime_set_int(service->runtime, \"percentStraight\", percent_straight);\n"
-      "  ng_runtime_set_double(service->runtime, \"angleDeg\", angular_mapPercentToAngle_call(service->runtime, (double)percent_straight));\n"
-      "  ng_runtime_set_bool(service->runtime, \"hasSignal\", 1);\n"
-      "  angular_updateKnee_call(service->runtime, (double)percent_straight);\n"
-      "  angular_http_write_state_json(service->runtime, response->body, sizeof(response->body));\n"
-      "  return 0;\n"
-      "}\n\n"
-      "void angular_http_service_init(angular_http_service_t *service,\n"
-      "                               ng_runtime_t *runtime,\n"
-      "                               const char *html_page,\n"
-      "                               const char *css_text,\n"
-      "                               const char *js_text) {\n"
-      "  service->runtime = runtime;\n"
-      "  service->routes[0].method = \"GET\";\n"
-      "  service->routes[0].path = \"/state\";\n"
-      "  service->routes[0].handler = angular_http_write_state;\n"
-      "  service->routes[0].context = service;\n"
-      "  service->routes[1].method = \"GET\";\n"
-      "  service->routes[1].path = \"/value\";\n"
-      "  service->routes[1].handler = angular_http_write_value;\n"
-      "  service->routes[1].context = service;\n"
-      "  service->routes[2].method = \"POST\";\n"
-      "  service->routes[2].path = \"/reading\";\n"
-      "  service->routes[2].handler = angular_http_write_reading;\n"
-      "  service->routes[2].context = service;\n"
-      "  service->routes[3].method = \"GET\";\n"
-      "  service->routes[3].path = \"/api/live\";\n"
-      "  service->routes[3].handler = angular_http_write_api_live;\n"
-      "  service->routes[3].context = service;\n"
-      "  service->routes[4].method = \"GET\";\n"
-      "  service->routes[4].path = \"/api/history\";\n"
-      "  service->routes[4].handler = angular_http_write_api_history;\n"
-      "  service->routes[4].context = service;\n"
-      "  service->routes[5].method = \"GET\";\n"
-      "  service->routes[5].path = \"/api/variables\";\n"
-      "  service->routes[5].handler = angular_http_write_api_variables;\n"
-      "  service->routes[5].context = service;\n"
-      "  service->routes[6].method = \"POST\";\n"
-      "  service->routes[6].path = \"/api/variables\";\n"
-      "  service->routes[6].handler = angular_http_write_api_variables_post;\n"
-      "  service->routes[6].context = service;\n"
-      "  service->routes[7].method = \"GET\";\n"
-      "  service->routes[7].path = \"/variables\";\n"
-      "  service->routes[7].handler = angular_http_write_variables_page;\n"
-      "  service->routes[7].context = service;\n"
-      "  ng_http_service_init(&service->service, html_page, css_text, js_text, service->routes, 8);\n"
-      "}\n";
+static int generator_emit_http_service_source(const char *output_dir,
+                                              const generator_route_collection_t *routes) {
+  char source_text[131072];
+  char route_bodies[32768] = "";
+  char route_table[16384] = "";
+  char route_init[16384] = "";
+  size_t body_cursor = 0;
+  size_t table_cursor = 0;
+  size_t init_cursor = 0;
+  size_t index;
+
+  for (index = 0; index < routes->route_count; ++index) {
+    char escaped_body[4096];
+    const generator_route_asset_t *route = &routes->routes[index];
+    generator_escape_c_string(escaped_body, sizeof(escaped_body), route->body.data);
+    body_cursor += (size_t)snprintf(route_bodies + body_cursor,
+                                    sizeof(route_bodies) - body_cursor,
+                                    "static const char g_route_body_%zu[] = \"%s\";\n",
+                                    index,
+                                    escaped_body);
+    table_cursor += (size_t)snprintf(route_table + table_cursor,
+                                     sizeof(route_table) - table_cursor,
+                                     "  { \"%s\", \"%s\", \"%s\", g_route_body_%zu },\n",
+                                     route->method,
+                                     route->path,
+                                     route->content_type,
+                                     index);
+    init_cursor += (size_t)snprintf(route_init + init_cursor,
+                                    sizeof(route_init) - init_cursor,
+                                    "  service->routes[%zu].method = service->generated_routes[%zu].method;\n"
+                                    "  service->routes[%zu].path = service->generated_routes[%zu].path;\n"
+                                    "  service->routes[%zu].handler = angular_http_write_generated_route;\n"
+                                    "  service->routes[%zu].context = &service->generated_routes[%zu];\n",
+                                    index, index,
+                                    index, index,
+                                    index,
+                                    index, index);
+  }
+
+  snprintf(source_text,
+           sizeof(source_text),
+           "#include \"angular_http_service.h\"\n\n"
+           "#include <stdio.h>\n"
+           "#include <string.h>\n\n"
+           "%s\n"
+           "static const angular_generated_route_t g_generated_routes[ANGULAR_GENERATED_ROUTE_COUNT > 0 ? ANGULAR_GENERATED_ROUTE_COUNT : 1] = {\n"
+           "%s"
+           "};\n\n"
+           "static void angular_http_log(const char *message) {\n"
+           "  fprintf(stdout, \"[angular_http] %%s\\n\", message);\n"
+           "  fflush(stdout);\n"
+           "}\n\n"
+           "static int angular_http_write_generated_route(void *context,\n"
+           "                                             const ng_http_request_t *request,\n"
+           "                                             ng_http_response_t *response) {\n"
+           "  const angular_generated_route_t *route = (const angular_generated_route_t *)context;\n"
+           "  (void)request;\n"
+           "  if (route == NULL) {\n"
+           "    response->status_code = 500;\n"
+           "    strcpy(response->body, \"missing generated route context\");\n"
+           "    return 0;\n"
+           "  }\n"
+           "  angular_http_log(route->path);\n"
+           "  snprintf(response->content_type, sizeof(response->content_type), \"%%s\", route->content_type);\n"
+           "  snprintf(response->body, sizeof(response->body), \"%%s\", route->body);\n"
+           "  return 0;\n"
+           "}\n\n"
+           "void angular_http_service_init(angular_http_service_t *service,\n"
+           "                               ng_runtime_t *runtime,\n"
+           "                               const char *html_page,\n"
+           "                               const char *css_text,\n"
+           "                               const char *js_text) {\n"
+           "  size_t index;\n"
+           "  service->runtime = runtime;\n"
+           "  for (index = 0; index < ANGULAR_GENERATED_ROUTE_COUNT; ++index) {\n"
+           "    service->generated_routes[index] = g_generated_routes[index];\n"
+           "  }\n"
+           "%s"
+           "  ng_http_service_init(&service->service, html_page, css_text, js_text, service->routes, ANGULAR_GENERATED_ROUTE_COUNT);\n"
+           "}\n",
+           route_bodies,
+           route_table,
+           route_init);
 
   return generator_write_text_asset(output_dir, "angular_http_service.c", source_text);
 }
@@ -811,9 +1402,6 @@ static int generator_emit_demo_file(const char *output_dir) {
       "#include <stdio.h>\n"
       "#include <string.h>\n"
       "#include \"angular_http_service.h\"\n"
-      "#include \"angular_mapPercentToAngle.h\"\n"
-      "#include \"angular_ngOnInit.h\"\n"
-      "#include \"angular_updateKnee.h\"\n"
       "#include \"helpers/include/net/http_server.h\"\n"
       "#include \"helpers/include/net/http_service.h\"\n\n"
       "static char g_index_html[16384];\n"
@@ -854,22 +1442,8 @@ static int generator_emit_demo_file(const char *output_dir) {
       "      angular_demo_load_file(\"app.js\", g_app_js, sizeof(g_app_js)) != 0) {\n"
       "    return 1;\n"
       "  }\n\n"
-      "  angular_ngOnInit_call(&runtime);\n"
-      "  ng_runtime_set_int(&runtime, \"reading\", 3500);\n"
-      "  ng_runtime_set_int(&runtime, \"percentStraight\", 67);\n"
-      "  ng_runtime_set_double(&runtime, \"angleDeg\", angular_mapPercentToAngle_call(&runtime, 67.0));\n"
-      "  ng_runtime_set_bool(&runtime, \"hasSignal\", 1);\n"
-      "  ng_runtime_set_double(&runtime, \"speed\", 0.0);\n"
-      "  ng_runtime_set_double(&runtime, \"lastScore\", 92.0);\n"
-      "  ng_runtime_set_int(&runtime, \"stepCount\", 1);\n"
-      "  ng_runtime_set_double(&runtime, \"todayAverage\", 92.0);\n"
-      "  ng_runtime_set_bool(&runtime, \"timeSynced\", 1);\n"
-      "  ng_runtime_set_bool(&runtime, \"inStep\", 0);\n"
-      "  ng_runtime_set_double(&runtime, \"shaky\", 1.2);\n"
-      "  ng_runtime_set_double(&runtime, \"uncontrolledDescent\", 0.4);\n"
-      "  ng_runtime_set_double(&runtime, \"compensation\", 0.3);\n"
-      "  angular_updateKnee_call(&runtime, 67.0);\n"
-      "  printf(\"[demo] starting port=%u max_requests=%d reading=%d\\n\", port, max_requests, ng_runtime_get_int(&runtime, \"reading\", 0));\n"
+      "  ng_runtime_init(&runtime);\n"
+      "  printf(\"[demo] starting port=%u max_requests=%d\\n\", port, max_requests);\n"
       "  fflush(stdout);\n"
       "  angular_http_service_init(&service, &runtime, g_index_html, g_styles_css, g_app_js);\n"
       "  return ng_http_server_serve(port, ng_http_service_handle, &service.service, max_requests);\n"
@@ -878,153 +1452,54 @@ static int generator_emit_demo_file(const char *output_dir) {
   return generator_write_text_asset(output_dir, "angular_generated_demo.c", demo_source);
 }
 
-static int generator_emit_index_html(const char *output_dir, const char *html_source) {
-  return generator_write_text_asset(output_dir, "index.html", html_source);
+static int generator_emit_index_html(const char *output_dir,
+                                     const ast_component_file_t *component,
+                                     const char *html_source) {
+  char compiled_html[32768];
+  char document_html[49152];
+  LOG_TRACE("generator_emit_index_html start html_bytes=%zu class=%s\n",
+            html_source != NULL ? strlen(html_source) : 0u,
+            component != NULL ? component->class_name : "<null>");
+  if (generator_compile_template_html(component, html_source, compiled_html, sizeof(compiled_html)) != 0) {
+    return 1;
+  }
+  LOG_TRACE("generator_emit_index_html preview=%.*s\n", 180, compiled_html);
+  if (strstr(compiled_html, "<!DOCTYPE html>") != NULL || strstr(compiled_html, "<html") != NULL) {
+    LOG_TRACE("generator_emit_index_html detected full document input\n");
+    return generator_write_text_asset(output_dir, "index.html", compiled_html);
+  }
+  snprintf(document_html,
+           sizeof(document_html),
+           "<!DOCTYPE html>\n"
+           "<html lang=\"en\">\n"
+           "<head>\n"
+           "  <meta charset=\"utf-8\">\n"
+           "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+           "  <title>Angular Generated App</title>\n"
+           "  <link rel=\"stylesheet\" href=\"/styles.css\">\n"
+           "</head>\n"
+           "<body>\n"
+           "%s\n"
+           "  <script src=\"/app.js\"></script>\n"
+           "</body>\n"
+           "</html>\n",
+           compiled_html);
+  LOG_TRACE("generator_emit_index_html document_preview=%.*s\n", 220, document_html);
+  return generator_write_text_asset(output_dir, "index.html", document_html);
 }
 
 static int generator_emit_styles_css(const char *output_dir, const char *css_source) {
   return generator_write_text_asset(output_dir, "styles.css", css_source);
 }
 
-static int generator_emit_app_js(const char *output_dir) {
-  const char *js =
-      "(function () {\n"
-      "  const tabs = Array.prototype.slice.call(document.querySelectorAll('#tabs button'));\n"
-      "  const viewIds = ['live', 'history', 'variables'];\n"
-      "  function setText(id, value) {\n"
-      "    const el = document.getElementById(id);\n"
-      "    if (el) { el.textContent = String(value); }\n"
-      "  }\n"
-      "  function setValue(id, value) {\n"
-      "    const el = document.getElementById(id);\n"
-      "    if (el) { el.value = value; }\n"
-      "  }\n"
-      "  function showView(name) {\n"
-      "    viewIds.forEach(function (viewId) {\n"
-      "      const section = document.getElementById(viewId + '-view');\n"
-      "      const button = document.querySelector('#tabs button[data-view=\"' + viewId + '\"]');\n"
-      "      const active = viewId === name;\n"
-      "      if (section) { section.classList.toggle('hidden', !active); }\n"
-      "      if (button) { button.classList.toggle('active', active); }\n"
-      "    });\n"
-      "  }\n"
-      "  function scoreChip(score) {\n"
-      "    if (score >= 90) { return 'score-chip'; }\n"
-      "    if (score >= 75) { return 'score-chip warn'; }\n"
-      "    return 'score-chip bad';\n"
-      "  }\n"
-      "  function formatTime(timestampMs) {\n"
-      "    return new Date(timestampMs).toLocaleString();\n"
-      "  }\n"
-      "  function applyState(state) {\n"
-      "    const lowerLegEl = document.getElementById('lower-leg');\n"
-      "    const ankleEl = document.getElementById('ankle');\n"
-      "    setText('reading', state.reading);\n"
-      "    setText('percent-straight', String(state.percentStraight) + '%');\n"
-      "    setText('goal-inline', state.goal);\n"
-      "    setText('today-average', Number(state.todayAverage || 0).toFixed(1));\n"
-      "    setText('last-score', Number(state.lastScore || 0).toFixed(1));\n"
-      "    setText('step-count', state.stepCount);\n"
-      "    setText('speed', Number(state.speed || 0).toFixed(1));\n"
-      "    setText('live-shaky', Number(state.shaky || 0).toFixed(1));\n"
-      "    setText('live-descent', Number(state.uncontrolledDescent || 0).toFixed(1));\n"
-      "    setText('live-compensation', Number(state.compensation || 0).toFixed(1));\n"
-      "    setText('step-status', state.inStep ? 'Movement detected' : 'Waiting for a full movement cycle');\n"
-      "    const syncPill = document.getElementById('sync-pill');\n"
-      "    const statusPill = document.getElementById('step-status');\n"
-      "    if (syncPill) {\n"
-      "      syncPill.textContent = state.timeSynced ? 'Phone time synced for daily tracking' : 'Time sync pending';\n"
-      "      syncPill.classList.toggle('warn', !state.timeSynced);\n"
-      "    }\n"
-      "    if (statusPill) {\n"
-      "      statusPill.classList.toggle('warn', !state.inStep);\n"
-      "    }\n"
-      "    if (lowerLegEl) {\n"
-      "      lowerLegEl.setAttribute('x2', state.lowerLegX2);\n"
-      "      lowerLegEl.setAttribute('y2', state.lowerLegY2);\n"
-      "    }\n"
-      "    if (ankleEl) {\n"
-      "      ankleEl.setAttribute('cx', state.ankleX);\n"
-      "      ankleEl.setAttribute('cy', state.ankleY);\n"
-      "    }\n"
-      "  }\n"
-      "  function applyHistory(history) {\n"
-      "    const historyBody = document.getElementById('history-body');\n"
-      "    const dailyBody = document.getElementById('daily-average-body');\n"
-      "    if (dailyBody) {\n"
-      "      dailyBody.innerHTML = (history.dailyAverages || []).map(function (item) {\n"
-      "        return '<tr><td>' + formatTime(item.dayStartMs).split(',')[0] + '</td><td><span class=\"' + scoreChip(item.averageScore) + '\">' + Number(item.averageScore).toFixed(1) + '</span></td><td>' + item.count + '</td><td>' + history.goal + '</td></tr>';\n"
-      "      }).join('') || '<tr><td class=\"empty\" colspan=\"4\">No synced history yet.</td></tr>';\n"
-      "    }\n"
-      "    if (historyBody) {\n"
-      "      historyBody.innerHTML = (history.history || []).map(function (item) {\n"
-      "        return '<tr><td>' + formatTime(item.timestampMs) + '</td><td><span class=\"' + scoreChip(item.score) + '\">' + Number(item.score).toFixed(1) + '</span></td><td>' + Number(item.shakiness).toFixed(1) + '</td><td>' + Number(item.uncontrolledDescent).toFixed(1) + '</td><td>' + Number(item.compensation).toFixed(1) + '</td><td>' + Number(item.durationMs).toFixed(0) + ' ms</td><td>' + Number(item.range).toFixed(0) + '%</td><td>' + Number(item.descentAvgSpeed).toFixed(1) + '</td><td>' + Number(item.ascentAvgSpeed).toFixed(1) + '</td><td>' + item.oscillations + '</td></tr>';\n"
-      "      }).join('') || '<tr><td class=\"empty\" colspan=\"10\">No steps recorded yet.</td></tr>';\n"
-      "    }\n"
-      "  }\n"
-      "  function applyVariables(payload) {\n"
-      "    ['minReading','maxReading','bentAngle','straightAngle','sampleIntervalMs','filterAlpha','motionThreshold','stepRangeThreshold','startReadyThreshold','returnMargin','maxStepDurationMs','sampleHistoryEnabled'].forEach(function (key) {\n"
-      "      if (Object.prototype.hasOwnProperty.call(payload, key)) {\n"
-      "        setValue(key, payload[key]);\n"
-      "      }\n"
-      "    });\n"
-      "    setText('variables-status', payload.status || 'Variables loaded');\n"
-      "  }\n"
-      "  function fetchJson(url, options) {\n"
-      "    return fetch(url, options).then(function (response) {\n"
-      "      if (!response.ok) { throw new Error('Request failed for ' + url); }\n"
-      "      return response.json();\n"
-      "    });\n"
-      "  }\n"
-      "  function refreshAll() {\n"
-      "    return Promise.all([\n"
-      "      fetchJson('/state').then(applyState),\n"
-      "      fetchJson('/api/history').then(applyHistory),\n"
-      "      fetchJson('/api/variables').then(applyVariables)\n"
-      "    ]).catch(function (error) {\n"
-      "      console.error('[app] refresh failed', error);\n"
-      "      setText('variables-status', 'Refresh failed');\n"
-      "    });\n"
-      "  }\n"
-      "  tabs.forEach(function (button) {\n"
-      "    button.addEventListener('click', function () {\n"
-      "      showView(button.getAttribute('data-view'));\n"
-      "    });\n"
-      "  });\n"
-      "  document.getElementById('save-variables').addEventListener('click', function () {\n"
-      "    const payload = {\n"
-      "      minReading: document.getElementById('minReading').value,\n"
-      "      maxReading: document.getElementById('maxReading').value,\n"
-      "      bentAngle: document.getElementById('bentAngle').value,\n"
-      "      straightAngle: document.getElementById('straightAngle').value,\n"
-      "      sampleIntervalMs: document.getElementById('sampleIntervalMs').value,\n"
-      "      filterAlpha: document.getElementById('filterAlpha').value,\n"
-      "      motionThreshold: document.getElementById('motionThreshold').value,\n"
-      "      stepRangeThreshold: document.getElementById('stepRangeThreshold').value,\n"
-      "      startReadyThreshold: document.getElementById('startReadyThreshold').value,\n"
-      "      returnMargin: document.getElementById('returnMargin').value,\n"
-      "      maxStepDurationMs: document.getElementById('maxStepDurationMs').value,\n"
-      "      sampleHistoryEnabled: document.getElementById('sampleHistoryEnabled').value\n"
-      "    };\n"
-      "    fetchJson('/api/variables', {\n"
-      "      method: 'POST',\n"
-      "      headers: { 'Content-Type': 'application/json' },\n"
-      "      body: JSON.stringify(payload)\n"
-      "    }).then(function (result) {\n"
-      "      setText('variables-status', result.status || 'Variables saved');\n"
-      "    }).catch(function () {\n"
-      "      setText('variables-status', 'Save failed');\n"
-      "    });\n"
-      "  });\n"
-      "  document.getElementById('reload-variables').addEventListener('click', function () {\n"
-      "    fetchJson('/api/variables').then(applyVariables);\n"
-      "  });\n"
-      "  showView('live');\n"
-      "  refreshAll();\n"
-      "  window.setInterval(function () { fetchJson('/state').then(applyState); }, 1000);\n"
-      "}());\n";
+static int generator_emit_app_js(const char *output_dir, const char *input_dir) {
+  char source_path[512];
+  char destination_path[512];
 
-  return generator_write_text_asset(output_dir, "app.js", js);
+  generator_build_path(source_path, sizeof(source_path), input_dir, "app.js");
+  generator_build_path(destination_path, sizeof(destination_path), output_dir, "app.js");
+  LOG_TRACE("generator_emit_app_js source=%s destination=%s\n", source_path, destination_path);
+  return output_fs_copy_file(source_path, destination_path);
 }
 
 static int generator_emit_makefile(const char *output_dir, const ast_component_file_t *component) {
@@ -1032,6 +1507,7 @@ static int generator_emit_makefile(const char *output_dir, const ast_component_f
   char makefile_text[16384];
   size_t cursor = 0;
   size_t index;
+  char safe_name[128];
 
   cursor += (size_t)snprintf(makefile_text + cursor,
                              sizeof(makefile_text) - cursor,
@@ -1045,10 +1521,11 @@ static int generator_emit_makefile(const char *output_dir, const ast_component_f
                              "SOURCES := \\\n");
 
   for (index = 0; index < component->member_count; ++index) {
+    generator_make_safe_name(safe_name, sizeof(safe_name), component->members[index].name);
     cursor += (size_t)snprintf(makefile_text + cursor,
                                sizeof(makefile_text) - cursor,
                                "\tangular_%s.c \\\n",
-                               component->members[index].name);
+                               safe_name);
   }
 
   cursor += (size_t)snprintf(makefile_text + cursor,
@@ -1064,13 +1541,13 @@ static int generator_emit_makefile(const char *output_dir, const ast_component_f
                              "\thelpers/src/net/http_server.c \\\n"
                              "\thelpers/src/net/http_service.c \\\n"
                              "\thelpers/src/runtime/app_runtime.c \\\n"
+                             "\thelpers/src/runtime/observable.c \\\n"
                              "\thelpers/src/support/stringbuilder.c\n\n"
                              ".PHONY: all clean run\n\n"
                              "all: $(TARGET)\n\n"
-                             "$(TARGET): | $(BIN_DIR)\n"
+                             "$(TARGET): $(SOURCES)\n"
+                             "\tif not exist $(BIN_DIR) mkdir $(BIN_DIR)\n"
                              "\t$(CC) $(CFLAGS) -o $@ $(SOURCES) $(LDFLAGS)\n\n"
-                             "$(BIN_DIR):\n"
-                             "\tif not exist $(BIN_DIR) mkdir $(BIN_DIR)\n\n"
                              "run: $(TARGET)\n"
                              "\t.\\\\$(subst /,\\\\,$(TARGET)) 18080 0\n\n"
                              "clean:\n"
@@ -1086,27 +1563,26 @@ static int generator_emit_member_header(const char *output_dir, const ast_compon
   char guard[256];
   char prototype[512];
   char header[4608];
-  const generator_member_spec_t *spec = generator_lookup_spec(member);
+  char safe_name[128];
+  generator_member_spec_t spec;
   const char *member_kind = member->kind == AST_MEMBER_METHOD ? "method" : "field";
   int requires_external_fetch = member->uses_external_fetch;
 
-  if (spec == NULL) {
-    log_errorf("missing generation spec for member: %s\n", member->name);
-    return 1;
-  }
+  generator_fill_member_spec(member, &spec);
 
   LOG_TRACE("generator_emit_member_header member=%s kind=%s output_dir=%s\n",
             member->name,
             member_kind,
             output_dir);
+  generator_make_safe_name(safe_name, sizeof(safe_name), member->name);
 
-  if (spec->requires_external_fetch) {
+  if (spec.requires_external_fetch) {
     requires_external_fetch = 1;
   }
 
-  snprintf(filename, sizeof(filename), "angular_%s.h", member->name);
+  snprintf(filename, sizeof(filename), "angular_%s.h", safe_name);
   generator_build_path(path, sizeof(path), output_dir, filename);
-  generator_make_guard(guard, sizeof(guard), member->name);
+  generator_make_guard(guard, sizeof(guard), safe_name);
   generator_fill_member_prototype(component, member, prototype, sizeof(prototype));
   LOG_TRACE("generator_emit_member_header guard=%s path=%s requires_external_fetch=%d\n",
             guard,
@@ -1143,21 +1619,21 @@ static int generator_emit_member_header(const char *output_dir, const ast_compon
            "#endif\n",
            guard,
            guard,
-           member->name,
+           safe_name,
            component->class_name,
            member->name,
            member_kind,
+           safe_name,
+           spec.runtime_category,
            member->name,
-           spec->runtime_category,
+           spec.storage_type,
            member->name,
-           spec->storage_type,
-           member->name,
-           spec->processing_notes,
-           member->name,
+           spec.processing_notes,
+           safe_name,
            requires_external_fetch,
-           member->name,
-           member->name,
-           member->name,
+           safe_name,
+           safe_name,
+           safe_name,
            prototype);
 
   LOG_TRACE("generator_emit_member_header header_bytes=%zu member=%s\n", strlen(header), member->name);
@@ -1215,10 +1691,13 @@ int generator_validate_component_headers(const char *output_dir, const ast_compo
   for (index = 0; index < component->member_count; ++index) {
     char filename[256];
     char path[512];
+    char safe_name[128];
     file_buffer_t buffer;
-    const generator_member_spec_t *spec = generator_lookup_spec(&component->members[index]);
+    generator_member_spec_t spec;
 
-    snprintf(filename, sizeof(filename), "angular_%s.h", component->members[index].name);
+    generator_fill_member_spec(&component->members[index], &spec);
+    generator_make_safe_name(safe_name, sizeof(safe_name), component->members[index].name);
+    snprintf(filename, sizeof(filename), "angular_%s.h", safe_name);
     generator_build_path(path, sizeof(path), output_dir, filename);
     LOG_TRACE("generator_validate_component_headers checking path=%s\n", path);
 
@@ -1235,9 +1714,9 @@ int generator_validate_component_headers(const char *output_dir, const ast_compo
     if (strstr(buffer.data, "#include \"angular_runtime.h\"") == NULL ||
         strstr(buffer.data, component->class_name) == NULL ||
         strstr(buffer.data, component->members[index].name) == NULL ||
-        strstr(buffer.data, spec->runtime_category) == NULL ||
-        strstr(buffer.data, spec->storage_type) == NULL ||
-        strstr(buffer.data, spec->processing_notes) == NULL) {
+        strstr(buffer.data, spec.runtime_category) == NULL ||
+        strstr(buffer.data, spec.storage_type) == NULL ||
+        strstr(buffer.data, spec.processing_notes) == NULL) {
       file_buffer_free(&buffer);
       log_errorf("generated header content mismatch: %s\n", path);
       return 1;
@@ -1274,9 +1753,11 @@ int generator_validate_component_sources(const char *output_dir, const ast_compo
   for (index = 0; index < component->member_count; ++index) {
     char filename[256];
     char path[512];
+    char safe_name[128];
     file_buffer_t buffer;
 
-    snprintf(filename, sizeof(filename), "angular_%s.c", component->members[index].name);
+    generator_make_safe_name(safe_name, sizeof(safe_name), component->members[index].name);
+    snprintf(filename, sizeof(filename), "angular_%s.c", safe_name);
     generator_build_path(path, sizeof(path), output_dir, filename);
     if (!output_fs_file_exists(path)) {
       log_errorf("generated source missing: %s\n", path);
@@ -1302,30 +1783,44 @@ int generator_validate_component_sources(const char *output_dir, const ast_compo
 }
 
 int generator_generate_demo_files(const char *output_dir,
+                                  const char *input_dir,
                                   const ast_component_file_t *component,
                                   const char *html_source,
                                   const char *css_source) {
-  if (generator_emit_http_service_header(output_dir) != 0) {
+  generator_route_collection_t routes;
+
+  if (generator_collect_route_assets(input_dir, &routes) != 0) {
     return 1;
   }
-  if (generator_emit_http_service_source(output_dir) != 0) {
+  if (generator_emit_http_service_header(output_dir, routes.route_count) != 0) {
+    generator_free_route_assets(&routes);
+    return 1;
+  }
+  if (generator_emit_http_service_source(output_dir, &routes) != 0) {
+    generator_free_route_assets(&routes);
     return 1;
   }
   if (generator_emit_demo_file(output_dir) != 0) {
+    generator_free_route_assets(&routes);
     return 1;
   }
-  if (generator_emit_index_html(output_dir, html_source) != 0) {
+  if (generator_emit_index_html(output_dir, component, html_source) != 0) {
+    generator_free_route_assets(&routes);
     return 1;
   }
   if (generator_emit_styles_css(output_dir, css_source) != 0) {
+    generator_free_route_assets(&routes);
     return 1;
   }
-  if (generator_emit_app_js(output_dir) != 0) {
+  if (generator_emit_app_js(output_dir, input_dir) != 0) {
+    generator_free_route_assets(&routes);
     return 1;
   }
   if (generator_emit_makefile(output_dir, component) != 0) {
+    generator_free_route_assets(&routes);
     return 1;
   }
+  generator_free_route_assets(&routes);
   return 0;
 }
 

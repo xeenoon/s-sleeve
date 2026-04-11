@@ -11,9 +11,9 @@
 
 #define ANGULAR_lastScore_COMPONENT "AppComponent"
 #define ANGULAR_lastScore_KIND "field"
-#define ANGULAR_lastScore_RUNTIME_CATEGORY "generic-field"
-#define ANGULAR_lastScore_STORAGE_TYPE "opaque generated field"
-#define ANGULAR_lastScore_PROCESSING_NOTES "generated fallback metadata for unsupported component fields"
+#define ANGULAR_lastScore_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_lastScore_STORAGE_TYPE "dynamic"
+#define ANGULAR_lastScore_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_lastScore_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {
@@ -28,6 +28,6 @@ typedef struct {
 
 extern const angular_lastScore_header_t angular_lastScore_header;
 
-void angular_lastScore_generated_stub(void);
+const char *angular_lastScore_get(const ng_runtime_t *runtime);
 
 #endif

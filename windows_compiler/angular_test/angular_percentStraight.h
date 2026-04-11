@@ -11,9 +11,9 @@
 
 #define ANGULAR_percentStraight_COMPONENT "AppComponent"
 #define ANGULAR_percentStraight_KIND "field"
-#define ANGULAR_percentStraight_RUNTIME_CATEGORY "derived-state"
-#define ANGULAR_percentStraight_STORAGE_TYPE "int"
-#define ANGULAR_percentStraight_PROCESSING_NOTES "derived percentage from normalized knee angle"
+#define ANGULAR_percentStraight_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_percentStraight_STORAGE_TYPE "dynamic"
+#define ANGULAR_percentStraight_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_percentStraight_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {
@@ -28,6 +28,6 @@ typedef struct {
 
 extern const angular_percentStraight_header_t angular_percentStraight_header;
 
-int angular_percentStraight_get(const ng_runtime_t *runtime);
+const char *angular_percentStraight_get(const ng_runtime_t *runtime);
 
 #endif

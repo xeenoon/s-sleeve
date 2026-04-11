@@ -5,11 +5,12 @@ const angular_goal_header_t angular_goal_header = {
   "AppComponent",
   "goal",
   "field",
-  "generic-field",
-  "opaque generated field",
-  "generated fallback metadata for unsupported component fields",
+  "runtime-slot",
+  "dynamic",
+  "generated field accessor derived from initializer",
   0
 };
 
-void angular_goal_generated_stub(void) {
+const char *angular_goal_get(const ng_runtime_t *runtime) {
+  return ng_runtime_get_string(runtime, "goal", "");
 }

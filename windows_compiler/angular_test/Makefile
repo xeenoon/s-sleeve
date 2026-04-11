@@ -8,6 +8,11 @@ BIN_DIR := bin
 TARGET := $(BIN_DIR)/generated_demo.exe
 
 SOURCES := \
+	angular_selectedView_.c \
+	angular_liveState_.c \
+	angular_historyState_.c \
+	angular_variablesState_.c \
+	angular_saveVariables_.c \
 	angular_selectedView.c \
 	angular_goal.c \
 	angular_reading.c \
@@ -41,17 +46,16 @@ SOURCES := \
 	helpers/src/net/http_server.c \
 	helpers/src/net/http_service.c \
 	helpers/src/runtime/app_runtime.c \
+	helpers/src/runtime/observable.c \
 	helpers/src/support/stringbuilder.c
 
 .PHONY: all clean run
 
 all: $(TARGET)
 
-$(TARGET): | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) $(LDFLAGS)
-
-$(BIN_DIR):
+$(TARGET): $(SOURCES)
 	if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) $(LDFLAGS)
 
 run: $(TARGET)
 	.\\$(subst /,\\,$(TARGET)) 18080 0

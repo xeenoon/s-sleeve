@@ -5,9 +5,9 @@ const angular_clamp_header_t angular_clamp_header = {
   "AppComponent",
   "clamp",
   "method",
-  "inferred-method",
+  "generated-method",
   "double",
-  "generated from parsed Angular method body with inferred local types",
+  "generated from parsed component method",
   0
 };
 

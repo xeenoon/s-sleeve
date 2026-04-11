@@ -11,9 +11,9 @@
 
 #define ANGULAR_updateKnee_COMPONENT "AppComponent"
 #define ANGULAR_updateKnee_KIND "method"
-#define ANGULAR_updateKnee_RUNTIME_CATEGORY "recompute-hook"
-#define ANGULAR_updateKnee_STORAGE_TYPE "ng_recompute_fn_t-compatible helper"
-#define ANGULAR_updateKnee_PROCESSING_NOTES "recomputes leg geometry and derived display state"
+#define ANGULAR_updateKnee_RUNTIME_CATEGORY "generated-method"
+#define ANGULAR_updateKnee_STORAGE_TYPE "callable"
+#define ANGULAR_updateKnee_PROCESSING_NOTES "generated from parsed component method"
 #define ANGULAR_updateKnee_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {

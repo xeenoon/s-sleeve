@@ -11,9 +11,9 @@
 
 #define ANGULAR_shaky_COMPONENT "AppComponent"
 #define ANGULAR_shaky_KIND "field"
-#define ANGULAR_shaky_RUNTIME_CATEGORY "generic-field"
-#define ANGULAR_shaky_STORAGE_TYPE "opaque generated field"
-#define ANGULAR_shaky_PROCESSING_NOTES "generated fallback metadata for unsupported component fields"
+#define ANGULAR_shaky_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_shaky_STORAGE_TYPE "dynamic"
+#define ANGULAR_shaky_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_shaky_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {
@@ -28,6 +28,6 @@ typedef struct {
 
 extern const angular_shaky_header_t angular_shaky_header;
 
-void angular_shaky_generated_stub(void);
+const char *angular_shaky_get(const ng_runtime_t *runtime);
 
 #endif

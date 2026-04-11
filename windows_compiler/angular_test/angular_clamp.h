@@ -11,9 +11,9 @@
 
 #define ANGULAR_clamp_COMPONENT "AppComponent"
 #define ANGULAR_clamp_KIND "method"
-#define ANGULAR_clamp_RUNTIME_CATEGORY "helper-function"
-#define ANGULAR_clamp_STORAGE_TYPE "float helper"
-#define ANGULAR_clamp_PROCESSING_NOTES "pure bounds clamp helper used by derived calculations"
+#define ANGULAR_clamp_RUNTIME_CATEGORY "generated-method"
+#define ANGULAR_clamp_STORAGE_TYPE "callable"
+#define ANGULAR_clamp_PROCESSING_NOTES "generated from parsed component method"
 #define ANGULAR_clamp_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {
@@ -28,6 +28,6 @@ typedef struct {
 
 extern const angular_clamp_header_t angular_clamp_header;
 
-double angular_clamp_call(ng_runtime_t *runtime, double value, double min_value, double max_value);
+double angular_clamp_call(ng_runtime_t *runtime, double value, double min, double max);
 
 #endif

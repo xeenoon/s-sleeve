@@ -16,6 +16,7 @@ HELPER_SOURCES := \
 	src/format/number_format.c \
 	src/io/fetch_runtime.c \
 	src/runtime/app_runtime.c \
+	src/runtime/observable.c \
 	src/data/json_utils.c \
 	src/data/json.c \
 	src/support/stringbuilder.c \
@@ -30,6 +31,7 @@ UNIT_TEST_SOURCES := \
 	tests/unit/test_number_format.c \
 	tests/unit/test_fetch_runtime.c \
 	tests/unit/test_app_runtime.c \
+	tests/unit/test_observable.c \
 	tests/unit/test_json_utils.c \
 	tests/unit/test_http_service.c
 

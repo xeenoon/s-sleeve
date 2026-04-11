@@ -5,11 +5,12 @@ const angular_speed_header_t angular_speed_header = {
   "AppComponent",
   "speed",
   "field",
-  "generic-field",
-  "opaque generated field",
-  "generated fallback metadata for unsupported component fields",
+  "runtime-slot",
+  "dynamic",
+  "generated field accessor derived from initializer",
   0
 };
 
-void angular_speed_generated_stub(void) {
+const char *angular_speed_get(const ng_runtime_t *runtime) {
+  return ng_runtime_get_string(runtime, "speed", "");
 }

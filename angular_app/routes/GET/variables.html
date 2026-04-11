@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Knee Rehab Tracker</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="panel">
+        <p class="eyebrow">Rehab Tracker</p>
+        <h1 class="headline"><span id="today-average">0.0</span>/100</h1>
+        <p class="subline">Daily average step quality with a goal of <strong id="goal-inline">85</strong>.</p>
+      </div>
+      <div class="panel">
+        <div class="status-row">
+          <div class="tabs" id="tabs">
+            <button data-view="live" class="active" type="button">Live</button>
+            <button data-view="history" type="button">History</button>
+            <button data-view="variables" type="button">Variables</button>
+          </div>
+          <div id="sync-pill" class="status-pill">Phone time synced for daily tracking</div>
+        </div>
+      </div>
+    </section>
+    <section id="live-view" class="hidden"></section>
+    <section id="history-view" class="hidden"></section>
+    <section id="variables-view">
+      <div class="panel">
+        <p class="eyebrow">Calibration Variables</p>
+        <div id="variables-status" class="status-pill warn">Variables not loaded yet</div>
+      </div>
+    </section>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>

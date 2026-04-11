@@ -11,9 +11,9 @@
 
 #define ANGULAR_uncontrolledDescent_COMPONENT "AppComponent"
 #define ANGULAR_uncontrolledDescent_KIND "field"
-#define ANGULAR_uncontrolledDescent_RUNTIME_CATEGORY "generic-field"
-#define ANGULAR_uncontrolledDescent_STORAGE_TYPE "opaque generated field"
-#define ANGULAR_uncontrolledDescent_PROCESSING_NOTES "generated fallback metadata for unsupported component fields"
+#define ANGULAR_uncontrolledDescent_RUNTIME_CATEGORY "runtime-slot"
+#define ANGULAR_uncontrolledDescent_STORAGE_TYPE "dynamic"
+#define ANGULAR_uncontrolledDescent_PROCESSING_NOTES "generated field accessor derived from initializer"
 #define ANGULAR_uncontrolledDescent_REQUIRES_EXTERNAL_FETCH 0
 
 typedef struct {
@@ -28,6 +28,6 @@ typedef struct {
 
 extern const angular_uncontrolledDescent_header_t angular_uncontrolledDescent_header;
 
-void angular_uncontrolledDescent_generated_stub(void);
+const char *angular_uncontrolledDescent_get(const ng_runtime_t *runtime);
 
 #endif
