@@ -50,13 +50,15 @@ try {
   $jsHasCompiledObservableRuntime = $js.Content -match 'ngApplyPipeChain' -and $js.Content -match 'registerObservable' -and $js.Content -match "runObservable" -and $js.Content -match "refreshObservable"
   $jsHasPipeHooks = $js.Content -match "formatHistoryRow" -and $js.Content -match "renderHistoryRows" -and $js.Content -match "applyLivePayload"
   $jsHasReducePipeline = $js.Content -match "step.kind === 'reduce'" -and $js.Content -match "summarizeHistory" -and $js.Content -match "renderHistoryDiagnostics"
+  $jsHasEffectRuntime = $js.Content -match "ngApplyEffectStep" -and $js.Content -match "effect-class" -and $js.Content -match "effect-style-var" -and $js.Content -match "effect-stagger-class"
+  $jsDroppedSourceAnimationHooks = $js.Content -notmatch "animateLiveSignal" -and $js.Content -notmatch "animateViewTransition" -and $js.Content -notmatch "animateHistoryRows" -and $js.Content -notmatch "animateSaveSuccess"
   $jsHasRawObservableSyntax = $js.Content -match 'rx\.poll\(' -or $js.Content -match 'rx\.post\(' -or $js.Content -match 'rx\.state\(' -or $js.Content -match '\.pipe\('
 
   [pscustomobject]@{
     root_ok = ($root.StatusCode -eq 200 -and -not $rootHasRawTemplate -and $rootHasExpectedTabs -and $rootHasExpectedViews -and $rootHasAssets -and $rootHasDiagnostics)
     variables_page_ok = ($variablesPage.StatusCode -eq 200 -and $variablesPage.Content -match 'data-view="variables"')
     css_ok = ($css.StatusCode -eq 200 -and $css.Content -match 'background')
-    js_ok = ($js.StatusCode -eq 200 -and $jsHasCompiledObservableRuntime -and $jsHasPipeHooks -and $jsHasReducePipeline -and -not $jsHasRawObservableSyntax -and $js.Content -match "window\.history\.replaceState" -and $servedJsBytes -eq $generatedJsBytes)
+    js_ok = ($js.StatusCode -eq 200 -and $jsHasCompiledObservableRuntime -and $jsHasPipeHooks -and $jsHasReducePipeline -and $jsHasEffectRuntime -and $jsDroppedSourceAnimationHooks -and -not $jsHasRawObservableSyntax -and $js.Content -match "window\.history\.replaceState" -and $servedJsBytes -eq $generatedJsBytes)
     history_ok = (@($historyJson.history).Count -eq 50 -and @($historyJson.dailyAverages).Count -gt 0)
     root_has_raw_template = $rootHasRawTemplate
     root_has_expected_tabs = $rootHasExpectedTabs
@@ -66,6 +68,8 @@ try {
     js_has_compiled_observable_runtime = $jsHasCompiledObservableRuntime
     js_has_pipe_hooks = $jsHasPipeHooks
     js_has_reduce_pipeline = $jsHasReducePipeline
+    js_has_effect_runtime = $jsHasEffectRuntime
+    js_dropped_source_animation_hooks = $jsDroppedSourceAnimationHooks
     js_has_raw_observable_syntax = $jsHasRawObservableSyntax
     generated_js_bytes = $generatedJsBytes
     served_js_bytes = $servedJsBytes

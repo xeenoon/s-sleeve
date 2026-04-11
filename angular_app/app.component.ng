@@ -4,15 +4,23 @@
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  selectedView$ = rx.state('live').pipe(rx.tap('showView'), rx.tap('animateViewTransition'));
-  liveState$ = rx.poll('/api/live', 500).pipe(rx.tap('applyLivePayload'), rx.tap('animateLiveSignal'));
-  historyRows$ = rx.poll('/api/history', 3000).pipe(rx.prop('history'), rx.map('formatHistoryRow'), rx.tap('renderHistoryRows'), rx.tap('animateHistoryRows'));
-  dailyAverageRows$ = rx.poll('/api/history', 3000).pipe(rx.prop('dailyAverages'), rx.map('formatDailyAverageRow'), rx.tap('renderDailyAverageRows'), rx.tap('animateDailyAverageRows'));
+  selectedView$ = rx.state('live').pipe(rx.tap('showView'), rx.effectClass('#{{value}}-view', 'is-transitioning', 460));
+  liveState$ = rx.poll('/api/live', 500).pipe(
+    rx.tap('applyLivePayload'),
+    rx.effectClassAt('[data-telemetry-card]', 0, 'is-live', 1000, 'changed', 'reading'),
+    rx.effectClassAt('[data-telemetry-card]', 1, 'is-live', 1000, 'changed', 'percentStraight'),
+    rx.effectClassAt('[data-telemetry-card]', 2, 'is-live', 1000, 'changed', 'lastScore'),
+    rx.effectClassAt('[data-telemetry-card]', 3, 'is-live', 1000, 'changed', 'stepCount'),
+    rx.effectClass('.meter-card', 'is-energized', 360, 'changed', 'percentStraight'),
+    rx.effectStyleVar(':root', '--surface-shift', 'ternary-bool', 'inStep', '-2px', '0px')
+  );
+  historyRows$ = rx.poll('/api/history', 3000).pipe(rx.prop('history'), rx.map('formatHistoryRow'), rx.tap('renderHistoryRows'), rx.effectStaggerClass('#history-body tr', 'table-row-enter', 420, 16));
+  dailyAverageRows$ = rx.poll('/api/history', 3000).pipe(rx.prop('dailyAverages'), rx.map('formatDailyAverageRow'), rx.tap('renderDailyAverageRows'), rx.effectStaggerClass('#daily-average-body tr', 'table-row-enter', 420, 24));
   historyGoal$ = rx.poll('/api/history', 3000).pipe(rx.prop('goal'), rx.tap('applyHistoryGoal'));
-  historyDiagnostics$ = rx.poll('/api/history', 3000).pipe(rx.prop('history'), rx.reduce('summarizeHistory'), rx.tap('renderHistoryDiagnostics'), rx.tap('animateDiagnostics'));
-  dailyDiagnostics$ = rx.poll('/api/history', 3000).pipe(rx.prop('dailyAverages'), rx.reduce('summarizeDailyAverages'), rx.tap('renderDailyDiagnostics'), rx.tap('animateDiagnostics'));
-  variablesState$ = rx.poll('/api/variables', 8000).pipe(rx.tap('applyVariablesPayload'), rx.tap('animateVariableHydration'));
-  saveVariables$ = rx.post('/api/variables').pipe(rx.tap('applyVariablesSaveResponse'), rx.tap('animateSaveSuccess'));
+  historyDiagnostics$ = rx.poll('/api/history', 3000).pipe(rx.prop('history'), rx.reduce('summarizeHistory'), rx.tap('renderHistoryDiagnostics'));
+  dailyDiagnostics$ = rx.poll('/api/history', 3000).pipe(rx.prop('dailyAverages'), rx.reduce('summarizeDailyAverages'), rx.tap('renderDailyDiagnostics'));
+  variablesState$ = rx.poll('/api/variables', 8000).pipe(rx.tap('applyVariablesPayload'));
+  saveVariables$ = rx.post('/api/variables').pipe(rx.tap('applyVariablesSaveResponse'), rx.effectClass('#variables-status', 'warn', 520));
 
   selectedView = 'live';
   goal = 85;

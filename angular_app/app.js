@@ -12,32 +12,6 @@ function setHtml(id, value) {
   }
 }
 
-function withTemporaryClass(element, className, durationMs) {
-  if (!element) {
-    return;
-  }
-  element.classList.remove(className);
-  void element.offsetWidth;
-  element.classList.add(className);
-  window.setTimeout(function () {
-    element.classList.remove(className);
-  }, durationMs || 420);
-}
-
-function flashCollection(selector, className, staggerMs, durationMs) {
-  Array.prototype.forEach.call(document.querySelectorAll(selector), function (element, index) {
-    window.setTimeout(function () {
-      withTemporaryClass(element, className, durationMs);
-    }, index * (staggerMs || 40));
-  });
-}
-
-var telemetryState = {
-  reading: null,
-  percentStraight: null,
-  lastScore: null,
-  stepCount: null
-};
 var demoState = {
   lastMotionAt: 0,
   timerId: null,
@@ -46,20 +20,6 @@ var demoState = {
   lastPercent: null,
   lastLivePercent: null
 };
-
-function markTelemetryActive(card, active) {
-  if (!card) {
-    return;
-  }
-  card.classList.toggle('is-live', !!active);
-}
-
-function pulseTelemetryFor(card, durationMs) {
-  markTelemetryActive(card, true);
-  window.setTimeout(function () {
-    markTelemetryActive(card, false);
-  }, durationMs || 1000);
-}
 
 function setDemoCopy(text) {
   setText('meter-demo-copy', text);
@@ -343,83 +303,6 @@ function applyVariablesSaveResponse(payload) {
   setText('variables-status', payload.status || 'Variables saved');
 }
 
-function animateViewTransition(view) {
-  console.log('[app] animateViewTransition', view);
-  var section = document.getElementById(view + '-view');
-  if (section) {
-    withTemporaryClass(section, 'is-transitioning', 460);
-  }
-}
-
-function animateLiveSignal(payload) {
-  console.log('[app] animateLiveSignal reading=' + payload.reading);
-  var cards = document.querySelectorAll('[data-telemetry-card]');
-  var readingChanged = telemetryState.reading !== payload.reading;
-  var percentChanged = telemetryState.percentStraight !== payload.percentStraight;
-  var scoreChanged = telemetryState.lastScore !== payload.lastScore;
-  var stepsChanged = telemetryState.stepCount !== payload.stepCount;
-  if (cards[0]) {
-    markTelemetryActive(cards[0], false);
-    if (readingChanged) {
-      pulseTelemetryFor(cards[0], 1000);
-    }
-  }
-  if (cards[1]) {
-    markTelemetryActive(cards[1], false);
-    if (percentChanged) {
-      pulseTelemetryFor(cards[1], 1000);
-    }
-  }
-  if (cards[2]) {
-    markTelemetryActive(cards[2], false);
-    if (scoreChanged) {
-      pulseTelemetryFor(cards[2], 1000);
-    }
-  }
-  if (cards[3]) {
-    markTelemetryActive(cards[3], false);
-    if (stepsChanged) {
-      pulseTelemetryFor(cards[3], 1000);
-    }
-  }
-  var meterCard = document.querySelector('.meter-card');
-  if (meterCard) {
-    withTemporaryClass(meterCard, 'is-energized', 360);
-  }
-  var root = document.documentElement;
-  if (root) {
-    root.style.setProperty('--surface-shift', (payload.inStep ? -2 : 0) + 'px');
-  }
-  telemetryState.reading = payload.reading;
-  telemetryState.percentStraight = payload.percentStraight;
-  telemetryState.lastScore = payload.lastScore;
-  telemetryState.stepCount = payload.stepCount;
-}
-
-function animateHistoryRows(rows) {
-  console.log('[app] animateHistoryRows count=' + ((rows && rows.length) || 0));
-  flashCollection('#history-body tr', 'table-row-enter', 16, 420);
-}
-
-function animateDailyAverageRows(rows) {
-  console.log('[app] animateDailyAverageRows count=' + ((rows && rows.length) || 0));
-  flashCollection('#daily-average-body tr', 'table-row-enter', 24, 420);
-}
-
-function animateDiagnostics(summary) {
-  console.log('[app] animateDiagnostics count=' + (summary && summary.count));
-}
-
-function animateVariableHydration(payload) {
-  console.log('[app] animateVariableHydration keys=' + Object.keys(payload || {}).length);
-}
-
-function animateSaveSuccess(payload) {
-  console.log('[app] animateSaveSuccess', payload && payload.status);
-  var status = document.getElementById('variables-status');
-  withTemporaryClass(status, 'warn', 520);
-}
-
 function collectVariablesPayload() {
   var payload = {};
   Array.prototype.forEach.call(document.querySelectorAll('#variables-view input'), function (input) {
@@ -477,12 +360,5 @@ window.applyHistoryGoal = applyHistoryGoal;
 window.applyLivePayload = applyLivePayload;
 window.applyVariablesPayload = applyVariablesPayload;
 window.applyVariablesSaveResponse = applyVariablesSaveResponse;
-window.animateViewTransition = animateViewTransition;
-window.animateLiveSignal = animateLiveSignal;
-window.animateHistoryRows = animateHistoryRows;
-window.animateDailyAverageRows = animateDailyAverageRows;
-window.animateDiagnostics = animateDiagnostics;
-window.animateVariableHydration = animateVariableHydration;
-window.animateSaveSuccess = animateSaveSuccess;
 window.collectVariablesPayload = collectVariablesPayload;
 window.ngInitializeApp = ngInitializeApp;

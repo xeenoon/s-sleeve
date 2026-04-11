@@ -20,6 +20,142 @@
     return name && name.charAt(name.length - 1) === '$' ? name.slice(0, -1) : name;
   }
 
+  function ngExtractValue(value, path) {
+    if (!path) {
+      return value;
+    }
+    return String(path).split('.').reduce(function (current, segment) {
+      if (current === null || current === undefined) {
+        return undefined;
+      }
+      return current[segment];
+    }, value);
+  }
+
+  function ngRenderTemplate(text, value, app, spec) {
+    var rendered = String(text || '');
+    var alias = ngNormalizeName(spec.name);
+    var scalar = (value !== null && typeof value === 'object') ? '' : String(value === undefined || value === null ? '' : value);
+    rendered = rendered.replace(/\{\{value\}\}/g, scalar);
+    rendered = rendered.replace(/\{\{alias\}\}/g, alias);
+    return rendered;
+  }
+
+  function ngResolveNodes(selectorTemplate, value, app, spec) {
+    var selector = ngRenderTemplate(selectorTemplate, value, app, spec);
+    try {
+      return Array.prototype.slice.call(document.querySelectorAll(selector));
+    } catch (error) {
+      ngLog('invalid selector', selector, error && error.message ? error.message : error);
+      return [];
+    }
+  }
+
+  function ngApplyTemporaryClass(element, className, durationMs) {
+    if (!element) {
+      return;
+    }
+    element.classList.remove(className);
+    void element.offsetWidth;
+    element.classList.add(className);
+    window.setTimeout(function () {
+      element.classList.remove(className);
+    }, durationMs || 420);
+  }
+
+  function ngEffectStateKey(spec, suffix) {
+    return spec.name + '::' + suffix;
+  }
+
+  function ngHasChanged(app, spec, suffix, nextValue) {
+    var key = ngEffectStateKey(spec, suffix);
+    var previous = app.effectState[key];
+    app.effectState[key] = nextValue;
+    return previous !== nextValue;
+  }
+
+  function ngEffectConditionMet(current, step, app, spec, kindIndex, valueIndex, suffix) {
+    var args = step.args || [];
+    var conditionKind = args[kindIndex] || 'always';
+    var conditionPath = args[valueIndex] || '';
+    var observed = conditionPath ? ngExtractValue(current, conditionPath) : current;
+    if (conditionKind === 'always') {
+      return true;
+    }
+    if (conditionKind === 'truthy') {
+      return !!observed;
+    }
+    if (conditionKind === 'changed') {
+      return ngHasChanged(app, spec, suffix + ':' + conditionPath, observed);
+    }
+    ngLog('unknown effect condition', conditionKind, step.kind);
+    return true;
+  }
+
+  function ngApplyEffectStep(current, step, app, spec) {
+    var args = step.args || [];
+    var nodes;
+    var targetIndex;
+    var durationMs;
+    var staggerMs;
+    var selector;
+    var cssValue;
+    if (step.kind === 'effect-class') {
+      selector = args[0] || '';
+      durationMs = Number(args[2] || 420);
+      if (!ngEffectConditionMet(current, step, app, spec, 3, 4, step.kind + ':' + selector)) {
+        return current;
+      }
+      nodes = ngResolveNodes(selector, current, app, spec);
+      nodes.forEach(function (node) { ngApplyTemporaryClass(node, args[1], durationMs); });
+      return current;
+    }
+    if (step.kind === 'effect-class-at') {
+      selector = args[0] || '';
+      targetIndex = Number(args[1] || 0);
+      durationMs = Number(args[3] || 420);
+      if (!ngEffectConditionMet(current, step, app, spec, 4, 5, step.kind + ':' + selector + ':' + targetIndex)) {
+        return current;
+      }
+      nodes = ngResolveNodes(selector, current, app, spec);
+      if (nodes[targetIndex]) {
+        ngApplyTemporaryClass(nodes[targetIndex], args[2], durationMs);
+      }
+      return current;
+    }
+    if (step.kind === 'effect-stagger-class') {
+      selector = args[0] || '';
+      durationMs = Number(args[2] || 420);
+      staggerMs = Number(args[3] || 24);
+      nodes = ngResolveNodes(selector, current, app, spec);
+      nodes.forEach(function (node, index) {
+        window.setTimeout(function () {
+          ngApplyTemporaryClass(node, args[1], durationMs);
+        }, index * staggerMs);
+      });
+      return current;
+    }
+    if (step.kind === 'effect-style-var') {
+      selector = args[0] || ':root';
+      nodes = ngResolveNodes(selector, current, app, spec);
+      if (!nodes.length) {
+        return current;
+      }
+      if ((args[2] || 'value') === 'ternary-bool') {
+        cssValue = ngExtractValue(current, args[3]) ? args[4] : args[5];
+      } else if ((args[2] || 'value') === 'field') {
+        cssValue = ngExtractValue(current, args[3]);
+      } else {
+        cssValue = args[2];
+      }
+      nodes.forEach(function (node) {
+        node.style.setProperty(args[1], String(cssValue));
+      });
+      return current;
+    }
+    return current;
+  }
+
   function ngApplyPipeChain(value, steps, app, spec) {
     return (steps || []).reduce(function (current, step) {
       var hook;
@@ -58,6 +194,9 @@
         }
         return current;
       }
+      if (step.kind.indexOf('effect-') === 0) {
+        return ngApplyEffectStep(current, step, app, spec);
+      }
       return current;
     }, value);
   }
@@ -66,7 +205,8 @@
     var app = {
       streams: {},
       values: {},
-      intervals: []
+      intervals: [],
+      effectState: {}
     };
 
     app.getValue = function (name) {
@@ -160,32 +300,6 @@ function setHtml(id, value) {
   }
 }
 
-function withTemporaryClass(element, className, durationMs) {
-  if (!element) {
-    return;
-  }
-  element.classList.remove(className);
-  void element.offsetWidth;
-  element.classList.add(className);
-  window.setTimeout(function () {
-    element.classList.remove(className);
-  }, durationMs || 420);
-}
-
-function flashCollection(selector, className, staggerMs, durationMs) {
-  Array.prototype.forEach.call(document.querySelectorAll(selector), function (element, index) {
-    window.setTimeout(function () {
-      withTemporaryClass(element, className, durationMs);
-    }, index * (staggerMs || 40));
-  });
-}
-
-var telemetryState = {
-  reading: null,
-  percentStraight: null,
-  lastScore: null,
-  stepCount: null
-};
 var demoState = {
   lastMotionAt: 0,
   timerId: null,
@@ -194,20 +308,6 @@ var demoState = {
   lastPercent: null,
   lastLivePercent: null
 };
-
-function markTelemetryActive(card, active) {
-  if (!card) {
-    return;
-  }
-  card.classList.toggle('is-live', !!active);
-}
-
-function pulseTelemetryFor(card, durationMs) {
-  markTelemetryActive(card, true);
-  window.setTimeout(function () {
-    markTelemetryActive(card, false);
-  }, durationMs || 1000);
-}
 
 function setDemoCopy(text) {
   setText('meter-demo-copy', text);
@@ -491,83 +591,6 @@ function applyVariablesSaveResponse(payload) {
   setText('variables-status', payload.status || 'Variables saved');
 }
 
-function animateViewTransition(view) {
-  console.log('[app] animateViewTransition', view);
-  var section = document.getElementById(view + '-view');
-  if (section) {
-    withTemporaryClass(section, 'is-transitioning', 460);
-  }
-}
-
-function animateLiveSignal(payload) {
-  console.log('[app] animateLiveSignal reading=' + payload.reading);
-  var cards = document.querySelectorAll('[data-telemetry-card]');
-  var readingChanged = telemetryState.reading !== payload.reading;
-  var percentChanged = telemetryState.percentStraight !== payload.percentStraight;
-  var scoreChanged = telemetryState.lastScore !== payload.lastScore;
-  var stepsChanged = telemetryState.stepCount !== payload.stepCount;
-  if (cards[0]) {
-    markTelemetryActive(cards[0], false);
-    if (readingChanged) {
-      pulseTelemetryFor(cards[0], 1000);
-    }
-  }
-  if (cards[1]) {
-    markTelemetryActive(cards[1], false);
-    if (percentChanged) {
-      pulseTelemetryFor(cards[1], 1000);
-    }
-  }
-  if (cards[2]) {
-    markTelemetryActive(cards[2], false);
-    if (scoreChanged) {
-      pulseTelemetryFor(cards[2], 1000);
-    }
-  }
-  if (cards[3]) {
-    markTelemetryActive(cards[3], false);
-    if (stepsChanged) {
-      pulseTelemetryFor(cards[3], 1000);
-    }
-  }
-  var meterCard = document.querySelector('.meter-card');
-  if (meterCard) {
-    withTemporaryClass(meterCard, 'is-energized', 360);
-  }
-  var root = document.documentElement;
-  if (root) {
-    root.style.setProperty('--surface-shift', (payload.inStep ? -2 : 0) + 'px');
-  }
-  telemetryState.reading = payload.reading;
-  telemetryState.percentStraight = payload.percentStraight;
-  telemetryState.lastScore = payload.lastScore;
-  telemetryState.stepCount = payload.stepCount;
-}
-
-function animateHistoryRows(rows) {
-  console.log('[app] animateHistoryRows count=' + ((rows && rows.length) || 0));
-  flashCollection('#history-body tr', 'table-row-enter', 16, 420);
-}
-
-function animateDailyAverageRows(rows) {
-  console.log('[app] animateDailyAverageRows count=' + ((rows && rows.length) || 0));
-  flashCollection('#daily-average-body tr', 'table-row-enter', 24, 420);
-}
-
-function animateDiagnostics(summary) {
-  console.log('[app] animateDiagnostics count=' + (summary && summary.count));
-}
-
-function animateVariableHydration(payload) {
-  console.log('[app] animateVariableHydration keys=' + Object.keys(payload || {}).length);
-}
-
-function animateSaveSuccess(payload) {
-  console.log('[app] animateSaveSuccess', payload && payload.status);
-  var status = document.getElementById('variables-status');
-  withTemporaryClass(status, 'warn', 520);
-}
-
 function collectVariablesPayload() {
   var payload = {};
   Array.prototype.forEach.call(document.querySelectorAll('#variables-view input'), function (input) {
@@ -625,28 +648,21 @@ window.applyHistoryGoal = applyHistoryGoal;
 window.applyLivePayload = applyLivePayload;
 window.applyVariablesPayload = applyVariablesPayload;
 window.applyVariablesSaveResponse = applyVariablesSaveResponse;
-window.animateViewTransition = animateViewTransition;
-window.animateLiveSignal = animateLiveSignal;
-window.animateHistoryRows = animateHistoryRows;
-window.animateDailyAverageRows = animateDailyAverageRows;
-window.animateDiagnostics = animateDiagnostics;
-window.animateVariableHydration = animateVariableHydration;
-window.animateSaveSuccess = animateSaveSuccess;
 window.collectVariablesPayload = collectVariablesPayload;
 window.ngInitializeApp = ngInitializeApp;
 
 
   var ngApp = ngCreateApp();
   window.ngApp = ngApp;
-  ngApp.registerObservable({ name: 'selectedView$', alias: 'selectedView', kind: 'state', path: '', seed: 'live', intervalMs: 0, steps: [{ kind: 'tap', argument: 'showView' }, { kind: 'tap', argument: 'animateViewTransition' }] });
-  ngApp.registerObservable({ name: 'liveState$', alias: 'liveState', kind: 'poll', path: '/api/live', seed: null, intervalMs: 500, steps: [{ kind: 'tap', argument: 'applyLivePayload' }, { kind: 'tap', argument: 'animateLiveSignal' }] });
-  ngApp.registerObservable({ name: 'historyRows$', alias: 'historyRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history' }, { kind: 'map', argument: 'formatHistoryRow' }, { kind: 'tap', argument: 'renderHistoryRows' }, { kind: 'tap', argument: 'animateHistoryRows' }] });
-  ngApp.registerObservable({ name: 'dailyAverageRows$', alias: 'dailyAverageRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages' }, { kind: 'map', argument: 'formatDailyAverageRow' }, { kind: 'tap', argument: 'renderDailyAverageRows' }, { kind: 'tap', argument: 'animateDailyAverageRows' }] });
-  ngApp.registerObservable({ name: 'historyGoal$', alias: 'historyGoal', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'goal' }, { kind: 'tap', argument: 'applyHistoryGoal' }] });
-  ngApp.registerObservable({ name: 'historyDiagnostics$', alias: 'historyDiagnostics', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history' }, { kind: 'reduce', argument: 'summarizeHistory' }, { kind: 'tap', argument: 'renderHistoryDiagnostics' }, { kind: 'tap', argument: 'animateDiagnostics' }] });
-  ngApp.registerObservable({ name: 'dailyDiagnostics$', alias: 'dailyDiagnostics', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages' }, { kind: 'reduce', argument: 'summarizeDailyAverages' }, { kind: 'tap', argument: 'renderDailyDiagnostics' }, { kind: 'tap', argument: 'animateDiagnostics' }] });
-  ngApp.registerObservable({ name: 'variablesState$', alias: 'variablesState', kind: 'poll', path: '/api/variables', seed: null, intervalMs: 8000, steps: [{ kind: 'tap', argument: 'applyVariablesPayload' }, { kind: 'tap', argument: 'animateVariableHydration' }] });
-  ngApp.registerObservable({ name: 'saveVariables$', alias: 'saveVariables', kind: 'post', path: '/api/variables', seed: null, intervalMs: 0, steps: [{ kind: 'tap', argument: 'applyVariablesSaveResponse' }, { kind: 'tap', argument: 'animateSaveSuccess' }] });
+  ngApp.registerObservable({ name: 'selectedView$', alias: 'selectedView', kind: 'state', path: '', seed: 'live', intervalMs: 0, steps: [{ kind: 'tap', argument: 'showView', args: ['showView'] }, { kind: 'effect-class', argument: 'is-transitioning', args: ['#{{value}}-view', 'is-transitioning', '460'] }] });
+  ngApp.registerObservable({ name: 'liveState$', alias: 'liveState', kind: 'poll', path: '/api/live', seed: null, intervalMs: 500, steps: [{ kind: 'tap', argument: 'applyLivePayload', args: ['applyLivePayload'] }, { kind: 'effect-class-at', argument: '0', args: ['[data-telemetry-card]', '0', 'is-live', '1000', 'changed', 'reading'] }, { kind: 'effect-class-at', argument: '1', args: ['[data-telemetry-card]', '1', 'is-live', '1000', 'changed', 'percentStraight'] }, { kind: 'effect-class-at', argument: '2', args: ['[data-telemetry-card]', '2', 'is-live', '1000', 'changed', 'lastScore'] }, { kind: 'effect-class-at', argument: '3', args: ['[data-telemetry-card]', '3', 'is-live', '1000', 'changed', 'stepCount'] }, { kind: 'effect-class', argument: 'is-energized', args: ['.meter-card', 'is-energized', '360', 'changed', 'percentStraight'] }, { kind: 'effect-style-var', argument: '--surface-shift', args: [':root', '--surface-shift', 'ternary-bool', 'inStep', '-2px', '0px'] }] });
+  ngApp.registerObservable({ name: 'historyRows$', alias: 'historyRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history', args: ['history'] }, { kind: 'map', argument: 'formatHistoryRow', args: ['formatHistoryRow'] }, { kind: 'tap', argument: 'renderHistoryRows', args: ['renderHistoryRows'] }, { kind: 'effect-stagger-class', argument: 'table-row-enter', args: ['#history-body tr', 'table-row-enter', '420', '16'] }] });
+  ngApp.registerObservable({ name: 'dailyAverageRows$', alias: 'dailyAverageRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages', args: ['dailyAverages'] }, { kind: 'map', argument: 'formatDailyAverageRow', args: ['formatDailyAverageRow'] }, { kind: 'tap', argument: 'renderDailyAverageRows', args: ['renderDailyAverageRows'] }, { kind: 'effect-stagger-class', argument: 'table-row-enter', args: ['#daily-average-body tr', 'table-row-enter', '420', '24'] }] });
+  ngApp.registerObservable({ name: 'historyGoal$', alias: 'historyGoal', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'goal', args: ['goal'] }, { kind: 'tap', argument: 'applyHistoryGoal', args: ['applyHistoryGoal'] }] });
+  ngApp.registerObservable({ name: 'historyDiagnostics$', alias: 'historyDiagnostics', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history', args: ['history'] }, { kind: 'reduce', argument: 'summarizeHistory', args: ['summarizeHistory'] }, { kind: 'tap', argument: 'renderHistoryDiagnostics', args: ['renderHistoryDiagnostics'] }] });
+  ngApp.registerObservable({ name: 'dailyDiagnostics$', alias: 'dailyDiagnostics', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages', args: ['dailyAverages'] }, { kind: 'reduce', argument: 'summarizeDailyAverages', args: ['summarizeDailyAverages'] }, { kind: 'tap', argument: 'renderDailyDiagnostics', args: ['renderDailyDiagnostics'] }] });
+  ngApp.registerObservable({ name: 'variablesState$', alias: 'variablesState', kind: 'poll', path: '/api/variables', seed: null, intervalMs: 8000, steps: [{ kind: 'tap', argument: 'applyVariablesPayload', args: ['applyVariablesPayload'] }] });
+  ngApp.registerObservable({ name: 'saveVariables$', alias: 'saveVariables', kind: 'post', path: '/api/variables', seed: null, intervalMs: 0, steps: [{ kind: 'tap', argument: 'applyVariablesSaveResponse', args: ['applyVariablesSaveResponse'] }, { kind: 'effect-class', argument: 'warn', args: ['#variables-status', 'warn', '520'] }] });
   if (typeof window.ngInitializeApp === 'function') {
     window.ngInitializeApp(ngApp);
   }

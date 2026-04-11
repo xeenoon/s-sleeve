@@ -30,12 +30,20 @@ typedef enum {
   GENERATOR_PIPE_PROP,
   GENERATOR_PIPE_MAP,
   GENERATOR_PIPE_TAP,
-  GENERATOR_PIPE_REDUCE
+  GENERATOR_PIPE_REDUCE,
+  GENERATOR_PIPE_EFFECT_CLASS,
+  GENERATOR_PIPE_EFFECT_CLASS_AT,
+  GENERATOR_PIPE_EFFECT_STAGGER_CLASS,
+  GENERATOR_PIPE_EFFECT_STYLE_VAR
 } generator_pipe_kind_t;
+
+#define GENERATOR_MAX_PIPE_ARGS 8
 
 typedef struct {
   generator_pipe_kind_t kind;
   char argument[128];
+  char arguments[GENERATOR_MAX_PIPE_ARGS][128];
+  size_t argument_count;
 } generator_pipe_op_t;
 
 typedef struct {
@@ -253,6 +261,81 @@ static int generator_parse_quoted_argument(const char *text,
   return 0;
 }
 
+static void generator_strip_wrapping_quotes(char *buffer) {
+  size_t length;
+  if (buffer == NULL) {
+    return;
+  }
+  length = strlen(buffer);
+  if (length >= 2 && buffer[0] == '\'' && buffer[length - 1] == '\'') {
+    memmove(buffer, buffer + 1, length - 2);
+    buffer[length - 2] = '\0';
+  }
+}
+
+static int generator_parse_call_arguments(const char *text,
+                                          const char *prefix,
+                                          char arguments[GENERATOR_MAX_PIPE_ARGS][128],
+                                          size_t *argument_count) {
+  const char *start = strstr(text, prefix);
+  const char *cursor;
+  char segment[256];
+  size_t segment_length = 0;
+  int depth = 1;
+  int in_quote = 0;
+  size_t count = 0;
+
+  if (argument_count == NULL) {
+    return 1;
+  }
+  *argument_count = 0;
+  if (start == NULL) {
+    return 1;
+  }
+
+  start += strlen(prefix);
+  cursor = start;
+
+  while (*cursor != '\0' && depth > 0) {
+    char ch = *cursor++;
+    if (ch == '\'') {
+      in_quote = !in_quote;
+    } else if (!in_quote && ch == '(') {
+      depth += 1;
+    } else if (!in_quote && ch == ')') {
+      depth -= 1;
+      if (depth == 0) {
+        if (segment_length > 0 && count < GENERATOR_MAX_PIPE_ARGS) {
+          segment[segment_length] = '\0';
+          generator_trim_copy(arguments[count], 128, segment, strlen(segment));
+          generator_strip_wrapping_quotes(arguments[count]);
+          count += 1;
+        }
+        break;
+      }
+    }
+
+    if (!in_quote && depth == 1 && ch == ',') {
+      if (segment_length > 0 && count < GENERATOR_MAX_PIPE_ARGS) {
+        segment[segment_length] = '\0';
+        generator_trim_copy(arguments[count], 128, segment, strlen(segment));
+        generator_strip_wrapping_quotes(arguments[count]);
+        count += 1;
+      }
+      segment_length = 0;
+      continue;
+    }
+
+    if (depth > 0 && segment_length + 1 < sizeof(segment)) {
+      segment[segment_length++] = ch;
+    }
+  }
+
+  *argument_count = count;
+  LOG_TRACE("generator_parse_call_arguments prefix=%s count=%zu text=%s\n", prefix, count, text);
+  return count > 0 ? 0 : 1;
+}
+
 static int generator_parse_numeric_argument_after_quote(const char *text,
                                                         const char *prefix,
                                                         int *out_value) {
@@ -330,19 +413,67 @@ static int generator_parse_pipe_segment(const char *segment, generator_pipe_op_t
 
   if (strstr(segment, "rx.prop(") != NULL) {
     op->kind = GENERATOR_PIPE_PROP;
-    return generator_parse_quoted_argument(segment, "rx.prop(", op->argument, sizeof(op->argument));
+    if (generator_parse_call_arguments(segment, "rx.prop(", op->arguments, &op->argument_count) != 0) {
+      return 1;
+    }
+    snprintf(op->argument, sizeof(op->argument), "%s", op->arguments[0]);
+    return 0;
   }
   if (strstr(segment, "rx.map(") != NULL) {
     op->kind = GENERATOR_PIPE_MAP;
-    return generator_parse_quoted_argument(segment, "rx.map(", op->argument, sizeof(op->argument));
+    if (generator_parse_call_arguments(segment, "rx.map(", op->arguments, &op->argument_count) != 0) {
+      return 1;
+    }
+    snprintf(op->argument, sizeof(op->argument), "%s", op->arguments[0]);
+    return 0;
   }
   if (strstr(segment, "rx.tap(") != NULL) {
     op->kind = GENERATOR_PIPE_TAP;
-    return generator_parse_quoted_argument(segment, "rx.tap(", op->argument, sizeof(op->argument));
+    if (generator_parse_call_arguments(segment, "rx.tap(", op->arguments, &op->argument_count) != 0) {
+      return 1;
+    }
+    snprintf(op->argument, sizeof(op->argument), "%s", op->arguments[0]);
+    return 0;
   }
   if (strstr(segment, "rx.reduce(") != NULL) {
     op->kind = GENERATOR_PIPE_REDUCE;
-    return generator_parse_quoted_argument(segment, "rx.reduce(", op->argument, sizeof(op->argument));
+    if (generator_parse_call_arguments(segment, "rx.reduce(", op->arguments, &op->argument_count) != 0) {
+      return 1;
+    }
+    snprintf(op->argument, sizeof(op->argument), "%s", op->arguments[0]);
+    return 0;
+  }
+  if (strstr(segment, "rx.effectClassAt(") != NULL) {
+    op->kind = GENERATOR_PIPE_EFFECT_CLASS_AT;
+    if (generator_parse_call_arguments(segment, "rx.effectClassAt(", op->arguments, &op->argument_count) != 0) {
+      return 1;
+    }
+    snprintf(op->argument, sizeof(op->argument), "%s", op->argument_count > 1 ? op->arguments[1] : "");
+    return 0;
+  }
+  if (strstr(segment, "rx.effectClass(") != NULL) {
+    op->kind = GENERATOR_PIPE_EFFECT_CLASS;
+    if (generator_parse_call_arguments(segment, "rx.effectClass(", op->arguments, &op->argument_count) != 0) {
+      return 1;
+    }
+    snprintf(op->argument, sizeof(op->argument), "%s", op->argument_count > 1 ? op->arguments[1] : "");
+    return 0;
+  }
+  if (strstr(segment, "rx.effectStaggerClass(") != NULL) {
+    op->kind = GENERATOR_PIPE_EFFECT_STAGGER_CLASS;
+    if (generator_parse_call_arguments(segment, "rx.effectStaggerClass(", op->arguments, &op->argument_count) != 0) {
+      return 1;
+    }
+    snprintf(op->argument, sizeof(op->argument), "%s", op->argument_count > 1 ? op->arguments[1] : "");
+    return 0;
+  }
+  if (strstr(segment, "rx.effectStyleVar(") != NULL) {
+    op->kind = GENERATOR_PIPE_EFFECT_STYLE_VAR;
+    if (generator_parse_call_arguments(segment, "rx.effectStyleVar(", op->arguments, &op->argument_count) != 0) {
+      return 1;
+    }
+    snprintf(op->argument, sizeof(op->argument), "%s", op->argument_count > 1 ? op->arguments[1] : "");
+    return 0;
   }
 
   return 1;
@@ -373,11 +504,12 @@ static void generator_parse_pipe_chain(const char *initializer, generator_observ
           segment[segment_length] = '\0';
           generator_trim_copy(trimmed, sizeof(trimmed), segment, strlen(segment));
           if (generator_parse_pipe_segment(trimmed, &spec->pipe_ops[spec->pipe_count]) == 0) {
-            LOG_TRACE("generator pipe member=%s index=%zu kind=%d arg=%s\n",
+            LOG_TRACE("generator pipe member=%s index=%zu kind=%d arg=%s argc=%zu\n",
                       spec->name,
                       spec->pipe_count,
                       (int)spec->pipe_ops[spec->pipe_count].kind,
-                      spec->pipe_ops[spec->pipe_count].argument);
+                      spec->pipe_ops[spec->pipe_count].argument,
+                      spec->pipe_ops[spec->pipe_count].argument_count);
             spec->pipe_count += 1;
           }
         }
@@ -390,11 +522,12 @@ static void generator_parse_pipe_chain(const char *initializer, generator_observ
         segment[segment_length] = '\0';
         generator_trim_copy(trimmed, sizeof(trimmed), segment, strlen(segment));
         if (generator_parse_pipe_segment(trimmed, &spec->pipe_ops[spec->pipe_count]) == 0) {
-          LOG_TRACE("generator pipe member=%s index=%zu kind=%d arg=%s\n",
+          LOG_TRACE("generator pipe member=%s index=%zu kind=%d arg=%s argc=%zu\n",
                     spec->name,
                     spec->pipe_count,
                     (int)spec->pipe_ops[spec->pipe_count].kind,
-                    spec->pipe_ops[spec->pipe_count].argument);
+                    spec->pipe_ops[spec->pipe_count].argument,
+                    spec->pipe_ops[spec->pipe_count].argument_count);
           spec->pipe_count += 1;
         }
       }
@@ -1740,6 +1873,14 @@ static const char *generator_pipe_kind_name(generator_pipe_kind_t kind) {
       return "tap";
     case GENERATOR_PIPE_REDUCE:
       return "reduce";
+    case GENERATOR_PIPE_EFFECT_CLASS:
+      return "effect-class";
+    case GENERATOR_PIPE_EFFECT_CLASS_AT:
+      return "effect-class-at";
+    case GENERATOR_PIPE_EFFECT_STAGGER_CLASS:
+      return "effect-stagger-class";
+    case GENERATOR_PIPE_EFFECT_STYLE_VAR:
+      return "effect-style-var";
     case GENERATOR_PIPE_UNKNOWN:
     default:
       return "unknown";
@@ -1814,6 +1955,134 @@ static int generator_emit_compiled_app_js(const char *output_dir,
                             "  function ngNormalizeName(name) {\n"
                             "    return name && name.charAt(name.length - 1) === '$' ? name.slice(0, -1) : name;\n"
                             "  }\n\n"
+                            "  function ngExtractValue(value, path) {\n"
+                            "    if (!path) {\n"
+                            "      return value;\n"
+                            "    }\n"
+                            "    return String(path).split('.').reduce(function (current, segment) {\n"
+                            "      if (current === null || current === undefined) {\n"
+                            "        return undefined;\n"
+                            "      }\n"
+                            "      return current[segment];\n"
+                            "    }, value);\n"
+                            "  }\n\n"
+                            "  function ngRenderTemplate(text, value, app, spec) {\n"
+                            "    var rendered = String(text || '');\n"
+                            "    var alias = ngNormalizeName(spec.name);\n"
+                            "    var scalar = (value !== null && typeof value === 'object') ? '' : String(value === undefined || value === null ? '' : value);\n"
+                            "    rendered = rendered.replace(/\\{\\{value\\}\\}/g, scalar);\n"
+                            "    rendered = rendered.replace(/\\{\\{alias\\}\\}/g, alias);\n"
+                            "    return rendered;\n"
+                            "  }\n\n"
+                            "  function ngResolveNodes(selectorTemplate, value, app, spec) {\n"
+                            "    var selector = ngRenderTemplate(selectorTemplate, value, app, spec);\n"
+                            "    try {\n"
+                            "      return Array.prototype.slice.call(document.querySelectorAll(selector));\n"
+                            "    } catch (error) {\n"
+                            "      ngLog('invalid selector', selector, error && error.message ? error.message : error);\n"
+                            "      return [];\n"
+                            "    }\n"
+                            "  }\n\n"
+                            "  function ngApplyTemporaryClass(element, className, durationMs) {\n"
+                            "    if (!element) {\n"
+                            "      return;\n"
+                            "    }\n"
+                            "    element.classList.remove(className);\n"
+                            "    void element.offsetWidth;\n"
+                            "    element.classList.add(className);\n"
+                            "    window.setTimeout(function () {\n"
+                            "      element.classList.remove(className);\n"
+                            "    }, durationMs || 420);\n"
+                            "  }\n\n"
+                            "  function ngEffectStateKey(spec, suffix) {\n"
+                            "    return spec.name + '::' + suffix;\n"
+                            "  }\n\n"
+                            "  function ngHasChanged(app, spec, suffix, nextValue) {\n"
+                            "    var key = ngEffectStateKey(spec, suffix);\n"
+                            "    var previous = app.effectState[key];\n"
+                            "    app.effectState[key] = nextValue;\n"
+                            "    return previous !== nextValue;\n"
+                            "  }\n\n"
+                            "  function ngEffectConditionMet(current, step, app, spec, kindIndex, valueIndex, suffix) {\n"
+                            "    var args = step.args || [];\n"
+                            "    var conditionKind = args[kindIndex] || 'always';\n"
+                            "    var conditionPath = args[valueIndex] || '';\n"
+                            "    var observed = conditionPath ? ngExtractValue(current, conditionPath) : current;\n"
+                            "    if (conditionKind === 'always') {\n"
+                            "      return true;\n"
+                            "    }\n"
+                            "    if (conditionKind === 'truthy') {\n"
+                            "      return !!observed;\n"
+                            "    }\n"
+                            "    if (conditionKind === 'changed') {\n"
+                            "      return ngHasChanged(app, spec, suffix + ':' + conditionPath, observed);\n"
+                            "    }\n"
+                            "    ngLog('unknown effect condition', conditionKind, step.kind);\n"
+                            "    return true;\n"
+                            "  }\n\n"
+                            "  function ngApplyEffectStep(current, step, app, spec) {\n"
+                            "    var args = step.args || [];\n"
+                            "    var nodes;\n"
+                            "    var targetIndex;\n"
+                            "    var durationMs;\n"
+                            "    var staggerMs;\n"
+                            "    var selector;\n"
+                            "    var cssValue;\n"
+                            "    if (step.kind === 'effect-class') {\n"
+                            "      selector = args[0] || '';\n"
+                            "      durationMs = Number(args[2] || 420);\n"
+                            "      if (!ngEffectConditionMet(current, step, app, spec, 3, 4, step.kind + ':' + selector)) {\n"
+                            "        return current;\n"
+                            "      }\n"
+                            "      nodes = ngResolveNodes(selector, current, app, spec);\n"
+                            "      nodes.forEach(function (node) { ngApplyTemporaryClass(node, args[1], durationMs); });\n"
+                            "      return current;\n"
+                            "    }\n"
+                            "    if (step.kind === 'effect-class-at') {\n"
+                            "      selector = args[0] || '';\n"
+                            "      targetIndex = Number(args[1] || 0);\n"
+                            "      durationMs = Number(args[3] || 420);\n"
+                            "      if (!ngEffectConditionMet(current, step, app, spec, 4, 5, step.kind + ':' + selector + ':' + targetIndex)) {\n"
+                            "        return current;\n"
+                            "      }\n"
+                            "      nodes = ngResolveNodes(selector, current, app, spec);\n"
+                            "      if (nodes[targetIndex]) {\n"
+                            "        ngApplyTemporaryClass(nodes[targetIndex], args[2], durationMs);\n"
+                            "      }\n"
+                            "      return current;\n"
+                            "    }\n"
+                            "    if (step.kind === 'effect-stagger-class') {\n"
+                            "      selector = args[0] || '';\n"
+                            "      durationMs = Number(args[2] || 420);\n"
+                            "      staggerMs = Number(args[3] || 24);\n"
+                            "      nodes = ngResolveNodes(selector, current, app, spec);\n"
+                            "      nodes.forEach(function (node, index) {\n"
+                            "        window.setTimeout(function () {\n"
+                            "          ngApplyTemporaryClass(node, args[1], durationMs);\n"
+                            "        }, index * staggerMs);\n"
+                            "      });\n"
+                            "      return current;\n"
+                            "    }\n"
+                            "    if (step.kind === 'effect-style-var') {\n"
+                            "      selector = args[0] || ':root';\n"
+                            "      nodes = ngResolveNodes(selector, current, app, spec);\n"
+                            "      if (!nodes.length) {\n"
+                            "        return current;\n"
+                            "      }\n"
+                            "      if ((args[2] || 'value') === 'ternary-bool') {\n"
+                            "        cssValue = ngExtractValue(current, args[3]) ? args[4] : args[5];\n"
+                            "      } else if ((args[2] || 'value') === 'field') {\n"
+                            "        cssValue = ngExtractValue(current, args[3]);\n"
+                            "      } else {\n"
+                            "        cssValue = args[2];\n"
+                            "      }\n"
+                            "      nodes.forEach(function (node) {\n"
+                            "        node.style.setProperty(args[1], String(cssValue));\n"
+                            "      });\n"
+                            "      return current;\n"
+                            "    }\n"
+                            "    return current;\n"
+                            "  }\n\n"
                             "  function ngApplyPipeChain(value, steps, app, spec) {\n"
                             "    return (steps || []).reduce(function (current, step) {\n"
                             "      var hook;\n"
@@ -1852,6 +2121,9 @@ static int generator_emit_compiled_app_js(const char *output_dir,
                             "        }\n"
                             "        return current;\n"
                             "      }\n"
+                            "      if (step.kind.indexOf('effect-') === 0) {\n"
+                            "        return ngApplyEffectStep(current, step, app, spec);\n"
+                            "      }\n"
                             "      return current;\n"
                             "    }, value);\n"
                             "  }\n\n"
@@ -1859,7 +2131,8 @@ static int generator_emit_compiled_app_js(const char *output_dir,
                             "    var app = {\n"
                             "      streams: {},\n"
                             "      values: {},\n"
-                            "      intervals: []\n"
+                            "      intervals: [],\n"
+                            "      effectState: {}\n"
                             "    };\n\n"
                             "    app.getValue = function (name) {\n"
                             "      return app.values[name];\n"
@@ -1947,6 +2220,7 @@ static int generator_emit_compiled_app_js(const char *output_dir,
 
   for (index = 0; index < spec_count; ++index) {
     size_t step_index;
+    size_t argument_index;
     char alias[128];
     char steps_text[2048];
     size_t steps_cursor = 0;
@@ -1991,12 +2265,35 @@ static int generator_emit_compiled_app_js(const char *output_dir,
       if (generator_append_format(steps_text,
                                   sizeof(steps_text),
                                   &steps_cursor,
-                                  "{ kind: '%s', argument: '%s' }",
+                                  "{ kind: '%s', argument: '%s', args: [",
                                   generator_pipe_kind_name(specs[index].pipe_ops[step_index].kind),
                                   specs[index].pipe_ops[step_index].argument) != 0) {
         file_buffer_free(&source_app_js);
         return 1;
       }
+      for (argument_index = 0; argument_index < specs[index].pipe_ops[step_index].argument_count; ++argument_index) {
+        if (argument_index > 0) {
+          if (generator_append_text(steps_text, sizeof(steps_text), &steps_cursor, ", ") != 0) {
+            file_buffer_free(&source_app_js);
+            return 1;
+          }
+        }
+        if (generator_append_format(steps_text,
+                                    sizeof(steps_text),
+                                    &steps_cursor,
+                                    "'%s'",
+                                    specs[index].pipe_ops[step_index].arguments[argument_index]) != 0) {
+          file_buffer_free(&source_app_js);
+          return 1;
+        }
+      }
+      if (generator_append_format(steps_text,
+                                  sizeof(steps_text),
+                                  &steps_cursor,
+                                  "] }") != 0) {
+        file_buffer_free(&source_app_js);
+        return 1;
+      }        
     }
     if (generator_append_format(app_js, sizeof(app_js), &cursor, "%s] });\n", steps_text) != 0) {
       file_buffer_free(&source_app_js);
