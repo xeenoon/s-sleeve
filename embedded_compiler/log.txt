@@ -1,6 +1,6 @@
 [TRACE src/cli.c:182] cli_run argc=3
 [TRACE src/cli.c:196] cli_run input_dir=C:\Users\ccw10\Documents\s-sleeve\angular_app output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated runtime_header_path=embedded
-[TRACE src/generator.c:1065] generator_prepare_output_directory output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated
+[TRACE src/generator.c:1062] generator_prepare_output_directory output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated
 [TRACE src/output_fs.c:75] output_fs_prepare_clean_directory start path=C:\Users\ccw10\Documents\s-sleeve\src\generated
 [TRACE src/output_fs.c:14] output_fs_remove_tree_internal enter path=C:\Users\ccw10\Documents\s-sleeve\src\generated
 [TRACE src/output_fs.c:49] output_fs_remove_tree_internal delete file=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
@@ -10150,7 +10150,7 @@ VALIDATION OK
 [TRACE src/cli.c:144] cli_generate_outputs output_dir=C:\Users\ccw10\Documents\s-sleeve\src\generated html_bytes=11967 css_bytes=13277
 [TRACE src/generator.c:82] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\angular_app filename=routes path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
 [TRACE src/output_fs.c:150] output_fs_file_exists path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes exists=1
-[TRACE src/generator.c:915] generator_collect_route_assets root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
+[TRACE src/generator.c:956] generator_collect_route_assets root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
 [TRACE src/path_scan.c:94] path_scan_directory start root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
 [TRACE src/path_scan.c:36] path_scan_directory_internal enter root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
 [TRACE src/path_scan.c:53] path_scan skip dot entry root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes name=.
@@ -10170,44 +10170,44 @@ VALIDATION OK
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json
 [TRACE src/file_io.c:33] file_read_all size=26768 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json
 [TRACE src/file_io.c:60] file_read_all success bytes=26768 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\history.json
-[TRACE src/generator.c:896] generator_collect_route_file method=GET path=/api/history bytes=26768
+[TRACE src/generator.c:937] generator_collect_route_file method=GET path=/api/history bytes=26768
 [TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json attributes=32
 [TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
 [TRACE src/file_io.c:33] file_read_all size=217 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
 [TRACE src/file_io.c:60] file_read_all success bytes=217 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\live.json
-[TRACE src/generator.c:896] generator_collect_route_file method=GET path=/api/live bytes=217
+[TRACE src/generator.c:937] generator_collect_route_file method=GET path=/api/live bytes=217
 [TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json attributes=32
 [TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
 [TRACE src/file_io.c:33] file_read_all size=12 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
 [TRACE src/file_io.c:60] file_read_all success bytes=12 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\time-sync.json
-[TRACE src/generator.c:896] generator_collect_route_file method=GET path=/api/time-sync bytes=12
+[TRACE src/generator.c:937] generator_collect_route_file method=GET path=/api/time-sync bytes=12
 [TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json attributes=32
 [TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
 [TRACE src/file_io.c:33] file_read_all size=305 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
 [TRACE src/file_io.c:60] file_read_all success bytes=305 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api\variables.json
-[TRACE src/generator.c:896] generator_collect_route_file method=GET path=/api/variables bytes=305
+[TRACE src/generator.c:937] generator_collect_route_file method=GET path=/api/variables bytes=305
 [TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\api
 [TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json attributes=32
 [TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
 [TRACE src/file_io.c:33] file_read_all size=294 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
 [TRACE src/file_io.c:60] file_read_all success bytes=294 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\state.json
-[TRACE src/generator.c:896] generator_collect_route_file method=GET path=/state bytes=294
+[TRACE src/generator.c:937] generator_collect_route_file method=GET path=/state bytes=294
 [TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt attributes=32
 [TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
 [TRACE src/file_io.c:33] file_read_all size=5 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
 [TRACE src/file_io.c:60] file_read_all success bytes=5 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\value.txt
-[TRACE src/generator.c:896] generator_collect_route_file method=GET path=/value bytes=5
+[TRACE src/generator.c:937] generator_collect_route_file method=GET path=/value bytes=5
 [TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html attributes=32
 [TRACE src/path_scan.c:77] path_scan invoking callback path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
 [TRACE src/file_io.c:33] file_read_all size=1429 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
 [TRACE src/file_io.c:60] file_read_all success bytes=1429 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET\variables.html
-[TRACE src/generator.c:896] generator_collect_route_file method=GET path=/variables bytes=1429
+[TRACE src/generator.c:937] generator_collect_route_file method=GET path=/variables bytes=1429
 [TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\GET
 [TRACE src/path_scan.c:63] path_scan discovered path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST attributes=16
 [TRACE src/path_scan.c:68] path_scan descending directory=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST
@@ -10224,7 +10224,7 @@ VALIDATION OK
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json
 [TRACE src/file_io.c:33] file_read_all size=39 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json
 [TRACE src/file_io.c:60] file_read_all success bytes=39 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api\variables.json
-[TRACE src/generator.c:896] generator_collect_route_file method=POST path=/api/variables bytes=39
+[TRACE src/generator.c:937] generator_collect_route_file method=POST path=/api/variables bytes=39
 [TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST\api
 [TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes\POST
 [TRACE src/path_scan.c:89] path_scan_directory_internal leave root=C:\Users\ccw10\Documents\s-sleeve\angular_app\routes
@@ -10267,7 +10267,7 @@ VALIDATION OK
 [TRACE src/generator.c:283] generator_parse_call_arguments prefix=rx.tap( count=1 text=rx.tap('applyVariablesSaveResponse')
 [TRACE src/generator.c:283] generator_parse_call_arguments prefix=rx.effectClass( count=3 text=rx.effectClass('#variables-status', 'warn', 520)
 [TRACE src/generator.c:526] generator observable member=saveVariables$ kind=3 path=/api/variables interval=0 seed= pipes=2
-[TRACE src/generator.c:757] generator_emit_app_js source=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js destination=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js observable_count=9
+[TRACE src/generator.c:798] generator_emit_app_js source=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js destination=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js observable_count=9
 [TRACE src/generator.c:82] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\angular_app filename=app.js path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
 [TRACE src/generator.c:283] generator_parse_call_arguments prefix=rx.tap( count=1 text=rx.tap('showView')
 [TRACE src/generator.c:283] generator_parse_call_arguments prefix=rx.effectClass( count=3 text=rx.effectClass('#{{value}}-view', 'is-transitioning', 460)
@@ -10306,7 +10306,7 @@ VALIDATION OK
 [TRACE src/generator.c:283] generator_parse_call_arguments prefix=rx.tap( count=1 text=rx.tap('applyVariablesSaveResponse')
 [TRACE src/generator.c:283] generator_parse_call_arguments prefix=rx.effectClass( count=3 text=rx.effectClass('#variables-status', 'warn', 520)
 [TRACE src/generator.c:526] generator observable member=saveVariables$ kind=3 path=/api/variables interval=0 seed= pipes=2
-[TRACE src/generator.c:626] generator_emit_compiled_app_js spec_count=9 source=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
+[TRACE src/generator.c:667] generator_emit_compiled_app_js spec_count=9 source=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
 [TRACE src/file_io.c:33] file_read_all size=13100 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
 [TRACE src/file_io.c:60] file_read_all success bytes=13100 path=C:\Users\ccw10\Documents\s-sleeve\angular_app\app.js
@@ -10316,7 +10316,7 @@ VALIDATION OK
 [TRACE src/file_io.c:60] file_read_all success bytes=9052 path=assets\ng_runtime.js
 [TRACE src/file_io.c:69] file_buffer_free size=9052
 [TRACE src/file_io.c:69] file_buffer_free size=13100
-[TRACE src/generator.c:744] generator_emit_compiled_app_js bytes=26294 specs=9
+[TRACE src/generator.c:785] generator_emit_compiled_app_js bytes=26294 specs=9
 [TRACE src/generator.c:82] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=app.js path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
 [TRACE src/generator.c:91] generator_write_text_asset filename=app.js bytes=26294
 [TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
@@ -10326,18 +10326,28 @@ VALIDATION OK
 [TRACE src/file_io.c:13] file_read_all start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
 [TRACE src/file_io.c:33] file_read_all size=26294 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
 [TRACE src/file_io.c:60] file_read_all success bytes=26294 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\app.js
+[TRACE src/generator.c:614] generator_load_asset_template path=assets\web_runtime_generated.h.tpl
+[TRACE src/file_io.c:13] file_read_all start path=assets\web_runtime_generated.h.tpl
+[TRACE src/file_io.c:33] file_read_all size=631 path=assets\web_runtime_generated.h.tpl
+[TRACE src/file_io.c:60] file_read_all success bytes=631 path=assets\web_runtime_generated.h.tpl
 [TRACE src/generator.c:82] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.h path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
 [TRACE src/generator.c:91] generator_write_text_asset filename=web_runtime_generated.h bytes=631
 [TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
 [TRACE src/output_fs.c:136] output_fs_write_text bytes=631 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
 [TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.h
+[TRACE src/file_io.c:69] file_buffer_free size=631
+[TRACE src/generator.c:614] generator_load_asset_template path=assets\web_runtime_generated.cpp.tpl
+[TRACE src/file_io.c:13] file_read_all start path=assets\web_runtime_generated.cpp.tpl
+[TRACE src/file_io.c:33] file_read_all size=1717 path=assets\web_runtime_generated.cpp.tpl
+[TRACE src/file_io.c:60] file_read_all success bytes=1717 path=assets\web_runtime_generated.cpp.tpl
+[TRACE src/file_io.c:69] file_buffer_free size=1717
 [TRACE src/generator.c:82] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_runtime_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
-[TRACE src/generator.c:91] generator_write_text_asset filename=web_runtime_generated.cpp bytes=13322
+[TRACE src/generator.c:91] generator_write_text_asset filename=web_runtime_generated.cpp bytes=13323
 [TRACE src/output_fs.c:128] output_fs_write_text start path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
-[TRACE src/output_fs.c:136] output_fs_write_text bytes=13322 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
+[TRACE src/output_fs.c:136] output_fs_write_text bytes=13323 path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
 [TRACE src/output_fs.c:144] output_fs_write_text success path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_runtime_generated.cpp
 [TRACE src/generator.c:82] generator_build_path directory=C:\Users\ccw10\Documents\s-sleeve\src\generated filename=web_page_generated.cpp path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
-[TRACE src/generator.c:935] generator_emit_cpp_bundle path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
+[TRACE src/generator.c:976] generator_emit_cpp_bundle path=C:\Users\ccw10\Documents\s-sleeve\src\generated\web_page_generated.cpp
 [TRACE src/asset_writer.c:12] asset_writer_write_prolog
 [TRACE src/asset_writer.c:23] asset_writer_write_asset symbol=INDEX_HTML tag=HTML_ASSET bytes=11967
 [TRACE src/asset_writer.c:23] asset_writer_write_asset symbol=STYLES_CSS tag=CSS_ASSET bytes=13277

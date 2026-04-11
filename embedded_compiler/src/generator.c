@@ -609,6 +609,47 @@ static int generator_append_runtime_asset(char *buffer, size_t buffer_size, size
   return 0;
 }
 
+static int generator_load_asset_template(const char *asset_path, file_buffer_t *buffer) {
+  memset(buffer, 0, sizeof(*buffer));
+  LOG_TRACE("generator_load_asset_template path=%s\n", asset_path);
+  if (file_read_all(asset_path, buffer) != 0) {
+    log_errorf("failed to read template asset: %s\n", asset_path);
+    return 1;
+  }
+  return 0;
+}
+
+static int generator_replace_placeholder(char *buffer,
+                                         size_t buffer_size,
+                                         const char *template_text,
+                                         const char *placeholder,
+                                         const char *replacement) {
+  const char *marker = strstr(template_text, placeholder);
+  size_t prefix_length;
+  size_t replacement_length;
+  size_t suffix_length;
+
+  if (marker == NULL) {
+    return snprintf(buffer, buffer_size, "%s", template_text) >= 0 ? 0 : 1;
+  }
+
+  prefix_length = (size_t)(marker - template_text);
+  replacement_length = strlen(replacement);
+  suffix_length = strlen(marker + strlen(placeholder));
+
+  if (prefix_length + replacement_length + suffix_length + 1 > buffer_size) {
+    return 1;
+  }
+
+  memcpy(buffer, template_text, prefix_length);
+  memcpy(buffer + prefix_length, replacement, replacement_length);
+  memcpy(buffer + prefix_length + replacement_length,
+         marker + strlen(placeholder),
+         suffix_length);
+  buffer[prefix_length + replacement_length + suffix_length] = '\0';
+  return 0;
+}
+
 static int generator_emit_compiled_app_js(const char *output_dir,
                                           const char *input_dir,
                                           const ast_component_file_t *component) {
@@ -955,30 +996,22 @@ static int generator_emit_cpp_bundle(const char *output_dir,
 }
 
 static int generator_emit_runtime_header(const char *output_dir) {
-  const char *header_text =
-      "#ifndef GENERATED_WEB_RUNTIME_H\n"
-      "#define GENERATED_WEB_RUNTIME_H\n\n"
-      "#include <Arduino.h>\n"
-      "#include <WebServer.h>\n\n"
-      "typedef struct {\n"
-      "  const char *method;\n"
-      "  const char *path;\n"
-      "  const char *content_type;\n"
-      "  PGM_P body;\n"
-      "} generated_web_static_route_t;\n\n"
-      "void generated_web_send_root(WebServer &server);\n"
-      "void generated_web_send_styles(WebServer &server);\n"
-      "void generated_web_send_app_js(WebServer &server);\n"
-      "bool generated_web_try_send_static_route(WebServer &server, const String &path, HTTPMethod method);\n"
-      "size_t generated_web_static_route_count(void);\n"
-      "const generated_web_static_route_t *generated_web_static_route_at(size_t index);\n\n"
-      "#endif\n";
+  file_buffer_t header_template;
+  int result;
 
-  return generator_write_text_asset(output_dir, "web_runtime_generated.h", header_text);
+  if (generator_load_asset_template("assets\\web_runtime_generated.h.tpl", &header_template) != 0) {
+    return 1;
+  }
+
+  result = generator_write_text_asset(output_dir, "web_runtime_generated.h", header_template.data);
+  file_buffer_free(&header_template);
+  return result;
 }
 
 static int generator_emit_runtime_source(const char *output_dir,
                                          const generator_route_collection_t *routes) {
+  file_buffer_t source_template;
+  char source_with_bodies[98304];
   char source_text[98304];
   char route_bodies[49152] = "";
   char route_table[16384] = "";
@@ -1003,60 +1036,24 @@ static int generator_emit_runtime_source(const char *output_dir,
                                      index);
   }
 
-  snprintf(source_text,
-           sizeof(source_text),
-           "#include <Arduino.h>\n"
-           "#include <WebServer.h>\n\n"
-           "#include <string.h>\n\n"
-           "#include \"generated/web_runtime_generated.h\"\n"
-           "#include \"web_page.h\"\n\n"
-           "%s\n"
-           "static const generated_web_static_route_t g_generated_routes[] = {\n"
-           "%s"
-           "};\n\n"
-           "static const char *generated_web_method_name(HTTPMethod method) {\n"
-           "  switch (method) {\n"
-           "    case HTTP_GET: return \"GET\";\n"
-           "    case HTTP_POST: return \"POST\";\n"
-           "    case HTTP_PUT: return \"PUT\";\n"
-           "    case HTTP_DELETE: return \"DELETE\";\n"
-           "    case HTTP_PATCH: return \"PATCH\";\n"
-           "    case HTTP_OPTIONS: return \"OPTIONS\";\n"
-           "    default: return \"GET\";\n"
-           "  }\n"
-           "}\n\n"
-           "void generated_web_send_root(WebServer &server) {\n"
-           "  server.send_P(200, \"text/html\", INDEX_HTML);\n"
-           "}\n\n"
-           "void generated_web_send_styles(WebServer &server) {\n"
-           "  server.send_P(200, \"text/css\", STYLES_CSS);\n"
-           "}\n\n"
-           "void generated_web_send_app_js(WebServer &server) {\n"
-           "  server.send_P(200, \"application/javascript\", APP_JS);\n"
-           "}\n\n"
-           "size_t generated_web_static_route_count(void) {\n"
-           "  return sizeof(g_generated_routes) / sizeof(g_generated_routes[0]);\n"
-           "}\n\n"
-           "const generated_web_static_route_t *generated_web_static_route_at(size_t index) {\n"
-           "  if (index >= generated_web_static_route_count()) {\n"
-           "    return nullptr;\n"
-           "  }\n"
-           "  return &g_generated_routes[index];\n"
-           "}\n\n"
-           "bool generated_web_try_send_static_route(WebServer &server, const String &path, HTTPMethod method) {\n"
-           "  const char *method_name = generated_web_method_name(method);\n"
-           "  size_t index;\n"
-           "  for (index = 0; index < generated_web_static_route_count(); ++index) {\n"
-           "    const generated_web_static_route_t &route = g_generated_routes[index];\n"
-           "    if (strcmp(route.method, method_name) == 0 && path.equals(route.path)) {\n"
-           "      server.send_P(200, route.content_type, route.body);\n"
-           "      return true;\n"
-           "    }\n"
-           "  }\n"
-           "  return false;\n"
-           "}\n",
-           route_bodies,
-           route_table);
+  if (generator_load_asset_template("assets\\web_runtime_generated.cpp.tpl", &source_template) != 0) {
+    return 1;
+  }
+  if (generator_replace_placeholder(source_with_bodies,
+                                    sizeof(source_with_bodies),
+                                    source_template.data,
+                                    "{{ROUTE_BODIES}}",
+                                    route_bodies) != 0 ||
+      generator_replace_placeholder(source_text,
+                                    sizeof(source_text),
+                                    source_with_bodies,
+                                    "{{ROUTE_TABLE}}",
+                                    route_table) != 0) {
+    file_buffer_free(&source_template);
+    log_errorf("failed to apply runtime source template\n");
+    return 1;
+  }
+  file_buffer_free(&source_template);
 
   return generator_write_text_asset(output_dir, "web_runtime_generated.cpp", source_text);
 }
