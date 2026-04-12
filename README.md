@@ -1,219 +1,180 @@
 ## Inspiration
 
-In Australia, many people live with chronic pain because rehabilitation often does not happen early enough. By the time treatment becomes affordable or subsidised, the injury may already have progressed into a long-term condition. For many people, regular access to physical therapy is simply too expensive, which means they are left to recover alone and without feedback.
+In Australia, many people live with chronic pain because rehabilitation is often delayed or too expensive to access consistently. Without regular feedback, recovery becomes guesswork.
 
-We built Smart Sleeve to help address that gap. Our goal was to create an affordable rehabilitation device that gives people meaningful, real-time guidance during recovery, so they can begin improving movement quality early rather than waiting until pain becomes chronic.
-
----
+We built Smart Sleeve to make rehabilitation more accessible by giving users real-time insight into how they move, not just how much they move.
 
 ## What it does
 
-Smart Sleeve is a wearable knee rehabilitation device that tracks both movement and movement quality in real time. Instead of only counting repetitions, it evaluates how well each step is performed.
+Smart Sleeve is a wearable knee rehabilitation device that tracks both movement and movement quality in real time.
 
-The system measures knee movement, detects changes in control and consistency, and translates those signals into clear feedback.
+Instead of only counting repetitions, it evaluates how well each step is performed. The system detects issues like:
+- stalling mid-step
+- uneven acceleration
+- lack of control during descent
+- stiff or inconsistent motion
 
-It can identify issues such as:
-- stalling mid-step  
-- moving too stiffly  
-- descending in an uncontrolled way  
-- compensating during motion  
-
-Those measurements are then summarized into easy-to-understand scores so users can monitor not just how much rehabilitation they are doing, but how effectively they are doing it.
-
-The result is a tool that gives patients better visibility into their recovery and helps them take a more active role in rehabilitation without relying on constant in-person supervision.
-
----
+These signals are converted into simple scores so users can understand their progress and improve technique without constant supervision.
 
 ## How we built it
 
-Smart Sleeve combines a custom mechanical sensing system, embedded motion analysis, and a web application served directly from an ESP32.
-
-From the beginning, the challenge was not just building a sensor, but building a complete system that could:
-- physically survive real rehabilitation movement  
-- interpret that movement meaningfully  
-- present the results in a way that felt modern and easy to use  
+Smart Sleeve is a tightly integrated hardware and software system.
 
 ### Hardware
 
-We started with the hardware.
+We designed a custom two-pulley sensing mechanism using:
+- a spring-loaded pulley for constant tension
+- a secondary pulley coupled to a potentiometer
+- a string attached to the user’s leg
 
-The core sensing mechanism is a two-pulley system made from:
-- a spring-loaded pulley  
-- a secondary pulley  
-- a potentiometer  
-- a custom mounting bracket  
+This converts knee motion into continuous rotational data.
 
-We deliberately chose parts with similar dimensions early on so that machining and friction-fitting them together would be easier.
+A major challenge was durability. Early prototypes failed under real movement forces, so we redesigned the system with:
+- soldered connections
+- heatshrink reinforcement
+- strain relief loops
 
-One pulley was modified to couple directly to the potentiometer, while the spring-loaded pulley kept constant tension on a string attached to the user’s leg. That constant tension allowed us to measure both movement and release, giving continuous rotational feedback as the knee bent and straightened.
+This made the device stable enough for repeated use.
 
-That rotational signal was then fed into the ESP32 through the potentiometer.
+### Embedded Processing
 
-However, the first real challenge was durability.
+An ESP32 continuously reads the potentiometer and processes the signal into more than just angle data.
 
-Human leg movement applies far more force than a simple electronics prototype is usually designed to handle. Our earliest wiring solutions failed quickly:
-- jumper leads tore off  
-- hot glue was pulled loose  
-- mounting points shifted under repeated tension  
+We built logic to analyse movement quality by tracking how motion changes over time. Instead of just detecting movement, the system evaluates:
+- smoothness
+- control
+- consistency
 
-We had to repeatedly redesign the physical assembly so the electronics could survive real use.
+These are combined into step-quality metrics and progress scores that users can act on.
 
-Our final hardware revision used:
-- soldered wires  
-- heatshrink reinforcement  
-- strain-relief loops secured with a zip tie  
+### Custom Embedded Compiler
 
-This absorbed force before it reached the potentiometer pins.
+One of the most technical parts of the project was bringing a modern web interface onto a microcontroller.
 
-That redesign turned the device from a fragile prototype into something stable enough for repeated rehabilitation testing.
+Frameworks like Angular and Express are too heavy to run on an ESP32, so we built a custom compiler that:
+- takes Angular-style components and EJS-style server code
+- tokenizes and parses them in C
+- compiles them into static C/C++ assets at build time
 
----
+This required translating object-oriented JavaScript concepts into C:
+- component state → runtime slots
+- bindings → direct lookups
+- data models → tagged C structures (objects, arrays, primitives)
 
-### Firmware
+The compiler also pre-renders server-side pages by evaluating route data and resolving templates ahead of time.
 
-Once we had stable input from the hardware, we focused on the firmware.
+The result is a fully embedded web app served directly from the ESP32 without running a heavy framework at runtime.
 
-The ESP32 continuously:
-- polls the potentiometer  
-- processes the signal into more than raw angle data  
+### Toolchain Integration
 
-We built logic to track relative change over time so the system could evaluate the quality of each rehabilitation step.
+We integrated the compiler the PlatformIO toolchain using a pre-build script, so every firmware build automatically recompiles the web interface.
 
-Instead of asking “did the user move?”, we asked:
-- did they stall halfway through?  
-- did motion accelerate unevenly?  
-- did it look stiff or unstable?  
-- was the descent controlled?  
+To make development manageable, we built and tested the compiler on a desktop environment with unit tests before deploying to hardware. There are two compilers in the github, windows_
 
-These measurements were combined into:
-- step-quality metrics  
-- progress scores  
+## Challenges
 
----
+- Hardware durability: early designs failed under real movement forces  
+- Embedded constraints: delivering a modern UI on limited hardware  
+- System coupling: hardware reliability directly affected analytics accuracy  
 
-### Frontend + Embedded Compiler
+We solved this by iterating on mechanical design and shifting complexity from runtime into the compiler.
 
-The next challenge was presenting that information in a way that felt intuitive and accessible.
+## Accomplishments
 
-We wanted the interface to:
-- work from a phone  
-- be hosted directly on the device  
-- feel like a modern web application  
-
-Frameworks like Angular and Express are too heavy for an ESP32.
-
-Instead, we built a custom embedded compiler that:
-- allows Angular-style and Express/EJS-style development  
-- compiles everything into C/C++ assets  
-
-The compiler:
-- tokenizes source files  
-- parses structure  
-- reconstructs components, bindings, styles, and observables  
-
-We then flatten object-oriented structures into C-compatible representations:
-- component state → runtime slots  
-- bindings → direct lookups  
-- observables → poll/update instructions  
-
-For server-side rendering:
-- JavaScript models → tagged C structures  
-- objects → key/value arrays  
-- arrays → typed value lists  
-
-The compiler:
-- evaluates route data  
-- resolves EJS templates  
-- renders everything at build time  
-
-Final output becomes static embedded assets in firmware.
-
----
-
-### Build Integration
-
-We integrated the compiler into PlatformIO using:
-
-embedded_compiler/platformio_prebuild.py
-
-Every build:
-1. runs the compiler  
-2. regenerates assets  
-3. compiles firmware  
-
----
-
-### Development Workflow
-
-We validated everything on Windows before hardware.
-
-We built unit tests for:
-- tokenization  
-- parsing  
-- route generation  
-- asset generation  
-- rendering  
-
-This made debugging far easier than working directly on embedded hardware.
-
----
-
-## Challenges we ran into
-
-The biggest challenge was system interdependence.
-
-The hardware needed to be durable, but the software depended on clean data. Early mechanical failures meant unreliable analytics, forcing us to repeatedly revisit the physical design.
-
-At the same time:
-- the ESP32 limited runtime complexity  
-- modern UI expectations conflicted with embedded constraints  
-
-We solved this by shifting complexity into the compiler.
-
-Development speed was also difficult:
-- mechanical iteration is slow  
-- embedded debugging is slow  
-
-So we built workflows to test each layer independently.
-
----
-
-## Accomplishments that we’re proud of
-
-Smart Sleeve is a full end-to-end rehabilitation platform.
-
-We:
-- designed the sensing hardware  
-- built embedded analytics  
-- created the mobile dashboard  
-- developed the compiler infrastructure  
-
-We are especially proud of:
-- tight hardware + software integration  
-- delivering modern UI from embedded hardware  
-- building a robust testing workflow  
-
----
+- Built a full end-to-end rehabilitation system  
+- Designed custom mechanical sensing hardware  
+- Implemented real-time movement quality analysis  
+- Developed a custom compiler for embedded web apps  
+- Delivered a modern interface from an ESP32  
 
 ## What we learned
 
-We learned that rehabilitation tech requires a full feedback loop between:
-- physical design  
-- signal reliability  
-- embedded processing  
-- user experience  
+- Rehabilitation tech requires tight integration between hardware, signal processing, and user experience  
+- Moving complexity into build-time systems enables richer embedded applications  
+- Testing complex systems off-device is critical for fast iteration  
 
-We also learned the value of build-time optimization for embedded systems.
+## What’s next
 
-Moving complexity into the compiler enabled a much richer experience than the hardware alone could support.
+- Design a custom 3D-printed enclosure for better usability  
+- Extend the system to other joints (shoulder, wrist, hip)  
+- Improve motion analysis and feedback accuracy  
 
----
+## Compiler instructions
+  You too can you our custom minimal ejs and angular compiler!
 
-## What’s next for Smart Sleeve
+  write that, give instructions for compiling for both windows and embedded
 
-Next step:
-- a custom 3D-printed sheath for better fit and comfort  
 
-Long term:
-- extend to other joints  
-- apply the same motion + quality analysis to wrists, hips, shoulders, and more  
+• ## Compiler instructions
+
+  You can also use our custom minimal Angular and EJS compiler.
+
+  The compiler is designed to let you write a lightweight web app using Angular-style components
+  and Express/EJS-style pages, then compile that app into static frontend assets and embedded C/
+  C++ source suitable for an ESP32.
+
+  ### What it compiles
+
+  The compiler reads:
+
+  - app.component.ng
+  - app.component.html
+  - app.component.css
+  - app.js
+  - static route assets under routes/
+  - Express/EJS-style pages under server/
+
+  It then generates:
+
+  - web_runtime_generated.h
+  - web_runtime_generated.cpp
+  - web_page_generated.cpp
+  - compiled index.html
+  - compiled styles.css
+  - compiled app.js
+
+  The runtime templates used for generation are:
+
+  - embedded_compiler/assets/web_runtime_generated.h.tpl
+  - embedded_compiler/assets/web_runtime_generated.cpp.tpl
+
+  It also uses:
+
+  - embedded_compiler/assets/ng_runtime.js
+
+  ### Windows host build
+
+  Use the Windows compiler first when you want fast iteration and easier debugging.
+
+  From the repo root:
+
+  cd embedded_compiler
+  make test
+
+  This builds the desktop compiler, runs the unit tests, and validates the generated output.
+
+  If you want to run the compiler manually against an app:
+
+  cd embedded_compiler
+  make
+  bin\main.exe ..\angular_app
+
+  That compiles the app in ..\angular_app and emits generated assets and source files.
+
+  Why use the Windows path first:
+
+  - faster iteration
+  - easier to inspect generated files
+  - safer than debugging compiler changes on-device
+  - unit tests catch parser/rendering/codegen regressions before flashing hardware
+
+  ### Embedded build
+
+  For the ESP32 build, the compiler is already attached to the PlatformIO toolchain.
+
+  This is configured in platformio.ini with:
+
+  extra_scripts = pre:embedded_compiler/platformio_prebuild.py
+
+  That means every embedded build automatically runs the compiler first, then builds the
+  firmware with the newly generated web assets.
