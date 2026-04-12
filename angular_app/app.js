@@ -16,6 +16,11 @@ function setDemoCopy(text) {
   setText('meter-demo-copy', text);
 }
 
+function readSearchParam(name) {
+  var params = new URLSearchParams(window.location.search || '');
+  return params.get(name) || '';
+}
+
 function showView(view) {
   console.log('[app] showView', view);
   ['live', 'history', 'variables'].forEach(function (name) {
@@ -31,6 +36,38 @@ function showView(view) {
     });
   }
   window.history.replaceState({}, '', view === 'variables' ? '/variables' : '/');
+}
+
+function renderBridgeOperations(items) {
+  var rows = Array.isArray(items) ? items : [];
+  if (!rows.length) {
+    setHtml('bridge-operations-list', '<div class="bridge-empty">No rehabilitation sessions queued right now.</div>');
+    return;
+  }
+  setHtml('bridge-operations-list', rows.map(function (item) {
+    var tone = item.status === 'Watch' ? 'warn' : '';
+    return '<div class="bridge-list-item"><div><strong>' + item.patient + '</strong><span>' + item.phase + ' • ' + item.session + ' • ' + item.nextStep + '</span></div><span class="bridge-status ' + tone + '">' + item.status + '</span></div>';
+  }).join(''));
+}
+
+function applyBridgeOverview(payload) {
+  setText('bridge-clinic-name', payload.clinicName || 'Rehabilitation snapshot');
+  setText('bridge-clinic-copy', payload.summary || 'Shared rehab operations feed loaded.');
+  setText('bridge-active-patients', String(payload.activePatients || 0));
+  setText('bridge-sessions-today', String(payload.sessionsToday || 0));
+  setText('bridge-adherence', String(payload.adherenceAverage || 0) + '%');
+  renderBridgeOperations(payload.operations);
+}
+
+function loadBridgeOverview() {
+  fetch('/server/api/overview')
+    .then(function (response) { return response.json(); })
+    .then(function (payload) { applyBridgeOverview(payload || {}); })
+    .catch(function () {
+      setText('bridge-clinic-name', 'Rehabilitation feed unavailable');
+      setText('bridge-clinic-copy', 'The Angular shell could not load the shared server overview endpoint.');
+      setHtml('bridge-operations-list', '<div class="bridge-empty">Unable to load operations feed.</div>');
+    });
 }
 
 function updateKnee(percentStraight) {
@@ -305,8 +342,9 @@ function ngInitializeApp(app) {
     });
   }
 
-  app.setObservable('selectedView$', window.location.pathname === '/variables' ? 'variables' : 'live');
+  app.setObservable('selectedView$', window.location.pathname === '/variables' ? 'variables' : (readSearchParam('view') || 'live'));
   setDemoCopy('Waiting for live knee movement');
+  loadBridgeOverview();
 }
 
 window.setText = setText;
@@ -329,4 +367,6 @@ window.applyLivePayload = applyLivePayload;
 window.applyVariablesPayload = applyVariablesPayload;
 window.applyVariablesSaveResponse = applyVariablesSaveResponse;
 window.collectVariablesPayload = collectVariablesPayload;
+window.applyBridgeOverview = applyBridgeOverview;
+window.loadBridgeOverview = loadBridgeOverview;
 window.ngInitializeApp = ngInitializeApp;

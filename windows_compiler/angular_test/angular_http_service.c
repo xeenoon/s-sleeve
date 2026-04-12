@@ -23,156 +23,171 @@ static const ng_template_node_t g_template_nodes_layouts_main[] = {
   { NG_TEMPLATE_NODE_TEXT, "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>" },
   { NG_TEMPLATE_NODE_EXPR, "pageTitle" },
   { NG_TEMPLATE_NODE_TEXT, "</title>\n  <style>\n    :root {\n      --bg: #f4efe8;\n      --panel: rgba(255, 250, 244, 0.94);\n      --line: rgba(57, 39, 25, 0.12);\n      --text: #251912;\n      --muted: #6f5849;\n      --accent: #b75527;\n      --accent-soft: rgba(183, 85, 39, 0.12);\n      --good: #2f7d53;\n      --warn: #b2661f;\n    }\n    * { box-sizing: border-box; }\n    body {\n      margin: 0;\n      min-height: 100vh;\n      background:\n        radial-gradient(circle at top left, rgba(240, 194, 155, 0.85), transparent 26%),\n        radial-" },
+  { NG_TEMPLATE_NODE_TEXT, "gradient(circle at bottom right, rgba(183, 85, 39, 0.12), transparent 30%),\n        linear-gradient(160deg, #faf5ef, var(--bg));\n      color: var(--text);\n      font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;\n    }\n    .server-shell {\n      width: min(1120px, calc(100vw - 28px));\n      margin: 18px auto;\n      padding: 22px;\n      border-radius: 28px;\n      background: var(--panel);\n      border: 1px solid var(--line);\n      box-shadow: 0 24px 60px rgba(45, 29, 18, 0.12);\n    }\n    .masthead " },
+  { NG_TEMPLATE_NODE_TEXT, "{\n      display: grid;\n      gap: 14px;\n      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);\n      align-items: end;\n      margin-bottom: 20px;\n      padding-bottom: 18px;\n      border-bottom: 1px solid var(--line);\n    }\n    .eyebrow {\n      margin: 0 0 10px;\n      text-transform: uppercase;\n      letter-spacing: 0.14em;\n      font-size: 0.78rem;\n      color: var(--muted);\n    }\n    h1 {\n      margin: 0;\n      font-size: clamp(2.2rem, 5vw, 4rem);\n      line-height: 0.94;\n      color: var(--" },
+  { NG_TEMPLATE_NODE_TEXT, "accent);\n    }\n    .subtitle { margin: 12px 0 0; color: var(--muted); max-width: 58ch; }\n    .server-nav {\n      display: flex;\n      flex-wrap: wrap;\n      gap: 10px;\n      justify-content: flex-end;\n      align-content: start;\n    }\n    .server-nav a {\n      text-decoration: none;\n      color: var(--text);\n      border: 1px solid var(--line);\n      background: #fffaf4;\n      padding: 10px 14px;\n      border-radius: 999px;\n    }\n    .server-nav a:hover { border-color: rgba(183, 85, 39, 0.3); }\n    .hero-b" },
+  { NG_TEMPLATE_NODE_TEXT, "adge, .chip {\n      display: inline-flex;\n      align-items: center;\n      gap: 8px;\n      padding: 8px 12px;\n      border-radius: 999px;\n      background: var(--accent-soft);\n      color: var(--accent);\n      font-size: 0.9rem;\n    }\n    .grid-3, .grid-2, .stack { display: grid; gap: 16px; }\n    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .panel, .list-card, .hero-card {\n      border-radius: 22px;\n      border: 1px sol" },
+  { NG_TEMPLATE_NODE_TEXT, "id var(--line);\n      background: #fffaf4;\n      padding: 18px;\n    }\n    .panel h2, .list-card h2, .hero-card h2 { margin: 0 0 10px; font-size: 1.15rem; }\n    .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); margin-top: 8px; }\n    .muted { color: var(--muted); }\n    .notice.good { border-left: 4px solid var(--good); }\n    .notice.warn { border-left: 4px solid var(--warn); }\n    ul.clean {\n      list-style: none;\n      padding: 0;\n      margin: 0;\n      display: grid;\n      gap: 10px;" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    }\n    ul.clean li {\n      padding: 12px 14px;\n      border-radius: 16px;\n      background: rgba(255, 252, 248, 0.96);\n      border: 1px solid rgba(57, 39, 25, 0.08);\n    }\n    .footer-note {\n      margin-top: 18px;\n      padding-top: 14px;\n      border-top: 1px solid var(--line);\n      color: var(--muted);\n      font-size: 0.92rem;\n    }\n    @media (max-width: 860px) {\n      .masthead, .grid-3, .grid-2 { grid-template-columns: 1fr; }\n      .server-nav { justify-content: flex-start; }\n    }\n  </style>\n" },
+  { NG_TEMPLATE_NODE_TEXT, "</head>\n<body>\n  <div class=\"server-shell\">\n    <header class=\"masthead\">\n      <div>\n        <p class=\"eyebrow\">" },
   { NG_TEMPLATE_NODE_EXPR, "eyebrow" },
   { NG_TEMPLATE_NODE_TEXT, "</p>\n        <h1>" },
   { NG_TEMPLATE_NODE_EXPR, "pageTitle" },
   { NG_TEMPLATE_NODE_TEXT, "</h1>\n        <p class=\"subtitle\">" },
   { NG_TEMPLATE_NODE_EXPR, "subtitle" },
-  { NG_TEMPLATE_NODE_TEXT, "</p>\n      </div>" },
+  { NG_TEMPLATE_NODE_TEXT, "</p>\n      </div>\n      " },
   { NG_TEMPLATE_NODE_INCLUDE, "partials/nav|nav" },
-  { NG_TEMPLATE_NODE_TEXT, "</header>\n    <main>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    </header>\n    <main>\n      " },
   { NG_TEMPLATE_NODE_RAW_EXPR, "body" },
-  { NG_TEMPLATE_NODE_TEXT, "</main>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    </main>\n    " },
   { NG_TEMPLATE_NODE_INCLUDE, "partials/footer" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>\n</body>\n</html>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n  </div>\n</body>\n</html>\n" },
 };
 
 static const ng_template_node_t g_template_nodes_pages_operations[] = {
-  { NG_TEMPLATE_NODE_TEXT, "<section class=\"stack\">\n  <div class=\"hero-card\">" },
+  { NG_TEMPLATE_NODE_TEXT, "\n<section class=\"stack\">\n  <div class=\"hero-card\">" },
   { NG_TEMPLATE_NODE_RAW_EXPR, "summaryMarkup" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>\n  <div class=\"grid-3\">" },
-  { NG_TEMPLATE_NODE_FOR_OPEN, "column|columns" },
-  { NG_TEMPLATE_NODE_TEXT, "<article class=\"list-card\">\n        <h2>" },
-  { NG_TEMPLATE_NODE_EXPR, "column.heading" },
-  { NG_TEMPLATE_NODE_TEXT, "</h2>\n        <ul class=\"clean\">" },
-  { NG_TEMPLATE_NODE_FOR_OPEN, "card|column.cards" },
-  { NG_TEMPLATE_NODE_TEXT, "<li>" },
-  { NG_TEMPLATE_NODE_EXPR, "card" },
-  { NG_TEMPLATE_NODE_TEXT, "</li>" },
+  { NG_TEMPLATE_NODE_TEXT, "</div>\n  <div class=\"list-card\">\n    <h2>Session queue</h2>\n    <ul class=\"clean\">\n      " },
+  { NG_TEMPLATE_NODE_FOR_OPEN, "item|operations" },
+  { NG_TEMPLATE_NODE_TEXT, "\n        <li>\n          <strong>" },
+  { NG_TEMPLATE_NODE_EXPR, "item.patient" },
+  { NG_TEMPLATE_NODE_TEXT, "</strong>\n          <div class=\"muted\">" },
+  { NG_TEMPLATE_NODE_EXPR, "item.phase" },
+  { NG_TEMPLATE_NODE_TEXT, " • " },
+  { NG_TEMPLATE_NODE_EXPR, "item.session" },
+  { NG_TEMPLATE_NODE_TEXT, " • " },
+  { NG_TEMPLATE_NODE_EXPR, "item.status" },
+  { NG_TEMPLATE_NODE_TEXT, "</div>\n          <div class=\"muted\">" },
+  { NG_TEMPLATE_NODE_EXPR, "item.nextStep" },
+  { NG_TEMPLATE_NODE_TEXT, "</div>\n          <div class=\"muted\"><a href=\"/?view=history\">Open matching Angular history view</a></div>\n        </li>\n      " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</ul>\n      </article>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    </ul>\n  </div>\n  <div class=\"list-card\">\n    <h2>Attention points</h2>\n    <ul class=\"clean\">\n      " },
+  { NG_TEMPLATE_NODE_FOR_OPEN, "alert|alerts" },
+  { NG_TEMPLATE_NODE_TEXT, "\n        <li>" },
+  { NG_TEMPLATE_NODE_EXPR, "alert" },
+  { NG_TEMPLATE_NODE_TEXT, "</li>\n      " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>\n</section>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    </ul>\n  </div>\n</section>\n" },
 };
 
 static const ng_template_node_t g_template_nodes_pages_report_detail[] = {
-  { NG_TEMPLATE_NODE_TEXT, "<section class=\"stack\">\n  <div class=\"hero-card\">\n    <span class=\"chip\">Report slug:" },
+  { NG_TEMPLATE_NODE_TEXT, "\n<section class=\"stack\">\n  <div class=\"hero-card\">\n    <span class=\"chip\">Report slug: " },
   { NG_TEMPLATE_NODE_EXPR, "reportId" },
-  { NG_TEMPLATE_NODE_TEXT, "</span>\n  </div>\n  <div class=\"grid-3\">" },
+  { NG_TEMPLATE_NODE_TEXT, "</span>\n  </div>\n  <div class=\"grid-3\">\n    " },
   { NG_TEMPLATE_NODE_FOR_OPEN, "section|sections" },
-  { NG_TEMPLATE_NODE_TEXT, "<article class=\"panel\">\n        <h2>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n      <article class=\"panel\">\n        <h2>" },
   { NG_TEMPLATE_NODE_EXPR, "section.title" },
   { NG_TEMPLATE_NODE_TEXT, "</h2>\n        <p class=\"muted\">" },
   { NG_TEMPLATE_NODE_EXPR, "section.text" },
-  { NG_TEMPLATE_NODE_TEXT, "</p>\n      </article>" },
+  { NG_TEMPLATE_NODE_TEXT, "</p>\n      </article>\n    " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>\n</section>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n  </div>\n</section>\n" },
 };
 
 static const ng_template_node_t g_template_nodes_pages_reports[] = {
-  { NG_TEMPLATE_NODE_TEXT, "<section class=\"stack\">\n  <div class=\"hero-card\">" },
+  { NG_TEMPLATE_NODE_TEXT, "\n<section class=\"stack\">\n  <div class=\"hero-card\">" },
   { NG_TEMPLATE_NODE_RAW_EXPR, "insightMarkup" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>\n  <div class=\"list-card\">\n    <h2>Available reports</h2>\n    <ul class=\"clean\">" },
+  { NG_TEMPLATE_NODE_TEXT, "</div>\n  <div class=\"list-card\">\n    <h2>Available reports</h2>\n    <ul class=\"clean\">\n      " },
   { NG_TEMPLATE_NODE_FOR_OPEN, "report|reportRows" },
-  { NG_TEMPLATE_NODE_TEXT, "<li>\n          <a href=\"/server/reports/" },
+  { NG_TEMPLATE_NODE_TEXT, "\n        <li>\n          <a href=\"/server/reports/" },
   { NG_TEMPLATE_NODE_EXPR, "report.slug" },
   { NG_TEMPLATE_NODE_TEXT, "?audience=clinical lead\">" },
   { NG_TEMPLATE_NODE_EXPR, "report.title" },
   { NG_TEMPLATE_NODE_TEXT, "</a>\n          <div class=\"muted\">" },
   { NG_TEMPLATE_NODE_EXPR, "report.owner" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>\n        </li>" },
+  { NG_TEMPLATE_NODE_TEXT, "</div>\n        </li>\n      " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</ul>\n  </div>\n</section>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    </ul>\n  </div>\n</section>\n" },
 };
 
 static const ng_template_node_t g_template_nodes_pages_server_home[] = {
-  { NG_TEMPLATE_NODE_TEXT, "<section class=\"stack\">\n  <div class=\"hero-card\">" },
+  { NG_TEMPLATE_NODE_TEXT, "\n<section class=\"stack\">\n  <div class=\"hero-card\">\n    " },
   { NG_TEMPLATE_NODE_EXPR, "heroMarkup" },
-  { NG_TEMPLATE_NODE_TEXT, "" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    " },
   { NG_TEMPLATE_NODE_IF_OPEN, "audience" },
-  { NG_TEMPLATE_NODE_TEXT, "<p class=\"subtitle\">Prepared for <span class=\"chip\">" },
+  { NG_TEMPLATE_NODE_TEXT, "\n      <p class=\"subtitle\">Prepared for <span class=\"chip\">" },
   { NG_TEMPLATE_NODE_EXPR, "audience" },
-  { NG_TEMPLATE_NODE_TEXT, "</span></p>" },
+  { NG_TEMPLATE_NODE_TEXT, "</span></p>\n    " },
   { NG_TEMPLATE_NODE_ELSE, "" },
-  { NG_TEMPLATE_NODE_TEXT, "<p class=\"subtitle\">Add <span class=\"chip\">?audience=field team</span> to the URL to see query-driven rendering.</p>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n      <p class=\"subtitle\">Add <span class=\"chip\">?audience=field team</span> to the URL to see query-driven rendering.</p>\n    " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n  </div>\n  " },
   { NG_TEMPLATE_NODE_INCLUDE, "partials/stat-strip|{ value: stats }" },
-  { NG_TEMPLATE_NODE_TEXT, "<div class=\"grid-2\">" },
+  { NG_TEMPLATE_NODE_TEXT, "\n  <div class=\"grid-2\">\n    " },
   { NG_TEMPLATE_NODE_FOR_OPEN, "notice|notices" },
-  { NG_TEMPLATE_NODE_TEXT, "<article class=\"panel notice" },
+  { NG_TEMPLATE_NODE_TEXT, "\n      <article class=\"panel notice " },
   { NG_TEMPLATE_NODE_EXPR, "notice.tone" },
   { NG_TEMPLATE_NODE_TEXT, "\">\n        <h2>" },
   { NG_TEMPLATE_NODE_EXPR, "notice.title" },
   { NG_TEMPLATE_NODE_TEXT, "</h2>\n        <p class=\"muted\">" },
   { NG_TEMPLATE_NODE_EXPR, "notice.detail" },
-  { NG_TEMPLATE_NODE_TEXT, "</p>\n      </article>" },
+  { NG_TEMPLATE_NODE_TEXT, "</p>\n      </article>\n    " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>\n  <div class=\"list-card\">\n    <h2>Quick links</h2>\n    <ul class=\"clean\">" },
+  { NG_TEMPLATE_NODE_TEXT, "\n  </div>\n  <div class=\"list-card\">\n    <h2>Quick links</h2>\n    <ul class=\"clean\">\n      " },
   { NG_TEMPLATE_NODE_FOR_OPEN, "item|quickLinks" },
-  { NG_TEMPLATE_NODE_TEXT, "<li><a href=\"" },
+  { NG_TEMPLATE_NODE_TEXT, "\n        <li><a href=\"" },
   { NG_TEMPLATE_NODE_EXPR, "item.href" },
   { NG_TEMPLATE_NODE_TEXT, "\">" },
   { NG_TEMPLATE_NODE_EXPR, "item.label" },
-  { NG_TEMPLATE_NODE_TEXT, "</a></li>" },
+  { NG_TEMPLATE_NODE_TEXT, "</a></li>\n      " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</ul>\n  </div>\n</section>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    </ul>\n  </div>\n</section>\n" },
 };
 
 static const ng_template_node_t g_template_nodes_pages_team_card[] = {
-  { NG_TEMPLATE_NODE_TEXT, "<section class=\"stack\">\n  <div class=\"hero-card\">\n    <span class=\"chip\">" },
+  { NG_TEMPLATE_NODE_TEXT, "\n<section class=\"stack\">\n  <div class=\"hero-card\">\n    <span class=\"chip\">" },
   { NG_TEMPLATE_NODE_EXPR, "clinician" },
-  { NG_TEMPLATE_NODE_TEXT, "</span>\n  </div>\n  <div class=\"list-card\">\n    <h2>Highlights</h2>\n    <ul class=\"clean\">" },
+  { NG_TEMPLATE_NODE_TEXT, "</span>\n  </div>\n  <div class=\"list-card\">\n    <h2>Highlights</h2>\n    <ul class=\"clean\">\n      " },
   { NG_TEMPLATE_NODE_FOR_OPEN, "item|highlights" },
-  { NG_TEMPLATE_NODE_TEXT, "<li>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n        <li>" },
   { NG_TEMPLATE_NODE_EXPR, "item" },
-  { NG_TEMPLATE_NODE_TEXT, "</li>" },
+  { NG_TEMPLATE_NODE_TEXT, "</li>\n      " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</ul>\n  </div>\n</section>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    </ul>\n  </div>\n</section>\n" },
 };
 
 static const ng_template_node_t g_template_nodes_pages_variables[] = {
-  { NG_TEMPLATE_NODE_TEXT, "<section class=\"stack\">\n  <div class=\"hero-card\">\n    <p class=\"subtitle\">" },
+  { NG_TEMPLATE_NODE_TEXT, "\n<section class=\"stack\">\n  <div class=\"hero-card\">\n    <p class=\"subtitle\">" },
   { NG_TEMPLATE_NODE_EXPR, "status" },
   { NG_TEMPLATE_NODE_TEXT, "</p>\n    <p class=\"muted\">" },
   { NG_TEMPLATE_NODE_EXPR, "summary" },
-  { NG_TEMPLATE_NODE_TEXT, "</p>\n  </div>\n  <div class=\"list-card\">\n    <h2>Checklist</h2>\n    <ul class=\"clean\">" },
+  { NG_TEMPLATE_NODE_TEXT, "</p>\n  </div>\n  <div class=\"list-card\">\n    <h2>Checklist</h2>\n    <ul class=\"clean\">\n      " },
   { NG_TEMPLATE_NODE_FOR_OPEN, "entry|checklist" },
-  { NG_TEMPLATE_NODE_TEXT, "<li>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n        <li>" },
   { NG_TEMPLATE_NODE_EXPR, "entry" },
-  { NG_TEMPLATE_NODE_TEXT, "</li>" },
+  { NG_TEMPLATE_NODE_TEXT, "</li>\n      " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</ul>\n  </div>\n</section>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    </ul>\n  </div>\n</section>\n" },
 };
 
 static const ng_template_node_t g_template_nodes_partials_footer[] = {
-  { NG_TEMPLATE_NODE_TEXT, "<footer class=\"footer-note\">\n  Generated by the Windows compiler demo. The Angular SPA remains available at <a href=\"/\">/</a>.\n</footer>" },
+  { NG_TEMPLATE_NODE_TEXT, "<footer class=\"footer-note\">\n  Generated by the Windows compiler demo. The Angular SPA remains available at <a href=\"/\">/</a>.\n</footer>\n" },
 };
 
 static const ng_template_node_t g_template_nodes_partials_nav[] = {
-  { NG_TEMPLATE_NODE_TEXT, "<nav class=\"server-nav\">" },
+  { NG_TEMPLATE_NODE_TEXT, "<nav class=\"server-nav\">\n  " },
   { NG_TEMPLATE_NODE_FOR_OPEN, "link|links" },
-  { NG_TEMPLATE_NODE_TEXT, "<a href=\"" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    <a href=\"" },
   { NG_TEMPLATE_NODE_EXPR, "link.href" },
   { NG_TEMPLATE_NODE_TEXT, "\">" },
   { NG_TEMPLATE_NODE_EXPR, "link.label" },
-  { NG_TEMPLATE_NODE_TEXT, "</a>" },
+  { NG_TEMPLATE_NODE_TEXT, "</a>\n  " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</nav>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n</nav>\n" },
 };
 
 static const ng_template_node_t g_template_nodes_partials_stat_strip[] = {
-  { NG_TEMPLATE_NODE_TEXT, "<div class=\"grid-3\">" },
+  { NG_TEMPLATE_NODE_TEXT, "<div class=\"grid-3\">\n  " },
   { NG_TEMPLATE_NODE_FOR_OPEN, "stat|value" },
-  { NG_TEMPLATE_NODE_TEXT, "<article class=\"panel\">\n      <div class=\"muted\">" },
+  { NG_TEMPLATE_NODE_TEXT, "\n    <article class=\"panel\">\n      <div class=\"muted\">" },
   { NG_TEMPLATE_NODE_EXPR, "stat.label" },
   { NG_TEMPLATE_NODE_TEXT, "</div>\n      <div class=\"stat-value\">" },
   { NG_TEMPLATE_NODE_EXPR, "stat.value" },
   { NG_TEMPLATE_NODE_TEXT, "</div>\n      <div class=\"muted\">" },
   { NG_TEMPLATE_NODE_EXPR, "stat.detail" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>\n    </article>" },
+  { NG_TEMPLATE_NODE_TEXT, "</div>\n    </article>\n  " },
   { NG_TEMPLATE_NODE_END, "" },
-  { NG_TEMPLATE_NODE_TEXT, "</div>" },
+  { NG_TEMPLATE_NODE_TEXT, "\n</div>\n" },
 };
 
 static const ng_template_def_t g_angular_templates[] = {
@@ -210,13 +225,13 @@ static json_data *angular_server_model_from_expr(const char *expr,
 }
 
 static const ng_server_binding_t g_route_0_bindings[] = {
-  { "nav", "{\n    links: [\n      { href: '/', label: 'Angular shell' },\n      { href: '/server', label: 'Care hub' },\n      { href: '/server/operations', label: 'Operations' },\n      { href: '/server/reports', label: 'Reports' },\n      { href: '/server/variables', label: 'Variables' }\n    ]\n  }" },
-  { "dashboard", "{\n    pageTitle: 'Hybrid Care Hub',\n    eyebrow: 'Angular + EJS',\n    subtitle: 'Server-rendered launch surface for clinicians, coordinators, and field teams.',\n    audience: title(query('audience')),\n    heroMarkup: '<span class=\"hero-badge\">Compiled layout, partials, loops, and helpers</span>',\n    nav: nav,\n    stats: [\n      { label: 'Live wards', value: 4, detail: 'Clinician stations synced' },\n      { label: 'Queued launches', value: 3, detail: 'Next sleeve dispatch wave' },\n      { label: 'Open reports', value: 6, detail: 'Review surface ready' }\n    ],\n    notices: [\n      { tone: 'good', title: 'Shift stable', detail: 'Field staffing is green for the next block.' },\n      { tone: 'warn', title: 'Battery watch', detail: 'Two mobile kits should be topped up before handoff.' }\n    ],\n    quickLinks: [\n      { href: '/server/reports/daily-brief', label: 'Open daily brief' },\n      { href: '/server/team/amelia-ross', label: 'View clinician card' }\n    ]\n  }" },
+  { "nav", "{\n    links: [\n      { href: '/?view=live', label: 'Angular live' },\n      { href: '/?view=history', label: 'Angular history' },\n      { href: '/?view=variables', label: 'Angular variables' },\n      { href: '/server', label: 'Care hub' },\n      { href: '/server/operations', label: 'Operations' },\n      { href: '/server/reports', label: 'Reports' },\n      { href: '/server/variables', label: 'Variables' }\n    ]\n  }" },
+  { "dashboard", "{\n    pageTitle: 'Hybrid Care Hub',\n    eyebrow: 'Angular + EJS',\n    subtitle: 'Server-rendered launch surface for clinicians, coordinators, and field teams.',\n    audience: title(query('audience')),\n    heroMarkup: '<span class=\"hero-badge\">Compiled layout, partials, loops, and helpers</span>',\n    nav: nav,\n    stats: [\n      { label: 'Live wards', value: 4, detail: 'Clinician stations synced' },\n      { label: 'Queued launches', value: 3, detail: 'Next sleeve dispatch wave' },\n      { label: 'Open reports', value: 6, detail: 'Review surface ready' }\n    ],\n    notices: [\n      { tone: 'good', title: 'Shift stable', detail: 'Field staffing is green for the next rehabilitation block.' },\n      { tone: 'warn', title: 'Battery watch', detail: 'Two mobile gait kits should be topped up before afternoon sessions.' }\n    ],\n    quickLinks: [\n      { href: '/server/reports/daily-brief?audience=clinical%20lead', label: 'Open daily brief' },\n      { href: '/server/team/amelia-ross', label: 'View clinician card' },\n      { href: '/?view=history', label: 'Jump to Angular history view' }\n    ]\n  }" },
 };
 
 static const ng_server_binding_t g_route_1_bindings[] = {
-  { "nav", "{\n    links: [\n      { href: '/', label: 'Angular shell' },\n      { href: '/server', label: 'Care hub' },\n      { href: '/server/reports', label: 'Reports' }\n    ]\n  }" },
-  { "board", "{\n    pageTitle: 'Operations Board',\n    eyebrow: 'Ops stream',\n    subtitle: 'Shift handoff snapshot for deployments, stock, and coaching readiness.',\n    nav: nav,\n    columns: [\n      { heading: 'Ready', cards: ['North ward kit staged', 'Fit coach on site', 'Telehealth slot reserved'] },\n      { heading: 'Watch', cards: ['One tablet offline', 'Strap stock below threshold'] },\n      { heading: 'Next', cards: ['Afternoon outreach batch', 'Print briefing export'] }\n    ],\n    summaryMarkup: '<strong>Queue ready:</strong> seven sleeve kits staged for dispatch.'\n  }" },
+  { "nav", "{\n    links: [\n      { href: '/?view=live', label: 'Angular live' },\n      { href: '/?view=history', label: 'Angular history' },\n      { href: '/server', label: 'Care hub' },\n      { href: '/server/reports', label: 'Reports' }\n    ]\n  }" },
+  { "board", "{\n    pageTitle: 'Operations Board',\n    eyebrow: 'Ops stream',\n    subtitle: 'Shift handoff snapshot for rehabilitation sessions, gait review blocks, and equipment readiness.',\n    nav: nav,\n    summaryMarkup: '<strong>Queue ready:</strong> four mobility sessions, one telehealth review, and one brace refit handoff are staged.',\n    operations: [\n      { patient: 'Mia Chen', phase: 'Gait retraining', session: '10:30', status: 'Ready', nextStep: 'Review dorsiflexion range and stair confidence.' },\n      { patient: 'Noah Patel', phase: 'Strength block', session: '11:15', status: 'Ready', nextStep: 'Repeat resisted extension set and compare symmetry.' },\n      { patient: 'Jules Hart', phase: 'Brace tuning', session: '13:00', status: 'Watch', nextStep: 'Recheck strap pressure after 20 minutes of walking.' },\n      { patient: 'Amelia Ross', phase: 'Telehealth review', session: '15:30', status: 'Ready', nextStep: 'Confirm home exercise adherence and progression plan.' }\n    ],\n    alerts: [\n      'One ankle sleeve battery should be swapped before the afternoon round.',\n      'Brace strap stock is down to the last two medium sets.',\n      'History review requested for Jules Hart before the 13:00 refit.'\n    ]\n  }" },
 };
 
 static const ng_server_binding_t g_route_2_bindings[] = {
@@ -236,11 +251,13 @@ static const ng_server_binding_t g_route_5_bindings[] = {
   { "profile", "{\n    pageTitle: 'Variables Console',\n    eyebrow: 'Config mirror',\n    subtitle: 'Use the SPA for live tuning. Use this page for an audit-friendly snapshot.',\n    status: 'Latest thresholds mirrored from the device configuration feed.',\n    summary: 'This page uses the shared server layout and partial navigation.',\n    checklist: [\n      'Pressure profile synced',\n      'Session pacing confirmed',\n      'Escalation contact stored'\n    ]\n  }" },
 };
 
-static const ng_server_binding_t g_route_6_bindings[] = {
+static const ng_server_binding_t g_route_6_bindings[1] = {{NULL, NULL}};
+
+static const ng_server_binding_t g_route_7_bindings[] = {
   { "greeting", "title(query('name'))" },
 };
 
-static const ng_server_binding_t g_route_7_bindings[] = {
+static const ng_server_binding_t g_route_8_bindings[] = {
   { "payload", "{\n    ok: true,\n    queued: 3,\n    mode: body('mode'),\n    priority: body('priority'),\n    requestedBy: header('X-Operator')\n  }" },
 };
 
@@ -459,6 +476,36 @@ static int angular_backend_route_6(void *context,
                                   const ng_http_request_t *request,
                                   ng_http_response_t *response) {
   const ng_server_binding_t *bindings = g_route_6_bindings;
+  const size_t binding_count = 0;
+  const int status_code = 200;
+  (void)context;
+  const char *response_expr = "{\n    clinicName: 'North Ward Mobility Lab',\n    summary: 'Shared rehab feed used by the Angular shell and compiled EJS briefings.',\n    activePatients: 12,\n    sessionsToday: 18,\n    adherenceAverage: 91,\n    operations: [\n      { patient: 'Mia Chen', phase: 'Gait retraining', session: '10:30', status: 'Ready', nextStep: 'Range review' },\n      { patient: 'Noah Patel', phase: 'Strength block', session: '11:15', status: 'Ready', nextStep: 'Symmetry check' },\n      { patient: 'Jules Hart', phase: 'Brace tuning', session: '13:00', status: 'Watch', nextStep: 'Pressure recheck' },\n      { patient: 'Amelia Ross', phase: 'Telehealth review', session: '15:30', status: 'Ready', nextStep: 'Progression plan' }\n    ]\n  }";
+  json_data *value = NULL;
+  char *text = NULL;
+  response->status_code = status_code;
+  snprintf(response->content_type, sizeof(response->content_type), "application/json; charset=utf-8");
+  value = ng_server_eval_expr(response_expr, request, bindings, binding_count, NULL, NULL);
+  if (value == NULL) {
+    response->status_code = 500;
+    angular_http_write_error_json(response, "json evaluation failed");
+    return 0;
+  }
+  text = json_tostring(value);
+  json_free(value);
+  if (text == NULL) {
+    response->status_code = 500;
+    angular_http_write_error_json(response, "json serialization failed");
+    return 0;
+  }
+  ng_http_response_set_text(response, text);
+  free(text);
+  return 0;
+}
+
+static int angular_backend_route_7(void *context,
+                                  const ng_http_request_t *request,
+                                  ng_http_response_t *response) {
+  const ng_server_binding_t *bindings = g_route_7_bindings;
   const size_t binding_count = 1;
   const int status_code = 200;
   (void)context;
@@ -492,10 +539,10 @@ static int angular_backend_route_6(void *context,
   return 0;
 }
 
-static int angular_backend_route_7(void *context,
+static int angular_backend_route_8(void *context,
                                   const ng_http_request_t *request,
                                   ng_http_response_t *response) {
-  const ng_server_binding_t *bindings = g_route_7_bindings;
+  const ng_server_binding_t *bindings = g_route_8_bindings;
   const size_t binding_count = 1;
   const int status_code = 202;
   (void)context;
@@ -594,12 +641,16 @@ void angular_http_service_init(angular_http_service_t *service,
   service->routes[14].handler = angular_backend_route_5;
   service->routes[14].context = service;
   service->routes[15].method = "GET";
-  service->routes[15].path = "/server/welcome.txt";
+  service->routes[15].path = "/server/api/overview";
   service->routes[15].handler = angular_backend_route_6;
   service->routes[15].context = service;
-  service->routes[16].method = "POST";
-  service->routes[16].path = "/server/api/launch";
+  service->routes[16].method = "GET";
+  service->routes[16].path = "/server/welcome.txt";
   service->routes[16].handler = angular_backend_route_7;
   service->routes[16].context = service;
+  service->routes[17].method = "POST";
+  service->routes[17].path = "/server/api/launch";
+  service->routes[17].handler = angular_backend_route_8;
+  service->routes[17].context = service;
   ng_http_service_init(&service->service, html_page, css_text, js_text, service->routes, ANGULAR_GENERATED_ROUTE_COUNT);
 }

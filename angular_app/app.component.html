@@ -15,8 +15,8 @@
     <section class="hybrid-rail">
       <div class="hybrid-copy">
         <p class="eyebrow">Hybrid compiler demo</p>
-        <h2 class="hybrid-title">Angular dashboard in front, server-rendered EJS surfaces behind it.</h2>
-        <p class="hybrid-text">Use the SPA for live telemetry and variable tuning. Use the server routes for branded launch pages, print-friendly briefings, and lightweight operations views.</p>
+        <h2 class="hybrid-title">Angular live rehab dashboard with compiled server briefings behind the same patient flow.</h2>
+        <p class="hybrid-text">The SPA handles live movement telemetry and adjustable thresholds. The compiled EJS routes handle care-hub summaries, operations handoff sheets, and printable review cards using the same rehab sample data.</p>
       </div>
       <div class="hybrid-links">
         <a class="hybrid-link primary" href="/server">Open care hub</a>
@@ -24,6 +24,39 @@
         <a class="hybrid-link" href="/server/reports">Reporting room</a>
         <a class="hybrid-link" href="/server/variables">Variables briefing</a>
       </div>
+    </section>
+    <section class="bridge-grid">
+      <article class="bridge-card bridge-overview">
+        <p class="eyebrow">Shared Rehab Snapshot</p>
+        <h3 class="bridge-heading" id="bridge-clinic-name">Loading clinic snapshot...</h3>
+        <p class="bridge-copy" id="bridge-clinic-copy">Fetching the same operations feed used by the compiled server routes.</p>
+        <div class="bridge-stats">
+          <div class="bridge-stat">
+            <span class="bridge-label">Active Patients</span>
+            <strong id="bridge-active-patients">--</strong>
+          </div>
+          <div class="bridge-stat">
+            <span class="bridge-label">Sessions Today</span>
+            <strong id="bridge-sessions-today">--</strong>
+          </div>
+          <div class="bridge-stat">
+            <span class="bridge-label">Adherence Avg</span>
+            <strong id="bridge-adherence">--</strong>
+          </div>
+        </div>
+      </article>
+      <article class="bridge-card bridge-feed">
+        <div class="bridge-feed-header">
+          <div>
+            <p class="eyebrow">Operations Feed</p>
+            <h3 class="bridge-heading">Next rehabilitation sessions</h3>
+          </div>
+          <a class="bridge-inline-link" href="/server/operations">Open full operations board</a>
+        </div>
+        <div id="bridge-operations-list" class="bridge-list">
+          <div class="bridge-empty">Operations feed loading...</div>
+        </div>
+      </article>
     </section>
     <dashboard-shell></dashboard-shell>
     <live-panel></live-panel>

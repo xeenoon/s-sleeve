@@ -17,6 +17,8 @@ int test_server_runtime(void) {
   ng_server_binding_t bindings[2];
   json_data *value;
   json_data *model;
+  char long_note[900];
+  size_t long_index;
   static const ng_template_node_t layout_nodes[] = {
       {NG_TEMPLATE_NODE_TEXT, "<html><body>"},
       {NG_TEMPLATE_NODE_INCLUDE, "partials/nav|nav"},
@@ -48,6 +50,9 @@ int test_server_runtime(void) {
       {NG_TEMPLATE_NODE_EXPR, "item"},
       {NG_TEMPLATE_NODE_TEXT, "</li>"},
       {NG_TEMPLATE_NODE_END, ""},
+      {NG_TEMPLATE_NODE_TEXT, "<div>"},
+      {NG_TEMPLATE_NODE_EXPR, "longNote"},
+      {NG_TEMPLATE_NODE_TEXT, "</div>"},
       {NG_TEMPLATE_NODE_TEXT, "</ul></section>"}};
   static const ng_template_def_t templates[] = {
       {"layouts/main", "", layout_nodes, sizeof(layout_nodes) / sizeof(layout_nodes[0])},
@@ -74,6 +79,11 @@ int test_server_runtime(void) {
   bindings[1].name = "payload";
   bindings[1].expr_source = "{ title: upper(param('reportId')), subtitle: title(query('audience')), show: true, items: ['alpha', body('mode')], nav: navModel.nav }";
 
+  for (long_index = 0; long_index + 1 < sizeof(long_note); ++long_index) {
+    long_note[long_index] = (char)('a' + (long_index % 26));
+  }
+  long_note[sizeof(long_note) - 1] = '\0';
+
   value = ng_server_eval_expr("payload", &request, bindings, 2, NULL, NULL);
   if (value == NULL || value->type != JSON_OBJECT) {
     return fail("expression evaluation did not produce object model");
@@ -85,6 +95,7 @@ int test_server_runtime(void) {
   }
 
   model = value;
+  json_object_add_string(model, "longNote", long_note);
   if (ng_server_render_template_response(templates,
                                          sizeof(templates) / sizeof(templates[0]),
                                          "pages/demo",
@@ -102,7 +113,8 @@ int test_server_runtime(void) {
   if (strstr(response.body, "<nav><a>Home</a><a>Reports</a></nav>") == NULL ||
       strstr(response.body, "<h1>DAILY-BRIEF</h1>") == NULL ||
       strstr(response.body, "<p>Clinical Lead</p>") == NULL ||
-      strstr(response.body, "<li>guided</li>") == NULL) {
+      strstr(response.body, "<li>guided</li>") == NULL ||
+      strstr(response.body, "uvwxyzabcdef") == NULL) {
     json_free(model);
     return fail("rendered response missing expected layout/include/loop output");
   }

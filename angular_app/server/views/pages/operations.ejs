@@ -1,16 +1,25 @@
 <% layout('layouts/main') %>
 <section class="stack">
   <div class="hero-card"><%- summaryMarkup %></div>
-  <div class="grid-3">
-    <% for (column of columns) { %>
-      <article class="list-card">
-        <h2><%= column.heading %></h2>
-        <ul class="clean">
-          <% for (card of column.cards) { %>
-            <li><%= card %></li>
-          <% } %>
-        </ul>
-      </article>
-    <% } %>
+  <div class="list-card">
+    <h2>Session queue</h2>
+    <ul class="clean">
+      <% for (item of operations) { %>
+        <li>
+          <strong><%= item.patient %></strong>
+          <div class="muted"><%= item.phase %> • <%= item.session %> • <%= item.status %></div>
+          <div class="muted"><%= item.nextStep %></div>
+          <div class="muted"><a href="/?view=history">Open matching Angular history view</a></div>
+        </li>
+      <% } %>
+    </ul>
+  </div>
+  <div class="list-card">
+    <h2>Attention points</h2>
+    <ul class="clean">
+      <% for (alert of alerts) { %>
+        <li><%= alert %></li>
+      <% } %>
+    </ul>
   </div>
 </section>

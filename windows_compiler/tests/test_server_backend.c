@@ -28,20 +28,30 @@ int test_server_backend(void) {
       "<% include('partials/footer') %>\n";
   ng_server_route_set_t *routes;
   ng_ejs_template_t *template_file;
+  ng_ejs_template_t *long_template;
   ng_ejs_template_set_t *templates;
   ng_server_codegen_result_t *codegen;
+  char long_html[1400];
+  size_t fill_index;
 
   routes = (ng_server_route_set_t *)calloc(1, sizeof(*routes));
   template_file = (ng_ejs_template_t *)calloc(1, sizeof(*template_file));
+  long_template = (ng_ejs_template_t *)calloc(1, sizeof(*long_template));
   templates = (ng_ejs_template_set_t *)calloc(1, sizeof(*templates));
   codegen = (ng_server_codegen_result_t *)calloc(1, sizeof(*codegen));
-  if (routes == NULL || template_file == NULL || templates == NULL || codegen == NULL) {
+  if (routes == NULL || template_file == NULL || long_template == NULL || templates == NULL || codegen == NULL) {
     free(routes);
     free(template_file);
+    free(long_template);
     free(templates);
     free(codegen);
     return fail("allocation failed");
   }
+
+  for (fill_index = 0; fill_index + 1 < sizeof(long_html); ++fill_index) {
+    long_html[fill_index] = (char)('a' + (fill_index % 26));
+  }
+  long_html[sizeof(long_html) - 1] = '\0';
 
   if (server_parser_parse_source(server_source, routes) != 0) {
     return fail("route parser rejected valid source");
@@ -65,6 +75,9 @@ int test_server_backend(void) {
 
   if (ejs_parser_parse_text("variables", template_source, template_file) != 0) {
     return fail("ejs parser rejected valid template");
+  }
+  if (ejs_parser_parse_text("long", long_html, long_template) != 0 || long_template->node_count < 3) {
+    return fail("ejs parser failed to split long text into multiple nodes");
   }
   if (strcmp(template_file->layout_name, "layouts/main") != 0 ||
       template_file->node_count < 18 ||
@@ -97,6 +110,7 @@ int test_server_backend(void) {
 
   free(routes);
   free(template_file);
+  free(long_template);
   free(templates);
   free(codegen);
   return 0;

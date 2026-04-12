@@ -1,7 +1,9 @@
 server.get('/server', (req, res) => {
   const nav = {
     links: [
-      { href: '/', label: 'Angular shell' },
+      { href: '/?view=live', label: 'Angular live' },
+      { href: '/?view=history', label: 'Angular history' },
+      { href: '/?view=variables', label: 'Angular variables' },
       { href: '/server', label: 'Care hub' },
       { href: '/server/operations', label: 'Operations' },
       { href: '/server/reports', label: 'Reports' },
@@ -21,12 +23,13 @@ server.get('/server', (req, res) => {
       { label: 'Open reports', value: 6, detail: 'Review surface ready' }
     ],
     notices: [
-      { tone: 'good', title: 'Shift stable', detail: 'Field staffing is green for the next block.' },
-      { tone: 'warn', title: 'Battery watch', detail: 'Two mobile kits should be topped up before handoff.' }
+      { tone: 'good', title: 'Shift stable', detail: 'Field staffing is green for the next rehabilitation block.' },
+      { tone: 'warn', title: 'Battery watch', detail: 'Two mobile gait kits should be topped up before afternoon sessions.' }
     ],
     quickLinks: [
-      { href: '/server/reports/daily-brief', label: 'Open daily brief' },
-      { href: '/server/team/amelia-ross', label: 'View clinician card' }
+      { href: '/server/reports/daily-brief?audience=clinical%20lead', label: 'Open daily brief' },
+      { href: '/server/team/amelia-ross', label: 'View clinician card' },
+      { href: '/?view=history', label: 'Jump to Angular history view' }
     ]
   };
   res.render('pages/server-home', dashboard);
@@ -35,7 +38,8 @@ server.get('/server', (req, res) => {
 server.get('/server/operations', (req, res) => {
   const nav = {
     links: [
-      { href: '/', label: 'Angular shell' },
+      { href: '/?view=live', label: 'Angular live' },
+      { href: '/?view=history', label: 'Angular history' },
       { href: '/server', label: 'Care hub' },
       { href: '/server/reports', label: 'Reports' }
     ]
@@ -43,14 +47,20 @@ server.get('/server/operations', (req, res) => {
   const board = {
     pageTitle: 'Operations Board',
     eyebrow: 'Ops stream',
-    subtitle: 'Shift handoff snapshot for deployments, stock, and coaching readiness.',
+    subtitle: 'Shift handoff snapshot for rehabilitation sessions, gait review blocks, and equipment readiness.',
     nav: nav,
-    columns: [
-      { heading: 'Ready', cards: ['North ward kit staged', 'Fit coach on site', 'Telehealth slot reserved'] },
-      { heading: 'Watch', cards: ['One tablet offline', 'Strap stock below threshold'] },
-      { heading: 'Next', cards: ['Afternoon outreach batch', 'Print briefing export'] }
+    summaryMarkup: '<strong>Queue ready:</strong> four mobility sessions, one telehealth review, and one brace refit handoff are staged.',
+    operations: [
+      { patient: 'Mia Chen', phase: 'Gait retraining', session: '10:30', status: 'Ready', nextStep: 'Review dorsiflexion range and stair confidence.' },
+      { patient: 'Noah Patel', phase: 'Strength block', session: '11:15', status: 'Ready', nextStep: 'Repeat resisted extension set and compare symmetry.' },
+      { patient: 'Jules Hart', phase: 'Brace tuning', session: '13:00', status: 'Watch', nextStep: 'Recheck strap pressure after 20 minutes of walking.' },
+      { patient: 'Amelia Ross', phase: 'Telehealth review', session: '15:30', status: 'Ready', nextStep: 'Confirm home exercise adherence and progression plan.' }
     ],
-    summaryMarkup: '<strong>Queue ready:</strong> seven sleeve kits staged for dispatch.'
+    alerts: [
+      'One ankle sleeve battery should be swapped before the afternoon round.',
+      'Brace strap stock is down to the last two medium sets.',
+      'History review requested for Jules Hart before the 13:00 refit.'
+    ]
   };
   res.render('pages/operations', board);
 });
@@ -122,6 +132,22 @@ server.get('/server/variables', (req, res) => {
     ]
   };
   res.render('pages/variables', profile);
+});
+
+server.get('/server/api/overview', (req, res) => {
+  res.json({
+    clinicName: 'North Ward Mobility Lab',
+    summary: 'Shared rehab feed used by the Angular shell and compiled EJS briefings.',
+    activePatients: 12,
+    sessionsToday: 18,
+    adherenceAverage: 91,
+    operations: [
+      { patient: 'Mia Chen', phase: 'Gait retraining', session: '10:30', status: 'Ready', nextStep: 'Range review' },
+      { patient: 'Noah Patel', phase: 'Strength block', session: '11:15', status: 'Ready', nextStep: 'Symmetry check' },
+      { patient: 'Jules Hart', phase: 'Brace tuning', session: '13:00', status: 'Watch', nextStep: 'Pressure recheck' },
+      { patient: 'Amelia Ross', phase: 'Telehealth review', session: '15:30', status: 'Ready', nextStep: 'Progression plan' }
+    ]
+  });
 });
 
 server.get('/server/welcome.txt', (req, res) => {

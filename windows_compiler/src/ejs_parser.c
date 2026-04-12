@@ -38,22 +38,56 @@ static void ejs_trim_copy(char *buffer, size_t buffer_size, const char *start, s
   buffer[end - begin] = '\0';
 }
 
+static void ejs_raw_copy(char *buffer, size_t buffer_size, const char *start, size_t length) {
+  size_t copy_length = length;
+
+  if (buffer_size == 0) {
+    return;
+  }
+  if (copy_length >= buffer_size) {
+    copy_length = buffer_size - 1;
+  }
+  memcpy(buffer, start, copy_length);
+  buffer[copy_length] = '\0';
+}
+
 static int ejs_template_add_node(ng_ejs_template_t *template_file,
                                  ng_ejs_node_kind_t kind,
                                  const char *text,
                                  size_t length) {
-  ng_ejs_node_t *node;
+  size_t remaining = length;
+  const char *cursor = text;
 
-  if (template_file->node_count >= sizeof(template_file->nodes) / sizeof(template_file->nodes[0])) {
-    return 1;
-  }
+  do {
+    size_t chunk_length = remaining;
+    ng_ejs_node_t *node;
 
-  node = &template_file->nodes[template_file->node_count++];
-  memset(node, 0, sizeof(*node));
-  node->kind = kind;
-  if (text != NULL) {
-    ejs_trim_copy(node->text, sizeof(node->text), text, length);
-  }
+    if (template_file->node_count >= sizeof(template_file->nodes) / sizeof(template_file->nodes[0])) {
+      return 1;
+    }
+
+    if (kind == NG_EJS_NODE_TEXT && chunk_length >= sizeof(template_file->nodes[0].text)) {
+      chunk_length = sizeof(template_file->nodes[0].text) - 1;
+    }
+
+    node = &template_file->nodes[template_file->node_count++];
+    memset(node, 0, sizeof(*node));
+    node->kind = kind;
+    if (cursor != NULL) {
+      if (kind == NG_EJS_NODE_TEXT) {
+        ejs_raw_copy(node->text, sizeof(node->text), cursor, chunk_length);
+      } else {
+        ejs_trim_copy(node->text, sizeof(node->text), cursor, chunk_length);
+      }
+    }
+
+    if (kind != NG_EJS_NODE_TEXT || remaining <= chunk_length) {
+      break;
+    }
+    cursor += chunk_length;
+    remaining -= chunk_length;
+  } while (remaining > 0);
+
   return 0;
 }
 

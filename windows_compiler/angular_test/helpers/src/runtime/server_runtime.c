@@ -505,6 +505,22 @@ static void ng_server_append_html_escaped(stringbuilder *builder, const char *te
 
 void ng_server_append_escaped_value(stringbuilder *builder, const json_data *value) {
   char buffer[512];
+  char *json_text;
+  if (value == NULL) {
+    return;
+  }
+  if (value->type == JSON_STRING) {
+    ng_server_append_html_escaped(builder, value->as.string.data);
+    return;
+  }
+  if (value->type == JSON_ARRAY || value->type == JSON_OBJECT) {
+    json_text = json_tostring((json_data *)value);
+    if (json_text != NULL) {
+      ng_server_append_html_escaped(builder, json_text);
+      free(json_text);
+    }
+    return;
+  }
   if (ng_server_value_to_string(value, buffer, sizeof(buffer)) == 0) {
     ng_server_append_html_escaped(builder, buffer);
   }
@@ -512,6 +528,22 @@ void ng_server_append_escaped_value(stringbuilder *builder, const json_data *val
 
 void ng_server_append_raw_value(stringbuilder *builder, const json_data *value) {
   char buffer[512];
+  char *json_text;
+  if (value == NULL) {
+    return;
+  }
+  if (value->type == JSON_STRING) {
+    append(builder, value->as.string.data != NULL ? value->as.string.data : "");
+    return;
+  }
+  if (value->type == JSON_ARRAY || value->type == JSON_OBJECT) {
+    json_text = json_tostring((json_data *)value);
+    if (json_text != NULL) {
+      append(builder, json_text);
+      free(json_text);
+    }
+    return;
+  }
   if (ng_server_value_to_string(value, buffer, sizeof(buffer)) == 0) {
     append(builder, buffer);
   }
