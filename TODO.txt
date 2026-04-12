@@ -1,6 +1,0 @@
-TODO
-
-- Windows compiler generated `app.js` loaded as `16383` bytes in the generated demo logs. Check for a hard size ceiling in the asset load/serve path before the app grows further.
-- The compiled-away observable system is still intentionally minimal. If more RxJS-style operators are needed, extend the compiler IR first instead of hardcoding app behavior into the generator.
-- `angular_compiler` still exists in the repo tree even though `windows_compiler` is the active Windows path. Clean up the old tree once it is definitely no longer needed.
-- The embedded path should inherit the same observable pipeline support only after the Windows compiler behavior remains stable under larger assets and route payloads.
