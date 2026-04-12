@@ -1,0 +1,2720 @@
+[demo] loaded index.html bytes=12160
+[demo] loaded styles.css bytes=20724
+[demo] loaded app.js bytes=27650
+[demo] starting port=18087 max_requests=0
+[http] listen 127.0.0.1:18087 max_requests=0
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=1
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=2
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=3
+[service] dispatch GET /api/variables
+[angular_http] /api/variables
+[http] GET /api/variables -> 200 application/json request_index=4
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=5
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=6
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=7
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=8
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=9
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=10
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=11
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=12
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=13
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=14
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=15
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=16
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=17
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=18
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=19
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=20
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=21
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=22
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=23
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=24
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=25
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=26
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=27
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=28
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=29
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=30
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=31
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=32
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=33
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=34
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=35
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=36
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=37
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=38
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=39
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=40
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=41
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=42
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=43
+[service] serving html
+[http] GET / -> 200 text/html; charset=utf-8 request_index=44
+[service] serving css
+[http] GET /styles.css -> 200 text/css; charset=utf-8 request_index=45
+[service] serving js
+[http] GET /app.js -> 200 application/javascript; charset=utf-8 request_index=46
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=47
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=48
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=49
+[service] dispatch GET /api/variables
+[angular_http] /api/variables
+[http] GET /api/variables -> 200 application/json request_index=50
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=51
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=52
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=53
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=54
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=55
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=56
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=57
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=58
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=59
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=60
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=61
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=62
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=63
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=64
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=65
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=66
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=67
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=68
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=69
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=70
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=71
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=72
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=73
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=74
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=75
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=76
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=77
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=78
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=79
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=80
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=81
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=82
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=83
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=84
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=85
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=86
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=87
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=88
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=89
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=90
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=91
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=92
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=93
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=94
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=95
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=96
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=97
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=98
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=99
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=100
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=101
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=102
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=103
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=104
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=105
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=106
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=107
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=108
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=109
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=110
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=111
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=112
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=113
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=114
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=115
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=116
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=117
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=118
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=119
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=120
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=121
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=122
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=123
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=124
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=125
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=126
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=127
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=128
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=129
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=130
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=131
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=132
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=133
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=134
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=135
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=136
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=137
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=138
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=139
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=140
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=141
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=142
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=143
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=144
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=145
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=146
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=147
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=148
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=149
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=150
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=151
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=152
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=153
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=154
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=155
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=156
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=157
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=158
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=159
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=160
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=161
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=162
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=163
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=164
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=165
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=166
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=167
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=168
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=169
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=170
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=171
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=172
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=173
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=174
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=175
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=176
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=177
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=178
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=179
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=180
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=181
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=182
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=183
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=184
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=185
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=186
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=187
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=188
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=189
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=190
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=191
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=192
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=193
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=194
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=195
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=196
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=197
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=198
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=199
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=200
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=201
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=202
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=203
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=204
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=205
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=206
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=207
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=208
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=209
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=210
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=211
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=212
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=213
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=214
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=215
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=216
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=217
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=218
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=219
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=220
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=221
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=222
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=223
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=224
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=225
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=226
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=227
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=228
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=229
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=230
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=231
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=232
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=233
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=234
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=235
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=236
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=237
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=238
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=239
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=240
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=241
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=242
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=243
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=244
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=245
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=246
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=247
+[service] dispatch GET /api/variables
+[angular_http] /api/variables
+[http] GET /api/variables -> 200 application/json request_index=248
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=249
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=250
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=251
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=252
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=253
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=254
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=255
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=256
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=257
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=258
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=259
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=260
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=261
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=262
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=263
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=264
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=265
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=266
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=267
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=268
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=269
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=270
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=271
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=272
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=273
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=274
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=275
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=276
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=277
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=278
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=279
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=280
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=281
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=282
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=283
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=284
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=285
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=286
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=287
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=288
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=289
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=290
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=291
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=292
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=293
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=294
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=295
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=296
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=297
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=298
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=299
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=300
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=301
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=302
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=303
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=304
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=305
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=306
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=307
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=308
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=309
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=310
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=311
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=312
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=313
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=314
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=315
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=316
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=317
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=318
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=319
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=320
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=321
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=322
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=323
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=324
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=325
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=326
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=327
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=328
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=329
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=330
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=331
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=332
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=333
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=334
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=335
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=336
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=337
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=338
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=339
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=340
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=341
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=342
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=343
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=344
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=345
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=346
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=347
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=348
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=349
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=350
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=351
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=352
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=353
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=354
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=355
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=356
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=357
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=358
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=359
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=360
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=361
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=362
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=363
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=364
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=365
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=366
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=367
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=368
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=369
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=370
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=371
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=372
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=373
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=374
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=375
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=376
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=377
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=378
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=379
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=380
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=381
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=382
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=383
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=384
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=385
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=386
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=387
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=388
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=389
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=390
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=391
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=392
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=393
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=394
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=395
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=396
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=397
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=398
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=399
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=400
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=401
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=402
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=403
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=404
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=405
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=406
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=407
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=408
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=409
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=410
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=411
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=412
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=413
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=414
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=415
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=416
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=417
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=418
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=419
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=420
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=421
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=422
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=423
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=424
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=425
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=426
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=427
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=428
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=429
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=430
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=431
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=432
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=433
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=434
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=435
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=436
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=437
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=438
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=439
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=440
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=441
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=442
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=443
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=444
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=445
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=446
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=447
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=448
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=449
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=450
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=451
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=452
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=453
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=454
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=455
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=456
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=457
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=458
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=459
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=460
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=461
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=462
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=463
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=464
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=465
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=466
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=467
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=468
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=469
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=470
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=471
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=472
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=473
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=474
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=475
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=476
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=477
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=478
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=479
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=480
+[service] dispatch GET /api/variables
+[angular_http] /api/variables
+[http] GET /api/variables -> 200 application/json request_index=481
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=482
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=483
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=484
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=485
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=486
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=487
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=488
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=489
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=490
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=491
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=492
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=493
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=494
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=495
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=496
+[service] dispatch GET /api/variables
+[angular_http] /api/variables
+[http] GET /api/variables -> 200 application/json request_index=497
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=498
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=499
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=500
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=501
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=502
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=503
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=504
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=505
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=506
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=507
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=508
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=509
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=510
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=511
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=512
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=513
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=514
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=515
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=516
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=517
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=518
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=519
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=520
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=521
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=522
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=523
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=524
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=525
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=526
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=527
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=528
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=529
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=530
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=531
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=532
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=533
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=534
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=535
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=536
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=537
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=538
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=539
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=540
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=541
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=542
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=543
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=544
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=545
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=546
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=547
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=548
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=549
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=550
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=551
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=552
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=553
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=554
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=555
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=556
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=557
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=558
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=559
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=560
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=561
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=562
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=563
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=564
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=565
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=566
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=567
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=568
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=569
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=570
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=571
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=572
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=573
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=574
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=575
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=576
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=577
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=578
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=579
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=580
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=581
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=582
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=583
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=584
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=585
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=586
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=587
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=588
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=589
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=590
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=591
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=592
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=593
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=594
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=595
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=596
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=597
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=598
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=599
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=600
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=601
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=602
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=603
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=604
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=605
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=606
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=607
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=608
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=609
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=610
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=611
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=612
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=613
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=614
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=615
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=616
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=617
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=618
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=619
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=620
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=621
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=622
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=623
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=624
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=625
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=626
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=627
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=628
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=629
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=630
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=631
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=632
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=633
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=634
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=635
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=636
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=637
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=638
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=639
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=640
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=641
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=642
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=643
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=644
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=645
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=646
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=647
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=648
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=649
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=650
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=651
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=652
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=653
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=654
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=655
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=656
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=657
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=658
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=659
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=660
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=661
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=662
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=663
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=664
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=665
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=666
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=667
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=668
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=669
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=670
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=671
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=672
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=673
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=674
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=675
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=676
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=677
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=678
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=679
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=680
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=681
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=682
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=683
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=684
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=685
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=686
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=687
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=688
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=689
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=690
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=691
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=692
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=693
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=694
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=695
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=696
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=697
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=698
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=699
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=700
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=701
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=702
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=703
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=704
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=705
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=706
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=707
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=708
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=709
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=710
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=711
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=712
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=713
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=714
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=715
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=716
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=717
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=718
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=719
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=720
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=721
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=722
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=723
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=724
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=725
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=726
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=727
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=728
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=729
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=730
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=731
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=732
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=733
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=734
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=735
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=736
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=737
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=738
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=739
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=740
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=741
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=742
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=743
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=744
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=745
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=746
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=747
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=748
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=749
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=750
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=751
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=752
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=753
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=754
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=755
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=756
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=757
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=758
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=759
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=760
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=761
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=762
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=763
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=764
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=765
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=766
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=767
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=768
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=769
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=770
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=771
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=772
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=773
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=774
+[service] dispatch GET /api/variables
+[angular_http] /api/variables
+[http] GET /api/variables -> 200 application/json request_index=775
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=776
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=777
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=778
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=779
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=780
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=781
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=782
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=783
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=784
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=785
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=786
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=787
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=788
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=789
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=790
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=791
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=792
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=793
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=794
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=795
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=796
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=797
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=798
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=799
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=800
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=801
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=802
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=803
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=804
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=805
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=806
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=807
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=808
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=809
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=810
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=811
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=812
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=813
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=814
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=815
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=816
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=817
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=818
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=819
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=820
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=821
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=822
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=823
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=824
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=825
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=826
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=827
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=828
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=829
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=830
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=831
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=832
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=833
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=834
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=835
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=836
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=837
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=838
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=839
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=840
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=841
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=842
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=843
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=844
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=845
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=846
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=847
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=848
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=849
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=850
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=851
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=852
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=853
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=854
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=855
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=856
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=857
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=858
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=859
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=860
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=861
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=862
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=863
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=864
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=865
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=866
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=867
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=868
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=869
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=870
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=871
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=872
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=873
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=874
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=875
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=876
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=877
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=878
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=879
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=880
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=881
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=882
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=883
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=884
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=885
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=886
+[service] dispatch GET /api/history
+[angular_http] /api/history
+[http] GET /api/history -> 200 application/json request_index=887
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=888
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=889
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=890
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=891
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=892
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=893
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=894
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=895
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=896
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=897
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=898
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=899
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=900
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=901
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=902
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=903
+[service] dispatch GET /api/live
+[angular_http] /api/live
+[http] GET /api/live -> 200 application/json request_index=904
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=905
+[service] dispatch GET /api/motion
+[angular_http] /api/motion
+[http] GET /api/motion -> 200 application/json request_index=906

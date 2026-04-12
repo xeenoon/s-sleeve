@@ -1,0 +1,348 @@
+EJS Backend Compiler Plan
+
+Goal
+
+Add an Express-like backend authoring subset with EJS-style server-rendered templates, compiled into the existing C HTTP runtime, without disrupting the current frontend component compiler.
+
+Core Principle
+
+Keep frontend component compilation and backend server-template compilation as separate pipelines.
+
+Do not:
+- route EJS through the frontend `.component.html` compiler
+- teach the frontend template compiler about `<% %>`
+- mix server-render logic into the selector-based component composition path
+
+Do:
+- add a backend source folder
+- parse backend routes separately
+- parse EJS views separately
+- compile both into C handlers and render functions
+
+Current Compiler/Runtime Pieces To Reuse
+
+1. HTTP runtime
+- windows_compiler/helpers/include/net/http_server.h
+- windows_compiler/helpers/include/net/http_service.h
+
+2. JSON utilities
+- windows_compiler/helpers/include/data/json.h
+- windows_compiler/helpers/src/data/json.c
+
+3. String builder
+- windows_compiler/helpers/include/support/stringbuilder.h
+- windows_compiler/helpers/src/support/stringbuilder.c
+
+4. Existing generated route infrastructure
+- windows_compiler/src/generator.c
+  - `generator_collect_route_assets(...)`
+  - `generator_emit_http_service_header(...)`
+  - `generator_emit_http_service_source(...)`
+
+These are the main pieces to piggyback on so we do not build a second backend stack.
+
+New Source Layout
+
+Add:
+- `angular_app/server/app.server.js`
+- `angular_app/server/views/*.ejs`
+
+Frontend stays where it is:
+- `angular_app/app.component.*`
+- `angular_app/components/*.component.*`
+- `angular_app/app.js`
+- `angular_app/routes/*` for static route fixtures where still useful
+
+Minimal Backend Authoring Subset
+
+Support only:
+- `server.get(path, (req, res) => { ... })`
+- `server.post(path, (req, res) => { ... })`
+- `res.json(objectLiteral)`
+- `res.send(stringLiteral)`
+- `res.status(code).json(objectLiteral)`
+- `res.render('templateName', objectLiteral)`
+
+Optional first-pass builtins:
+- `state.get('name')`
+- `sensor.read()`
+- `config.get('name')`
+
+Do not support initially:
+- middleware
+- `next()`
+- imports/require
+- async/await
+- streams
+- filesystem
+- full Node globals
+
+EJS Subset
+
+First-pass EJS syntax:
+- raw HTML/text
+- `<%= expr %>` escaped output
+- `<%- expr %>` raw output
+- `<% if (expr) { %> ... <% } %>`
+
+Later:
+- loops
+- partial includes
+
+Avoid in first pass:
+- arbitrary JS execution
+- complex nested control flow
+
+New IR Structures
+
+Backend route IR:
+
+```c
+typedef enum {
+  NG_SERVER_METHOD_GET = 0,
+  NG_SERVER_METHOD_POST = 1
+} ng_server_method_t;
+
+typedef enum {
+  NG_RESPONSE_JSON = 0,
+  NG_RESPONSE_TEXT,
+  NG_RESPONSE_RENDER
+} ng_server_response_kind_t;
+
+typedef struct {
+  char method[8];
+  char path[256];
+  ng_server_response_kind_t response_kind;
+  char template_name[128];
+  char object_source[4096];
+  int status_code;
+} ng_server_route_ir_t;
+```
+
+Template IR:
+
+```c
+typedef enum {
+  NG_EJS_NODE_TEXT = 0,
+  NG_EJS_NODE_EXPR,
+  NG_EJS_NODE_RAW_EXPR,
+  NG_EJS_NODE_IF_OPEN,
+  NG_EJS_NODE_IF_CLOSE
+} ng_ejs_node_kind_t;
+
+typedef struct {
+  ng_ejs_node_kind_t kind;
+  char text[512];
+} ng_ejs_node_t;
+
+typedef struct {
+  char name[128];
+  ng_ejs_node_t nodes[512];
+  size_t node_count;
+} ng_ejs_template_t;
+```
+
+Locals render context:
+
+```c
+typedef enum {
+  NG_LOCAL_NULL = 0,
+  NG_LOCAL_BOOL,
+  NG_LOCAL_INT,
+  NG_LOCAL_DOUBLE,
+  NG_LOCAL_STRING
+} ng_local_kind_t;
+
+typedef struct {
+  const char *name;
+  ng_local_kind_t kind;
+  union {
+    int int_value;
+    double double_value;
+    int bool_value;
+    const char *string_value;
+  } data;
+} ng_local_slot_t;
+
+typedef struct {
+  ng_local_slot_t slots[64];
+  size_t slot_count;
+} ng_render_context_t;
+```
+
+Template registry entry:
+
+```c
+typedef int (*ng_template_render_fn)(const ng_render_context_t *locals,
+                                     ng_http_response_t *response);
+
+typedef struct {
+  const char *name;
+  ng_template_render_fn render;
+} ng_template_entry_t;
+```
+
+Compiler Pipeline
+
+1. Frontend compile remains unchanged
+- discover components
+- compose selectors
+- emit `index.html`, `styles.css`, `app.js`
+
+2. Backend route discovery
+- scan `angular_app/server`
+- parse `app.server.js`
+- build route IR for `server.get/post(...)`
+
+3. EJS discovery
+- scan `angular_app/server/views`
+- parse `*.ejs`
+- build template IR
+
+4. Codegen
+- generate template render functions into C
+- generate backend route handlers into C
+- register those handlers into existing generated HTTP service
+
+5. Runtime integration
+- on Windows, hook generated routes into `ng_http_service_t`
+- later, mirror the same IR into embedded `WebServer`
+
+How To Avoid Breaking Existing Code
+
+1. Keep `generator_collect_route_assets(...)` working
+- static fixture routes under `angular_app/routes` continue to work
+- backend-authored routes are additive
+
+2. Add a new backend generation stage instead of replacing route generation
+- route assets still compile as before
+- backend-authored handlers are merged into the generated route table
+
+3. Keep frontend assets untouched
+- `index.html`, `styles.css`, `app.js` generation path should not change semantically
+
+4. Keep backend parser isolated from frontend parser
+- no EJS support in `.component.html`
+- no server syntax in `.component.ng`
+
+Implementation Order
+
+Phase 1. Backend discovery scaffolding
+- add server parser/codegen files:
+  - `windows_compiler/include/server_ir.h`
+  - `windows_compiler/src/server_parser.c`
+  - `windows_compiler/src/server_codegen.c`
+- add EJS parser/codegen files:
+  - `windows_compiler/include/ejs_ir.h`
+  - `windows_compiler/src/ejs_parser.c`
+  - `windows_compiler/src/ejs_codegen.c`
+
+Phase 2. Route parser
+- parse:
+  - `server.get('/path', (req, res) => { ... })`
+  - `server.post('/path', (req, res) => { ... })`
+- support only one response statement in the first pass
+
+Phase 3. EJS parser
+- tokenize text vs EJS blocks
+- build node list
+- support:
+  - text
+  - `<%= expr %>`
+  - `<%- expr %>`
+  - simple `if`
+
+Phase 4. Codegen to C render functions
+- render functions use `stringbuilder`
+- expressions resolve against `ng_render_context_t`
+- output ends in `ng_http_response_set_text(...)`
+
+Phase 5. Merge generated backend routes into HTTP service
+- existing static routes remain
+- new compiled handlers are added ahead of or alongside static ones
+
+Phase 6. Tests
+
+Unit tests:
+- server route parser tests
+- EJS parser tests
+- EJS codegen/render tests
+
+Integration tests:
+- compiled server serves:
+  - normal JSON route
+  - rendered EJS route
+- validate body contents via `Invoke-WebRequest`
+
+Recommended First Concrete Backend Example
+
+1. Add:
+- `angular_app/server/app.server.js`
+- `angular_app/server/views/variables.ejs`
+
+2. Route example:
+
+```js
+server.get('/variables-server', (req, res) => {
+  res.render('variables', {
+    title: 'Variables',
+    status: 'Loaded'
+  });
+});
+```
+
+3. EJS example:
+
+```ejs
+<!DOCTYPE html>
+<html>
+<body>
+  <h1><%= title %></h1>
+  <p><%= status %></p>
+</body>
+</html>
+```
+
+4. Generated C result:
+- route handler calls template render function
+- render function writes the final HTML using `stringbuilder`
+
+Test Plan
+
+Unit tests:
+- parser extracts route path/method/response kind
+- parser extracts `render('variables', {...})`
+- EJS parser creates correct node sequence
+- render function outputs substituted HTML
+
+Integration:
+- regenerate `windows_compiler/angular_test`
+- rebuild generated demo
+- `Invoke-WebRequest http://127.0.0.1:<port>/variables-server`
+- verify:
+  - HTTP 200
+  - HTML contains substituted values
+  - no raw `<%=`
+
+Non-Goals For First Pass
+
+- full Express
+- full EJS
+- includes/partials
+- middleware
+- real request body parsing into nested objects
+- async semantics
+
+Expected Result
+
+After this refactor, the compiler will support:
+- frontend Angular-like component authoring
+- backend Express-like route authoring
+- server-rendered EJS-style pages
+
+All compiled into:
+- C route handlers
+- C template render functions
+- existing Windows HTTP runtime
+
+without altering the current frontend compilation semantics.

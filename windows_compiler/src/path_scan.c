@@ -20,6 +20,7 @@ static int has_supported_extension(const char *path) {
   return strcmp(last_dot, ".ng") == 0 ||
          strcmp(last_dot, ".html") == 0 ||
          strcmp(last_dot, ".css") == 0 ||
+         strcmp(last_dot, ".ejs") == 0 ||
          strcmp(last_dot, ".ts") == 0 ||
          strcmp(last_dot, ".js") == 0 ||
          strcmp(last_dot, ".json") == 0 ||

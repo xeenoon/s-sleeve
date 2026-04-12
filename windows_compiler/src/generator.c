@@ -5,11 +5,13 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "ejs_ir.h"
 #include "file_io.h"
 #include "js_codegen.h"
 #include "log.h"
 #include "output_fs.h"
 #include "path_scan.h"
+#include "server_ir.h"
 
 typedef struct {
   char runtime_category[64];
@@ -72,6 +74,11 @@ typedef struct {
   generator_route_asset_t routes[GENERATOR_MAX_ROUTES];
   size_t route_count;
 } generator_route_collection_t;
+
+typedef struct {
+  ng_server_route_set_t routes;
+  ng_ejs_template_set_t templates;
+} generator_backend_assets_t;
 
 typedef enum {
   GENERATOR_FIELD_VALUE_UNKNOWN = 0,
@@ -899,6 +906,44 @@ static void generator_free_route_assets(generator_route_collection_t *collection
   }
 }
 
+static int generator_backend_has_template(const ng_ejs_template_set_t *templates, const char *name) {
+  size_t index;
+  for (index = 0; index < templates->template_count; ++index) {
+    if (strcmp(templates->templates[index].name, name) == 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+static int generator_collect_backend_assets(const char *input_dir, generator_backend_assets_t *backend) {
+  char server_root[512];
+  char views_root[512];
+  size_t index;
+
+  memset(backend, 0, sizeof(*backend));
+  generator_build_path(server_root, sizeof(server_root), input_dir, "server");
+  generator_build_path(views_root, sizeof(views_root), server_root, "views");
+
+  if (server_parser_collect(server_root, &backend->routes) != 0) {
+    return 1;
+  }
+  if (ejs_parser_collect(views_root, &backend->templates) != 0) {
+    return 1;
+  }
+
+  for (index = 0; index < backend->routes.route_count; ++index) {
+    const ng_server_route_ir_t *route = &backend->routes.routes[index];
+    if (route->response_kind == NG_RESPONSE_RENDER &&
+        !generator_backend_has_template(&backend->templates, route->template_name)) {
+      log_errorf("missing EJS template for route %s: %s\n", route->path, route->template_name);
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 static void generator_escape_c_string(char *buffer, size_t buffer_size, const char *text) {
   size_t cursor = 0;
   size_t index = 0;
@@ -1580,7 +1625,9 @@ static int generator_emit_member_source(const char *output_dir,
   return output_fs_write_text(path, body);
 }
 
-static int generator_emit_http_service_header(const char *output_dir, size_t route_count) {
+static int generator_emit_http_service_header(const char *output_dir,
+                                              size_t static_route_count,
+                                              size_t total_route_count) {
   char header_text[4096];
 
   snprintf(header_text,
@@ -1589,6 +1636,7 @@ static int generator_emit_http_service_header(const char *output_dir, size_t rou
            "#define ANGULAR_HTTP_SERVICE_H\n\n"
            "#include \"helpers/include/runtime/app_runtime.h\"\n"
            "#include \"helpers/include/net/http_service.h\"\n\n"
+           "#define ANGULAR_STATIC_ROUTE_COUNT %zu\n"
            "#define ANGULAR_GENERATED_ROUTE_COUNT %zu\n\n"
            "typedef struct {\n"
            "  const char *method;\n"
@@ -1600,7 +1648,7 @@ static int generator_emit_http_service_header(const char *output_dir, size_t rou
            "  ng_runtime_t *runtime;\n"
            "  ng_http_service_t service;\n"
            "  ng_http_route_t routes[ANGULAR_GENERATED_ROUTE_COUNT > 0 ? ANGULAR_GENERATED_ROUTE_COUNT : 1];\n"
-           "  angular_generated_route_t generated_routes[ANGULAR_GENERATED_ROUTE_COUNT > 0 ? ANGULAR_GENERATED_ROUTE_COUNT : 1];\n"
+           "  angular_generated_route_t generated_routes[ANGULAR_STATIC_ROUTE_COUNT > 0 ? ANGULAR_STATIC_ROUTE_COUNT : 1];\n"
            "} angular_http_service_t;\n\n"
            "void angular_http_service_init(angular_http_service_t *service,\n"
            "                               ng_runtime_t *runtime,\n"
@@ -1608,21 +1656,48 @@ static int generator_emit_http_service_header(const char *output_dir, size_t rou
            "                               const char *css_text,\n"
            "                               const char *js_text);\n\n"
            "#endif\n",
-           route_count);
+           static_route_count,
+           total_route_count);
 
   return generator_write_text_asset(output_dir, "angular_http_service.h", header_text);
 }
 
 static int generator_emit_http_service_source(const char *output_dir,
-                                              const generator_route_collection_t *routes) {
-  char source_text[524288];
-  char route_bodies[262144] = "";
-  char route_table[16384] = "";
-  char route_init[16384] = "";
+                                              const generator_route_collection_t *routes,
+                                              const generator_backend_assets_t *backend) {
+  char *source_text;
+  char *route_bodies;
+  char *route_table;
+  char *route_init;
+  ng_server_codegen_result_t *backend_codegen;
+  int result;
   size_t body_cursor = 0;
   size_t table_cursor = 0;
   size_t init_cursor = 0;
   size_t index;
+
+  source_text = (char *)calloc(1, 524288);
+  route_bodies = (char *)calloc(1, 262144);
+  route_table = (char *)calloc(1, 16384);
+  route_init = (char *)calloc(1, 16384);
+  backend_codegen = (ng_server_codegen_result_t *)calloc(1, sizeof(*backend_codegen));
+  if (source_text == NULL || route_bodies == NULL || route_table == NULL || route_init == NULL || backend_codegen == NULL) {
+    free(source_text);
+    free(route_bodies);
+    free(route_table);
+    free(route_init);
+    free(backend_codegen);
+    return 1;
+  }
+
+  if (server_codegen_emit(&backend->routes, &backend->templates, routes->route_count, backend_codegen) != 0) {
+    free(source_text);
+    free(route_bodies);
+    free(route_table);
+    free(route_init);
+    free(backend_codegen);
+    return 1;
+  }
 
   for (index = 0; index < routes->route_count; ++index) {
     char escaped_body[65536];
@@ -1634,19 +1709,19 @@ static int generator_emit_http_service_source(const char *output_dir,
               route->body.size,
               strlen(escaped_body));
     body_cursor += (size_t)snprintf(route_bodies + body_cursor,
-                                    sizeof(route_bodies) - body_cursor,
+                                    262144 - body_cursor,
                                     "static const char g_route_body_%zu[] = \"%s\";\n",
                                     index,
                                     escaped_body);
     table_cursor += (size_t)snprintf(route_table + table_cursor,
-                                     sizeof(route_table) - table_cursor,
+                                     16384 - table_cursor,
                                      "  { \"%s\", \"%s\", \"%s\", g_route_body_%zu },\n",
                                      route->method,
                                      route->path,
                                      route->content_type,
                                      index);
     init_cursor += (size_t)snprintf(route_init + init_cursor,
-                                    sizeof(route_init) - init_cursor,
+                                    16384 - init_cursor,
                                     "  service->routes[%zu].method = service->generated_routes[%zu].method;\n"
                                     "  service->routes[%zu].path = service->generated_routes[%zu].path;\n"
                                     "  service->routes[%zu].handler = angular_http_write_generated_route;\n"
@@ -1658,14 +1733,16 @@ static int generator_emit_http_service_source(const char *output_dir,
   }
 
   snprintf(source_text,
-           sizeof(source_text),
+           524288,
            "#include \"angular_http_service.h\"\n\n"
            "#include <stdio.h>\n"
            "#include <string.h>\n"
            "#include <stdlib.h>\n"
            "#include \"helpers/include/data/json.h\"\n\n"
+           "#include \"helpers/include/support/stringbuilder.h\"\n\n"
            "%s\n"
-           "static const angular_generated_route_t g_generated_routes[ANGULAR_GENERATED_ROUTE_COUNT > 0 ? ANGULAR_GENERATED_ROUTE_COUNT : 1] = {\n"
+           "%s\n"
+           "static const angular_generated_route_t g_generated_routes[ANGULAR_STATIC_ROUTE_COUNT > 0 ? ANGULAR_STATIC_ROUTE_COUNT : 1] = {\n"
            "%s"
            "};\n\n"
            "static void angular_http_log(const char *message) {\n"
@@ -1701,6 +1778,7 @@ static int generator_emit_http_service_source(const char *output_dir,
            "  }\n"
            "  return 0;\n"
            "}\n\n"
+           "%s\n"
            "void angular_http_service_init(angular_http_service_t *service,\n"
            "                               ng_runtime_t *runtime,\n"
            "                               const char *html_page,\n"
@@ -1708,17 +1786,27 @@ static int generator_emit_http_service_source(const char *output_dir,
            "                               const char *js_text) {\n"
            "  size_t index;\n"
            "  service->runtime = runtime;\n"
-           "  for (index = 0; index < ANGULAR_GENERATED_ROUTE_COUNT; ++index) {\n"
+           "  for (index = 0; index < ANGULAR_STATIC_ROUTE_COUNT; ++index) {\n"
            "    service->generated_routes[index] = g_generated_routes[index];\n"
            "  }\n"
+           "%s"
            "%s"
            "  ng_http_service_init(&service->service, html_page, css_text, js_text, service->routes, ANGULAR_GENERATED_ROUTE_COUNT);\n"
            "}\n",
            route_bodies,
+           backend_codegen->support_source,
            route_table,
-           route_init);
+           backend_codegen->route_source,
+           route_init,
+           backend_codegen->route_init);
 
-  return generator_write_text_asset(output_dir, "angular_http_service.c", source_text);
+  result = generator_write_text_asset(output_dir, "angular_http_service.c", source_text);
+  free(source_text);
+  free(route_bodies);
+  free(route_table);
+  free(route_init);
+  free(backend_codegen);
+  return result;
 }
 
 static int generator_emit_demo_file(const char *output_dir) {
@@ -2377,39 +2465,62 @@ int generator_generate_demo_files(const char *output_dir,
                                   const char *html_source,
                                   const char *css_source) {
   generator_route_collection_t routes;
+  generator_backend_assets_t *backend;
+  size_t total_route_count;
+
+  backend = (generator_backend_assets_t *)calloc(1, sizeof(*backend));
+  if (backend == NULL) {
+    return 1;
+  }
 
   if (generator_collect_route_assets(input_dir, &routes) != 0) {
+    free(backend);
     return 1;
   }
-  if (generator_emit_http_service_header(output_dir, routes.route_count) != 0) {
+  if (generator_collect_backend_assets(input_dir, backend) != 0) {
     generator_free_route_assets(&routes);
+    free(backend);
     return 1;
   }
-  if (generator_emit_http_service_source(output_dir, &routes) != 0) {
+
+  total_route_count = routes.route_count + backend->routes.route_count;
+  if (generator_emit_http_service_header(output_dir, routes.route_count, total_route_count) != 0) {
     generator_free_route_assets(&routes);
+    free(backend);
+    return 1;
+  }
+  if (generator_emit_http_service_source(output_dir, &routes, backend) != 0) {
+    generator_free_route_assets(&routes);
+    free(backend);
     return 1;
   }
   if (generator_emit_demo_file(output_dir) != 0) {
     generator_free_route_assets(&routes);
+    free(backend);
     return 1;
   }
   if (generator_emit_index_html(output_dir, component, html_source) != 0) {
     generator_free_route_assets(&routes);
+    free(backend);
     return 1;
   }
   if (generator_emit_styles_css(output_dir, css_source) != 0) {
     generator_free_route_assets(&routes);
+    free(backend);
     return 1;
   }
   if (generator_emit_app_js(output_dir, input_dir, component) != 0) {
     generator_free_route_assets(&routes);
+    free(backend);
     return 1;
   }
   if (generator_emit_makefile(output_dir, component) != 0) {
     generator_free_route_assets(&routes);
+    free(backend);
     return 1;
   }
   generator_free_route_assets(&routes);
+  free(backend);
   return 0;
 }
 

@@ -16,11 +16,15 @@ SOURCES := \
 	$(SRC_DIR)/component_compose.c \
 	$(SRC_DIR)/component_registry.c \
 	$(SRC_DIR)/file_io.c \
+	$(SRC_DIR)/ejs_codegen.c \
+	$(SRC_DIR)/ejs_parser.c \
 	$(SRC_DIR)/generator.c \
 	$(SRC_DIR)/js_codegen.c \
 	$(SRC_DIR)/log.c \
 	$(SRC_DIR)/output_fs.c \
 	$(SRC_DIR)/path_scan.c \
+	$(SRC_DIR)/server_codegen.c \
+	$(SRC_DIR)/server_parser.c \
 	src/tokenizer/src/token.c \
 	src/tokenizer/src/tokenizer.c \
 	src/parser/src/ast.c \
@@ -35,11 +39,15 @@ OBJECTS := \
 	$(OBJ_DIR)/component_compose.o \
 	$(OBJ_DIR)/component_registry.o \
 	$(OBJ_DIR)/file_io.o \
+	$(OBJ_DIR)/ejs_codegen.o \
+	$(OBJ_DIR)/ejs_parser.o \
 	$(OBJ_DIR)/generator.o \
 	$(OBJ_DIR)/js_codegen.o \
 	$(OBJ_DIR)/log.o \
 	$(OBJ_DIR)/output_fs.o \
 	$(OBJ_DIR)/path_scan.o \
+	$(OBJ_DIR)/server_codegen.o \
+	$(OBJ_DIR)/server_parser.o \
 	$(OBJ_DIR)/token.o \
 	$(OBJ_DIR)/tokenizer.o \
 	$(OBJ_DIR)/ast.o \
@@ -53,16 +61,24 @@ DEPENDENCIES := $(OBJECTS:.o=.d)
 TEST_SOURCES := \
 	tests/test_main.c \
 	tests/test_component_registry.c \
-	tests/test_component_compose.c
+	tests/test_component_compose.c \
+	tests/test_server_backend.c
 
 TEST_OBJECTS := \
 	$(OBJ_DIR)/test_main.o \
 	$(OBJ_DIR)/test_component_registry.o \
 	$(OBJ_DIR)/test_component_compose.o \
+	$(OBJ_DIR)/test_server_backend.o \
 	$(OBJ_DIR)/component_compose.o \
 	$(OBJ_DIR)/component_registry.o \
+	$(OBJ_DIR)/ejs_codegen.o \
+	$(OBJ_DIR)/ejs_parser.o \
 	$(OBJ_DIR)/file_io.o \
 	$(OBJ_DIR)/log.o \
+	$(OBJ_DIR)/output_fs.o \
+	$(OBJ_DIR)/path_scan.o \
+	$(OBJ_DIR)/server_codegen.o \
+	$(OBJ_DIR)/server_parser.o \
 	$(OBJ_DIR)/token.o \
 	$(OBJ_DIR)/tokenizer.o \
 	$(OBJ_DIR)/ast.o \
