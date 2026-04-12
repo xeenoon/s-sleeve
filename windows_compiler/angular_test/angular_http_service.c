@@ -206,6 +206,129 @@ static void __attribute__((unused)) angular_sb_append_raw_slot(stringbuilder *bu
   angular_sb_append_slot_value(builder, angular_render_context_find(context, name));
 }
 
+static int angular_render_operations_template(const ng_render_context_t *locals,
+                                        ng_http_response_t *response) {
+  stringbuilder *builder = init_builder();
+  char *rendered;
+  int set_result;
+  if (builder == NULL) {
+    response->status_code = 500;
+    return 0;
+  }
+  angular_sb_append_text(builder, "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>");
+  angular_sb_append_escaped_slot(builder, locals, "title");
+  angular_sb_append_text(builder, "</title>\n  <style>\n    :root {\n      --bg: #f1ece4;\n      --paper: rgba(255, 251, 246, 0.95);\n      --line: rgba(64, 46, 33, 0.12);\n      --text: #201711;\n      --muted: #6b584c;\n      --accent: #b45d32;\n      --good: #2f7b55;\n      --warn: #ba6a1f;\n      --shadow: 0 24px 56px rgba(47, 30, 19, 0.12);\n    }\n    * { box-sizing: border-box; }\n    body {\n      margin: 0;\n      font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;\n      color: var(--text);\n      background:\n        radial-gradient(circl");
+  angular_sb_append_escaped_slot(builder, locals, "title");
+  angular_sb_append_text(builder, "</h1>\n        <p class=\"subtitle\">");
+  angular_sb_append_escaped_slot(builder, locals, "subtitle");
+  angular_sb_append_text(builder, "</p>\n      </div>\n      <div>\n        <a href=\"/server\">Hub</a>\n        <a href=\"/\">Angular dashboard</a>\n      </div>\n    </section>\n\n    <section class=\"grid\">\n      <article class=\"panel\">\n        <div class=\"kicker\">");
+  angular_sb_append_escaped_slot(builder, locals, "panelState");
+  angular_sb_append_text(builder, "</div>\n        <div class=\"stack\">\n          <div class=\"tile\">\n            <strong>Deployment wave</strong>\n            Three clinics scheduled before the afternoon calibration block.\n          </div>\n          <div class=\"tile\">\n            <strong>Support roster</strong>\n            One fitter on standby, two therapy reviewers active, one educator preparing onboarding.\n          </div>\n          <div class=\"tile\">\n            <strong>Consumables</strong>\n            Sleeve liners, charging packs, and pr");
+  angular_sb_append_raw_slot(builder, locals, "calloutMarkup");
+  angular_sb_append_text(builder, "</div>\n      </article>");
+  if (angular_render_context_is_truthy(locals, "showBoard")) {
+  angular_sb_append_text(builder, "<aside class=\"panel board\">\n        <div class=\"status-row\">\n          <div class=\"status-card\">\n            <span>Ready to fit</span>\n            <strong>07</strong>\n          </div>\n          <div class=\"status-card\">\n            <span>Awaiting review</span>\n            <strong>04</strong>\n          </div>\n          <div class=\"status-card\">\n            <span>Courier handoff</span>\n            <strong>02</strong>\n          </div>\n          <div class=\"status-card\">\n            <span>Escalations</span>\n  ");
+  }
+  angular_sb_append_text(builder, "</section>\n\n    <div class=\"footer-links\" style=\"margin-top: 18px;\">\n      <a href=\"/server/reports\">Open reports</a>\n      <a href=\"/server/variables\">Open variables briefing</a>\n    </div>\n  </main>\n</body>\n</html>");
+  rendered = (char *)malloc((size_t)builder->writtenlen + 1u);
+  if (rendered == NULL) {
+    free_builder(builder);
+    response->status_code = 500;
+    return 0;
+  }
+  memcpy(rendered, builder->data, (size_t)builder->writtenlen);
+  rendered[builder->writtenlen] = '\0';
+  set_result = ng_http_response_set_text(response, rendered);
+  free(rendered);
+  free_builder(builder);
+  if (set_result != 0) {
+    response->status_code = 500;
+  }
+  return 0;
+}
+
+static int angular_render_reports_template(const ng_render_context_t *locals,
+                                        ng_http_response_t *response) {
+  stringbuilder *builder = init_builder();
+  char *rendered;
+  int set_result;
+  if (builder == NULL) {
+    response->status_code = 500;
+    return 0;
+  }
+  angular_sb_append_text(builder, "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>");
+  angular_sb_append_escaped_slot(builder, locals, "title");
+  angular_sb_append_text(builder, "</title>\n  <style>\n    :root {\n      --bg: #f4eee7;\n      --paper: rgba(255, 251, 246, 0.94);\n      --line: rgba(62, 45, 33, 0.12);\n      --text: #241b14;\n      --muted: #6f5c50;\n      --accent: #af5a31;\n      --good: #317c56;\n      --shadow: 0 24px 54px rgba(45, 28, 18, 0.12);\n    }\n    * { box-sizing: border-box; }\n    body {\n      margin: 0;\n      font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;\n      color: var(--text);\n      background:\n        radial-gradient(circle at top left, rgba(255");
+  angular_sb_append_escaped_slot(builder, locals, "title");
+  angular_sb_append_text(builder, "</h1>\n        <p class=\"subtitle\">");
+  angular_sb_append_escaped_slot(builder, locals, "subtitle");
+  angular_sb_append_text(builder, "</p>\n      </div>\n      <div>\n        <a href=\"/server\">Hub</a>\n        <a href=\"/server/operations\">Operations</a>\n        <a href=\"/\">Angular dashboard</a>\n      </div>\n    </section>\n\n    <section class=\"report-grid\">\n      <article class=\"panel\">\n        <div class=\"state\">");
+  angular_sb_append_escaped_slot(builder, locals, "reportState");
+  angular_sb_append_text(builder, "</div>");
+  if (angular_render_context_is_truthy(locals, "showDigest")) {
+  angular_sb_append_text(builder, "<div class=\"digest-grid\">\n          <div class=\"digest-card\">\n            <span>Adherence score</span>\n            <strong>94%</strong>\n          </div>\n          <div class=\"digest-card\">\n            <span>Sessions completed</span>\n            <strong>128</strong>\n          </div>\n          <div class=\"digest-card\">\n            <span>Alerts closed</span>\n            <strong>11</strong>\n          </div>\n        </div>");
+  }
+  angular_sb_append_text(builder, "<div class=\"note\">");
+  angular_sb_append_raw_slot(builder, locals, "insightMarkup");
+  angular_sb_append_text(builder, "</div>\n      </article>\n\n      <aside class=\"panel timeline\">\n        <div class=\"step\">\n          <strong>07:10</strong>\n          Overnight telemetry rolled into the review bundle and aligned with fit notes.\n        </div>\n        <div class=\"step\">\n          <strong>08:25</strong>\n          Mobility specialists cleared the top priority outreach list for the morning round.\n        </div>\n        <div class=\"step\">\n          <strong>09:40</strong>\n          Reporting page published for supervisors before ");
+  rendered = (char *)malloc((size_t)builder->writtenlen + 1u);
+  if (rendered == NULL) {
+    free_builder(builder);
+    response->status_code = 500;
+    return 0;
+  }
+  memcpy(rendered, builder->data, (size_t)builder->writtenlen);
+  rendered[builder->writtenlen] = '\0';
+  set_result = ng_http_response_set_text(response, rendered);
+  free(rendered);
+  free_builder(builder);
+  if (set_result != 0) {
+    response->status_code = 500;
+  }
+  return 0;
+}
+
+static int angular_render_server_home_template(const ng_render_context_t *locals,
+                                        ng_http_response_t *response) {
+  stringbuilder *builder = init_builder();
+  char *rendered;
+  int set_result;
+  if (builder == NULL) {
+    response->status_code = 500;
+    return 0;
+  }
+  angular_sb_append_text(builder, "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>");
+  angular_sb_append_escaped_slot(builder, locals, "title");
+  angular_sb_append_text(builder, "</title>\n  <style>\n    :root {\n      --bg: #f3ede5;\n      --paper: rgba(255, 250, 244, 0.92);\n      --text: #24170f;\n      --muted: #6c584b;\n      --accent: #b85d2f;\n      --accent-soft: rgba(184, 93, 47, 0.12);\n      --line: rgba(68, 46, 32, 0.12);\n      --good: #2d7c54;\n      --shadow: 0 28px 60px rgba(46, 29, 18, 0.12);\n    }\n    * { box-sizing: border-box; }\n    body {\n      margin: 0;\n      min-height: 100vh;\n      color: var(--text);\n      font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;");
+  angular_sb_append_escaped_slot(builder, locals, "title");
+  angular_sb_append_text(builder, "</h1>\n        <p class=\"subtitle\">");
+  angular_sb_append_escaped_slot(builder, locals, "subtitle");
+  angular_sb_append_text(builder, "</p>");
+  angular_sb_append_raw_slot(builder, locals, "heroMarkup");
+  angular_sb_append_text(builder, "<div class=\"cta-row\" style=\"margin-top: 20px;\">\n          <a class=\"primary\" href=\"/\">Jump into the Angular dashboard</a>\n          <a href=\"/server/reports\">Open morning reporting</a>\n        </div>\n      </article>\n\n      <aside class=\"panel status-card\">\n        <div class=\"status-pill\">\n          <span class=\"status-dot\"></span>\n          <span>");
+  angular_sb_append_escaped_slot(builder, locals, "status");
+  angular_sb_append_text(builder, "</span>\n        </div>\n        <div class=\"metrics\">\n          <div class=\"metric\">\n            <span>Care pathways</span>\n            <strong>12</strong>\n          </div>\n          <div class=\"metric\">\n            <span>Active monitors</span>\n            <strong>47</strong>\n          </div>\n          <div class=\"metric\">\n            <span>Review queue</span>\n            <strong>5</strong>\n          </div>\n          <div class=\"metric\">\n            <span>Pending kits</span>\n            <strong>7</strong>\n ");
+  if (angular_render_context_is_truthy(locals, "showHighlights")) {
+  angular_sb_append_text(builder, "<section class=\"highlights\">\n      <article class=\"card\">\n        <h2>Clinician handoff</h2>\n        <p>Use the server side hub to stage briefings, print-ready summaries, and stable low-JS entry pages for outreach teams.</p>\n      </article>\n      <article class=\"card\">\n        <h2>Angular handoff</h2>\n        <p>The live telemetry dashboard remains the rich client surface for motion playback, variables tuning, and observable-driven interactions.</p>\n      </article>\n      <article class=\"card\">\n        <h");
+  }
+  angular_sb_append_text(builder, "<div class=\"footer-links\">\n      <a href=\"/server/welcome.txt\">Plain text health route</a>\n      <a href=\"/server/api/launch\">POST launch endpoint</a>\n      <a href=\"/server/variables\">Printable variables view</a>\n    </div>\n  </main>\n</body>\n</html>");
+  rendered = (char *)malloc((size_t)builder->writtenlen + 1u);
+  if (rendered == NULL) {
+    free_builder(builder);
+    response->status_code = 500;
+    return 0;
+  }
+  memcpy(rendered, builder->data, (size_t)builder->writtenlen);
+  rendered[builder->writtenlen] = '\0';
+  set_result = ng_http_response_set_text(response, rendered);
+  free(rendered);
+  free_builder(builder);
+  if (set_result != 0) {
+    response->status_code = 500;
+  }
+  return 0;
+}
+
 static int angular_render_variables_template(const ng_render_context_t *locals,
                                         ng_http_response_t *response) {
   stringbuilder *builder = init_builder();
@@ -215,11 +338,21 @@ static int angular_render_variables_template(const ng_render_context_t *locals,
     response->status_code = 500;
     return 0;
   }
-  angular_sb_append_text(builder, "<!DOCTYPE html>\n<html>\n<body>\n  <h1>");
+  angular_sb_append_text(builder, "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>");
   angular_sb_append_escaped_slot(builder, locals, "title");
-  angular_sb_append_text(builder, "</h1>\n  <p>");
+  angular_sb_append_text(builder, "</title>\n  <style>\n    :root {\n      --bg: #f3eee7;\n      --paper: rgba(255, 250, 245, 0.94);\n      --line: rgba(64, 46, 33, 0.12);\n      --text: #241a13;\n      --muted: #6f5b4e;\n      --accent: #b65d31;\n      --shadow: 0 24px 56px rgba(46, 29, 18, 0.12);\n    }\n    * { box-sizing: border-box; }\n    body {\n      margin: 0;\n      font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif;\n      color: var(--text);\n      background:\n        radial-gradient(circle at right top, rgba(182, 93, 49, 0.13), trans");
+  angular_sb_append_escaped_slot(builder, locals, "title");
+  angular_sb_append_text(builder, "</h1>\n        <p class=\"status\">");
   angular_sb_append_escaped_slot(builder, locals, "status");
-  angular_sb_append_text(builder, "</p>\n</body>\n</html>");
+  angular_sb_append_text(builder, "</p>\n      </div>\n      <div>\n        <a href=\"/server\">Hub</a>\n        <a href=\"/\">Angular dashboard</a>\n      </div>\n    </section>\n\n    <section class=\"grid\">\n      <article class=\"card\">\n        <span>Goal threshold</span>\n        <strong>85%</strong>\n      </article>\n      <article class=\"card\">\n        <span>Sync cadence</span>\n        <strong>8s</strong>\n      </article>\n      <article class=\"card\">\n        <span>Write endpoint</span>\n        <strong>/api/variables</strong>\n      </article>\n    </se");
+  angular_sb_append_raw_slot(builder, locals, "hintMarkup");
+  angular_sb_append_text(builder, "<p>");
+  angular_sb_append_escaped_slot(builder, locals, "summary");
+  angular_sb_append_text(builder, "</p>\n    </div>");
+  if (angular_render_context_is_truthy(locals, "showChecklist")) {
+  angular_sb_append_text(builder, "<section class=\"checklist\">\n      <article class=\"item\">\n        <strong>Before a fitting session</strong>\n        Confirm the patient target range, brace alignment, and previous session notes.\n      </article>\n      <article class=\"item\">\n        <strong>During live tuning</strong>\n        Hand off to the Angular dashboard for real-time values, motion response, and save actions.\n      </article>\n    </section>");
+  }
+  angular_sb_append_text(builder, "</main>\n</body>\n</html>");
   rendered = (char *)malloc((size_t)builder->writtenlen + 1u);
   if (rendered == NULL) {
     free_builder(builder);
@@ -295,9 +428,103 @@ static int angular_backend_route_0(void *context,
   ng_render_context_t locals;
   angular_render_context_init(&locals);
   snprintf(response->content_type, sizeof(response->content_type), "text/html; charset=utf-8");
-  angular_render_context_add_string(&locals, "title", "Variables");
-  angular_render_context_add_string(&locals, "status", "Loaded");
+  angular_render_context_add_string(&locals, "title", "Hybrid Care Hub");
+  angular_render_context_add_string(&locals, "subtitle", "Server-rendered launch surface for clinicians, coordinators, and field teams.");
+  angular_render_context_add_string(&locals, "status", "Clinical sync stable");
+  angular_render_context_add_string(&locals, "heroMarkup", "<span class=\"hero-badge\">EJS route compiled into C</span>");
+  angular_render_context_add_bool(&locals, "showHighlights", 1);
+  return angular_render_server_home_template(&locals, response);
+}
+
+static int angular_backend_route_1(void *context,
+                                  const ng_http_request_t *request,
+                                  ng_http_response_t *response) {
+  (void)context;
+  (void)request;
+  response->status_code = 200;
+  ng_render_context_t locals;
+  angular_render_context_init(&locals);
+  snprintf(response->content_type, sizeof(response->content_type), "text/html; charset=utf-8");
+  angular_render_context_add_string(&locals, "title", "Operations Board");
+  angular_render_context_add_string(&locals, "subtitle", "Shift handoff snapshot for deployments, stock, and coaching readiness.");
+  angular_render_context_add_string(&locals, "panelState", "Field team green across the current roster.");
+  angular_render_context_add_string(&locals, "calloutMarkup", "<strong>Queue ready:</strong> seven sleeve kits staged for dispatch.");
+  angular_render_context_add_bool(&locals, "showBoard", 1);
+  return angular_render_operations_template(&locals, response);
+}
+
+static int angular_backend_route_2(void *context,
+                                  const ng_http_request_t *request,
+                                  ng_http_response_t *response) {
+  (void)context;
+  (void)request;
+  response->status_code = 200;
+  ng_render_context_t locals;
+  angular_render_context_init(&locals);
+  snprintf(response->content_type, sizeof(response->content_type), "text/html; charset=utf-8");
+  angular_render_context_add_string(&locals, "title", "Reporting Room");
+  angular_render_context_add_string(&locals, "subtitle", "Daily review surface for outcomes, compliance, and trend notes.");
+  angular_render_context_add_string(&locals, "reportState", "Morning digest compiled and ready for review.");
+  angular_render_context_add_string(&locals, "insightMarkup", "<em>Trend note:</em> step quality improved after the last fit adjustment block.");
+  angular_render_context_add_bool(&locals, "showDigest", 1);
+  return angular_render_reports_template(&locals, response);
+}
+
+static int angular_backend_route_3(void *context,
+                                  const ng_http_request_t *request,
+                                  ng_http_response_t *response) {
+  (void)context;
+  (void)request;
+  response->status_code = 200;
+  ng_render_context_t locals;
+  angular_render_context_init(&locals);
+  snprintf(response->content_type, sizeof(response->content_type), "text/html; charset=utf-8");
+  angular_render_context_add_string(&locals, "title", "Variables Console");
+  angular_render_context_add_string(&locals, "status", "Latest thresholds mirrored from the device configuration feed.");
+  angular_render_context_add_string(&locals, "summary", "Use the SPA when you need live tuning. Use this server page when you need a printable briefing view.");
+  angular_render_context_add_string(&locals, "hintMarkup", "<span class=\"inline-chip\">Hybrid workflow active</span>");
+  angular_render_context_add_bool(&locals, "showChecklist", 1);
   return angular_render_variables_template(&locals, response);
+}
+
+static int angular_backend_route_4(void *context,
+                                  const ng_http_request_t *request,
+                                  ng_http_response_t *response) {
+  (void)context;
+  (void)request;
+  response->status_code = 200;
+  snprintf(response->content_type, sizeof(response->content_type), "text/plain; charset=utf-8");
+  ng_http_response_set_text(response, "s-sleeve hybrid compiler demo is online");
+  return 0;
+}
+
+static int angular_backend_route_5(void *context,
+                                  const ng_http_request_t *request,
+                                  ng_http_response_t *response) {
+  (void)context;
+  (void)request;
+  response->status_code = 202;
+  json_data *root = init_json_object();
+  char *json_text = NULL;
+  if (root == NULL) {
+    response->status_code = 500;
+    angular_http_write_error_json(response, "json allocation failed");
+    return 0;
+  }
+  json_object_add_boolean(root, "ok", true);
+  json_object_add_number(root, "queued", 3);
+  json_object_add_string(root, "message", "Launch packet queued");
+  json_text = json_tostring(root);
+  json_free(root);
+  if (json_text == NULL) {
+    response->status_code = 500;
+    angular_http_write_error_json(response, "json serialization failed");
+    return 0;
+  }
+  snprintf(response->content_type, sizeof(response->content_type), "application/json; charset=utf-8");
+  ng_http_response_set_text(response, json_text);
+  free(json_text);
+  return 0;
 }
 
 
@@ -348,8 +575,28 @@ void angular_http_service_init(angular_http_service_t *service,
   service->routes[8].handler = angular_http_write_generated_route;
   service->routes[8].context = &service->generated_routes[8];
   service->routes[9].method = "GET";
-  service->routes[9].path = "/variables-server";
+  service->routes[9].path = "/server";
   service->routes[9].handler = angular_backend_route_0;
   service->routes[9].context = service;
+  service->routes[10].method = "GET";
+  service->routes[10].path = "/server/operations";
+  service->routes[10].handler = angular_backend_route_1;
+  service->routes[10].context = service;
+  service->routes[11].method = "GET";
+  service->routes[11].path = "/server/reports";
+  service->routes[11].handler = angular_backend_route_2;
+  service->routes[11].context = service;
+  service->routes[12].method = "GET";
+  service->routes[12].path = "/server/variables";
+  service->routes[12].handler = angular_backend_route_3;
+  service->routes[12].context = service;
+  service->routes[13].method = "GET";
+  service->routes[13].path = "/server/welcome.txt";
+  service->routes[13].handler = angular_backend_route_4;
+  service->routes[13].context = service;
+  service->routes[14].method = "POST";
+  service->routes[14].path = "/server/api/launch";
+  service->routes[14].handler = angular_backend_route_5;
+  service->routes[14].context = service;
   ng_http_service_init(&service->service, html_page, css_text, js_text, service->routes, ANGULAR_GENERATED_ROUTE_COUNT);
 }

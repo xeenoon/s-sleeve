@@ -5,7 +5,7 @@
 #include "helpers/include/net/http_service.h"
 
 #define ANGULAR_STATIC_ROUTE_COUNT 9
-#define ANGULAR_GENERATED_ROUTE_COUNT 10
+#define ANGULAR_GENERATED_ROUTE_COUNT 15
 
 typedef struct {
   const char *method;
