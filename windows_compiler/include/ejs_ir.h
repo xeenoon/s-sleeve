@@ -8,7 +8,10 @@ typedef enum {
   NG_EJS_NODE_EXPR,
   NG_EJS_NODE_RAW_EXPR,
   NG_EJS_NODE_IF_OPEN,
-  NG_EJS_NODE_IF_CLOSE
+  NG_EJS_NODE_ELSE,
+  NG_EJS_NODE_END,
+  NG_EJS_NODE_FOR_OPEN,
+  NG_EJS_NODE_INCLUDE
 } ng_ejs_node_kind_t;
 
 typedef struct {
@@ -18,6 +21,7 @@ typedef struct {
 
 typedef struct {
   char name[128];
+  char layout_name[128];
   ng_ejs_node_t nodes[512];
   size_t node_count;
 } ng_ejs_template_t;

@@ -118,6 +118,7 @@ static const char *g_helper_files[] = {
     "include\\net\\http_service.h",
     "include\\runtime\\app_runtime.h",
     "include\\runtime\\observable.h",
+    "include\\runtime\\server_runtime.h",
     "include\\support\\list.h",
     "include\\support\\stringbuilder.h",
     "src\\data\\json.c",
@@ -130,6 +131,7 @@ static const char *g_helper_files[] = {
     "src\\net\\http_service.c",
     "src\\runtime\\app_runtime.c",
     "src\\runtime\\observable.c",
+    "src\\runtime\\server_runtime.c",
     "src\\support\\stringbuilder.c"};
 
 static const char *g_generated_demo_files[] = {
@@ -1740,6 +1742,7 @@ static int generator_emit_http_service_source(const char *output_dir,
            "#include <stdlib.h>\n"
            "#include \"helpers/include/data/json.h\"\n\n"
            "#include \"helpers/include/support/stringbuilder.h\"\n\n"
+           "#include \"helpers/include/runtime/server_runtime.h\"\n\n"
            "%s\n"
            "%s\n"
            "static const angular_generated_route_t g_generated_routes[ANGULAR_STATIC_ROUTE_COUNT > 0 ? ANGULAR_STATIC_ROUTE_COUNT : 1] = {\n"
@@ -2219,6 +2222,7 @@ static int generator_emit_makefile(const char *output_dir, const ast_component_f
                              "\thelpers/src/net/http_service.c \\\n"
                              "\thelpers/src/runtime/app_runtime.c \\\n"
                              "\thelpers/src/runtime/observable.c \\\n"
+                             "\thelpers/src/runtime/server_runtime.c \\\n"
                              "\thelpers/src/support/stringbuilder.c\n\n"
                              ".PHONY: all clean run\n\n"
                              "all: $(TARGET)\n\n"

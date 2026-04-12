@@ -111,154 +111,71 @@ static int server_find_matching(const char *start, char open, char close, const 
   return 1;
 }
 
-static int server_parse_number_kind(const char *text, ng_local_kind_t *out_kind) {
-  size_t index = 0;
-  int has_decimal = 0;
-
-  if (text[index] == '-' || text[index] == '+') {
-    index += 1;
-  }
-  if (text[index] == '\0') {
-    return 1;
-  }
-
-  for (; text[index] != '\0'; ++index) {
-    if (text[index] == '.') {
-      if (has_decimal) {
-        return 1;
-      }
-      has_decimal = 1;
-      continue;
-    }
-    if (!isdigit((unsigned char)text[index])) {
-      return 1;
-    }
-  }
-
-  *out_kind = has_decimal ? NG_LOCAL_DOUBLE : NG_LOCAL_INT;
-  return 0;
-}
-
-static int server_parse_object_literal(const char *text,
-                                       ng_server_local_ir_t *locals,
-                                       size_t *in_out_count,
-                                       size_t max_count) {
-  const char *cursor = text;
-
-  server_skip_space(&cursor);
-  if (*cursor != '{') {
-    return 1;
-  }
-  cursor += 1;
+static int server_find_statement_end(const char *cursor, const char **out_end) {
+  size_t depth = 0;
+  char quote = '\0';
 
   while (*cursor != '\0') {
-    ng_server_local_ir_t *slot;
-    char key[64];
-    char value[256];
-    const char *value_start;
-    size_t depth = 0;
-    char quote = '\0';
-
-    server_skip_space(&cursor);
-    if (*cursor == '}') {
-      return 0;
-    }
-    if (*in_out_count >= max_count) {
-      return 1;
-    }
-
-    if (server_parse_quoted_string(&cursor, key, sizeof(key)) != 0) {
-      const char *ident_start = cursor;
-      while (isalnum((unsigned char)*cursor) || *cursor == '_') {
-        cursor += 1;
-      }
-      if (cursor == ident_start) {
-        return 1;
-      }
-      server_trim_copy(key, sizeof(key), ident_start, (size_t)(cursor - ident_start));
-    }
-
-    server_skip_space(&cursor);
-    if (*cursor != ':') {
-      return 1;
-    }
-    cursor += 1;
-    server_skip_space(&cursor);
-    value_start = cursor;
-
-    while (*cursor != '\0') {
-      if (quote != '\0') {
-        if (*cursor == '\\' && *(cursor + 1) != '\0') {
-          cursor += 2;
-          continue;
-        }
-        if (*cursor == quote) {
-          quote = '\0';
-        }
-        cursor += 1;
+    if (quote != '\0') {
+      if (*cursor == '\\' && *(cursor + 1) != '\0') {
+        cursor += 2;
         continue;
       }
-      if (*cursor == '\'' || *cursor == '"') {
-        quote = *cursor++;
-        continue;
+      if (*cursor == quote) {
+        quote = '\0';
       }
-      if (*cursor == '{' || *cursor == '[' || *cursor == '(') {
-        depth += 1;
-      } else if ((*cursor == '}' || *cursor == ']' || *cursor == ')') && depth > 0) {
-        depth -= 1;
-      } else if (depth == 0 && (*cursor == ',' || *cursor == '}')) {
-        break;
-      }
-      cursor += 1;
-    }
-
-    slot = &locals[*in_out_count];
-    memset(slot, 0, sizeof(*slot));
-    snprintf(slot->name, sizeof(slot->name), "%s", key);
-    server_trim_copy(value, sizeof(value), value_start, (size_t)(cursor - value_start));
-
-    if ((value[0] == '\'' || value[0] == '"') && value[strlen(value) - 1] == value[0]) {
-      size_t length = strlen(value);
-      slot->kind = NG_LOCAL_STRING;
-      memmove(value, value + 1, length - 2);
-      value[length - 2] = '\0';
-      snprintf(slot->value, sizeof(slot->value), "%s", value);
-    } else if (strcmp(value, "true") == 0 || strcmp(value, "false") == 0) {
-      slot->kind = NG_LOCAL_BOOL;
-      snprintf(slot->value, sizeof(slot->value), "%s", value);
-    } else if (strcmp(value, "null") == 0) {
-      slot->kind = NG_LOCAL_NULL;
-      slot->value[0] = '\0';
-    } else if (server_parse_number_kind(value, &slot->kind) == 0) {
-      snprintf(slot->value, sizeof(slot->value), "%s", value);
-    } else {
-      return 1;
-    }
-
-    *in_out_count += 1;
-    if (*cursor == ',') {
       cursor += 1;
       continue;
     }
-    if (*cursor == '}') {
+    if (*cursor == '\'' || *cursor == '"') {
+      quote = *cursor++;
+      continue;
+    }
+    if (*cursor == '(' || *cursor == '[' || *cursor == '{') {
+      depth += 1;
+    } else if ((*cursor == ')' || *cursor == ']' || *cursor == '}') && depth > 0) {
+      depth -= 1;
+    } else if (*cursor == ';' && depth == 0) {
+      *out_end = cursor;
       return 0;
     }
+    cursor += 1;
   }
-
   return 1;
 }
 
-static int server_parse_route_body(const char *body, ng_server_route_ir_t *route) {
-  const char *response = strstr(body, "res.");
-  const char *cursor;
-  const char *paren_start;
+static int server_parse_const_statement(const char *statement, ng_server_route_ir_t *route) {
+  const char *cursor = statement + 5;
+  const char *equals;
+  ng_server_binding_ir_t *binding;
 
-  route->status_code = 200;
-  if (response == NULL) {
+  server_skip_space(&cursor);
+  if (route->binding_count >= sizeof(route->bindings) / sizeof(route->bindings[0])) {
     return 1;
   }
 
-  cursor = response;
+  equals = strchr(cursor, '=');
+  if (equals == NULL) {
+    return 1;
+  }
+
+  binding = &route->bindings[route->binding_count];
+  memset(binding, 0, sizeof(*binding));
+  server_trim_copy(binding->name, sizeof(binding->name), cursor, (size_t)(equals - cursor));
+  server_trim_copy(binding->expr_source,
+                   sizeof(binding->expr_source),
+                   equals + 1,
+                   strlen(equals + 1));
+  route->binding_count += 1;
+  return binding->name[0] == '\0' || binding->expr_source[0] == '\0' ? 1 : 0;
+}
+
+static int server_parse_response_statement(const char *statement, ng_server_route_ir_t *route) {
+  const char *cursor = statement;
+  const char *paren_start;
+  const char *paren_end;
+
+  route->status_code = 200;
   if (strncmp(cursor, "res.status(", 11) == 0) {
     route->status_code = atoi(cursor + 11);
     cursor = strstr(cursor, ").");
@@ -266,41 +183,96 @@ static int server_parse_route_body(const char *body, ng_server_route_ir_t *route
       return 1;
     }
     cursor += 2;
-  } else {
+  } else if (strncmp(cursor, "res.", 4) == 0) {
     cursor += 4;
+  } else {
+    return 1;
   }
 
   if (strncmp(cursor, "json(", 5) == 0) {
     route->response_kind = NG_RESPONSE_JSON;
     paren_start = cursor + 5;
-    return server_parse_object_literal(paren_start, route->locals, &route->local_count, sizeof(route->locals) / sizeof(route->locals[0]));
+    if (server_find_matching(paren_start, '(', ')', &paren_end) != 0) {
+      paren_end = strrchr(paren_start, ')');
+      if (paren_end == NULL) {
+        return 1;
+      }
+    }
+    server_trim_copy(route->response_expr, sizeof(route->response_expr), paren_start, (size_t)(paren_end - paren_start));
+    return 0;
   }
 
   if (strncmp(cursor, "send(", 5) == 0) {
     route->response_kind = NG_RESPONSE_TEXT;
     paren_start = cursor + 5;
-    if (server_parse_quoted_string(&paren_start, route->response_text, sizeof(route->response_text)) != 0) {
-      return 1;
+    if (server_find_matching(paren_start, '(', ')', &paren_end) != 0) {
+      paren_end = strrchr(paren_start, ')');
+      if (paren_end == NULL) {
+        return 1;
+      }
     }
+    server_trim_copy(route->response_expr, sizeof(route->response_expr), paren_start, (size_t)(paren_end - paren_start));
     return 0;
   }
 
   if (strncmp(cursor, "render(", 7) == 0) {
+    const char *render_cursor = cursor + 7;
     route->response_kind = NG_RESPONSE_RENDER;
-    paren_start = cursor + 7;
-    if (server_parse_quoted_string(&paren_start, route->template_name, sizeof(route->template_name)) != 0) {
+    if (server_parse_quoted_string(&render_cursor, route->template_name, sizeof(route->template_name)) != 0) {
       return 1;
     }
-    server_skip_space(&paren_start);
-    if (*paren_start != ',') {
+    server_skip_space(&render_cursor);
+    if (*render_cursor != ',') {
       return 1;
     }
-    paren_start += 1;
-    server_skip_space(&paren_start);
-    return server_parse_object_literal(paren_start, route->locals, &route->local_count, sizeof(route->locals) / sizeof(route->locals[0]));
+    render_cursor += 1;
+    server_skip_space(&render_cursor);
+    paren_end = strrchr(render_cursor, ')');
+    if (paren_end == NULL) {
+      return 1;
+    }
+    server_trim_copy(route->model_expr, sizeof(route->model_expr), render_cursor, (size_t)(paren_end - render_cursor));
+    return 0;
   }
 
   return 1;
+}
+
+static int server_parse_route_body(const char *body, ng_server_route_ir_t *route) {
+  const char *cursor = body;
+
+  route->status_code = 200;
+  while (*cursor != '\0') {
+    const char *statement_end;
+    char statement[2048];
+
+    server_skip_space(&cursor);
+    if (*cursor == '\0') {
+      break;
+    }
+
+    if (server_find_statement_end(cursor, &statement_end) != 0) {
+      return 1;
+    }
+    server_trim_copy(statement, sizeof(statement), cursor, (size_t)(statement_end - cursor));
+    if (statement[0] != '\0') {
+      if (strncmp(statement, "const ", 6) == 0) {
+        if (server_parse_const_statement(statement, route) != 0) {
+          return 1;
+        }
+      } else if (strncmp(statement, "res.", 4) == 0) {
+        if (server_parse_response_statement(statement, route) != 0) {
+          return 1;
+        }
+      }
+    }
+    cursor = statement_end + 1;
+  }
+
+  return route->response_kind == NG_RESPONSE_JSON || route->response_kind == NG_RESPONSE_TEXT ||
+                 route->response_kind == NG_RESPONSE_RENDER
+             ? 0
+             : 1;
 }
 
 void ng_server_route_set_init(ng_server_route_set_t *set) {
@@ -326,6 +298,7 @@ int server_parser_parse_source(const char *source, ng_server_route_set_t *out_se
     const char *body_start;
     const char *body_end;
     const char *route_cursor;
+    char body[4096];
 
     if (call == NULL) {
       break;
@@ -358,20 +331,20 @@ int server_parser_parse_source(const char *source, ng_server_route_set_t *out_se
     }
 
     body_start = strchr(route_cursor, '{');
-    if (body_start == NULL || body_start > args_end) {
+    if (body_start == NULL || body_start >= args_end) {
       return 1;
     }
-    body_start += 1;
-    if (server_find_matching(body_start, '{', '}', &body_end) != 0) {
+    if (server_find_matching(body_start + 1, '{', '}', &body_end) != 0) {
       return 1;
     }
 
-    if (server_parse_route_body(body_start, route) != 0) {
+    server_trim_copy(body, sizeof(body), body_start + 1, (size_t)(body_end - (body_start + 1)));
+    if (server_parse_route_body(body, route) != 0) {
       return 1;
     }
 
     out_set->route_count += 1;
-    cursor = body_end + 1;
+    cursor = args_end + 1;
   }
 
   return 0;
@@ -397,11 +370,10 @@ int server_parser_collect(const char *server_root, ng_server_route_set_t *out_se
     return 1;
   }
 
+  ng_server_route_set_init(out_set);
   snprintf(path, sizeof(path), "%s\\app.server.js", server_root);
   if (!output_fs_file_exists(path)) {
-    ng_server_route_set_init(out_set);
     return 0;
   }
-
   return server_parser_parse_file(path, out_set);
 }

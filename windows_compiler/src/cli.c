@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
 
 #include "file_io.h"
 #include "ast.h"
@@ -19,12 +20,27 @@ typedef struct {
   size_t file_count;
   size_t token_count;
   size_t validated_file_count;
-  const char *input_dir;
-  const char *output_dir;
-  const char *runtime_header_path;
-  const char *helpers_root_path;
+  char input_dir[MAX_PATH];
+  char output_dir[MAX_PATH];
+  char runtime_header_path[MAX_PATH];
+  char helpers_root_path[MAX_PATH];
   component_registry_t *registry;
 } cli_context_t;
+
+static int cli_resolve_absolute_path(char *buffer, size_t buffer_size, const char *path) {
+  DWORD result;
+
+  if (buffer == NULL || buffer_size == 0 || path == NULL || path[0] == '\0') {
+    return 1;
+  }
+
+  result = GetFullPathNameA(path, (DWORD)buffer_size, buffer, NULL);
+  if (result == 0 || result >= buffer_size) {
+    return 1;
+  }
+
+  return 0;
+}
 
 static int validate_ast(const char *path, const ast_file_t *ast) {
   if (strstr(path, ".component.ng") != NULL) {
@@ -235,9 +251,12 @@ int cli_run(int argc, char **argv) {
   cli_context_t context = {0};
   const char *input_dir;
 
-  context.output_dir = "angular_test";
-  context.runtime_header_path = "angular_runtime.h";
-  context.helpers_root_path = "helpers";
+  if (cli_resolve_absolute_path(context.output_dir, sizeof(context.output_dir), "angular_test") != 0 ||
+      cli_resolve_absolute_path(context.runtime_header_path, sizeof(context.runtime_header_path), "angular_runtime.h") != 0 ||
+      cli_resolve_absolute_path(context.helpers_root_path, sizeof(context.helpers_root_path), "helpers") != 0) {
+    fprintf(stderr, "failed to resolve compiler paths\n");
+    return 1;
+  }
   context.registry = (component_registry_t *)malloc(sizeof(*context.registry));
   if (context.registry == NULL) {
     fprintf(stderr, "failed to allocate component registry\n");
@@ -259,9 +278,19 @@ int cli_run(int argc, char **argv) {
   }
 
   input_dir = argv[1];
-  context.input_dir = input_dir;
+  if (cli_resolve_absolute_path(context.input_dir, sizeof(context.input_dir), input_dir) != 0) {
+    log_errorf("failed to resolve input directory: %s\n", input_dir);
+    cli_free_context_buffers(&context);
+    log_close();
+    return 1;
+  }
   if (argc == 3) {
-    context.output_dir = argv[2];
+    if (cli_resolve_absolute_path(context.output_dir, sizeof(context.output_dir), argv[2]) != 0) {
+      log_errorf("failed to resolve output directory: %s\n", argv[2]);
+      cli_free_context_buffers(&context);
+      log_close();
+      return 1;
+    }
   }
 
   LOG_TRACE("cli_run input_dir=%s output_dir=%s runtime_header_path=%s\n",

@@ -1,0 +1,15 @@
+<% layout('layouts/main') %>
+<section class="stack">
+  <div class="hero-card">
+    <p class="subtitle"><%= status %></p>
+    <p class="muted"><%= summary %></p>
+  </div>
+  <div class="list-card">
+    <h2>Checklist</h2>
+    <ul class="clean">
+      <% for (entry of checklist) { %>
+        <li><%= entry %></li>
+      <% } %>
+    </ul>
+  </div>
+</section>

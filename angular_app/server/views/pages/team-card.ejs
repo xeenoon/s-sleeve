@@ -1,0 +1,14 @@
+<% layout('layouts/main') %>
+<section class="stack">
+  <div class="hero-card">
+    <span class="chip"><%= clinician %></span>
+  </div>
+  <div class="list-card">
+    <h2>Highlights</h2>
+    <ul class="clean">
+      <% for (item of highlights) { %>
+        <li><%= item %></li>
+      <% } %>
+    </ul>
+  </div>
+</section>

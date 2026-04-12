@@ -1,5 +1,6 @@
 #include "net/http_service.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -102,11 +103,69 @@ static int ng_http_service_try_static_asset(const ng_http_service_t *service,
   return 0;
 }
 
+static int ng_http_service_match_route_path(const char *pattern,
+                                            ng_http_request_t *request) {
+  const char *pattern_cursor = pattern;
+  const char *path_cursor = request->path;
+
+  ng_http_request_clear_route_params(request);
+
+  while (*pattern_cursor != '\0' && *path_cursor != '\0') {
+    if (*pattern_cursor == ':') {
+      char key[64];
+      char value[256];
+      size_t key_length = 0;
+      size_t value_length = 0;
+      pattern_cursor += 1;
+      while (*pattern_cursor != '\0' && *pattern_cursor != '/' && key_length + 1 < sizeof(key)) {
+        key[key_length++] = *pattern_cursor++;
+      }
+      key[key_length] = '\0';
+      while (*path_cursor != '\0' && *path_cursor != '/' && value_length + 1 < sizeof(value)) {
+        value[value_length++] = *path_cursor++;
+      }
+      value[value_length] = '\0';
+      {
+        char decoded[256];
+        size_t read_index = 0;
+        size_t write_index = 0;
+        while (value[read_index] != '\0' && write_index + 1 < sizeof(decoded)) {
+          if (value[read_index] == '%' &&
+              isxdigit((unsigned char)value[read_index + 1]) &&
+              isxdigit((unsigned char)value[read_index + 2])) {
+            int high = value[read_index + 1] <= '9' ? value[read_index + 1] - '0'
+                                                    : 10 + (tolower((unsigned char)value[read_index + 1]) - 'a');
+            int low = value[read_index + 2] <= '9' ? value[read_index + 2] - '0'
+                                                   : 10 + (tolower((unsigned char)value[read_index + 2]) - 'a');
+            decoded[write_index++] = (char)((high << 4) | low);
+            read_index += 3;
+            continue;
+          }
+          decoded[write_index++] = value[read_index++] == '+' ? ' ' : value[read_index - 1];
+        }
+        decoded[write_index] = '\0';
+        snprintf(value, sizeof(value), "%s", decoded);
+      }
+      ng_http_request_set_route_param(request, key, value);
+      continue;
+    }
+
+    if (*pattern_cursor != *path_cursor) {
+      return 0;
+    }
+    pattern_cursor += 1;
+    path_cursor += 1;
+  }
+
+  return *pattern_cursor == '\0' && *path_cursor == '\0';
+}
+
 int ng_http_service_handle(void *context,
                            const ng_http_request_t *request,
                            ng_http_response_t *response) {
   ng_http_service_t *service = (ng_http_service_t *)context;
   size_t index;
+  ng_http_request_t working_request;
 
   if (service == NULL || request == NULL || response == NULL) {
     return 1;
@@ -116,6 +175,7 @@ int ng_http_service_handle(void *context,
     return 0;
   }
 
+  working_request = *request;
   for (index = 0; index < service->route_count; ++index) {
     const ng_http_route_t *route = &service->routes[index];
 
@@ -123,9 +183,11 @@ int ng_http_service_handle(void *context,
       continue;
     }
 
-    if (strcmp(request->method, route->method) == 0 && strcmp(request->path, route->path) == 0) {
+    working_request = *request;
+    if (strcmp(request->method, route->method) == 0 &&
+        ng_http_service_match_route_path(route->path, &working_request)) {
       NG_HTTP_TRACE("[service] dispatch %s %s\n", request->method, request->path);
-      return route->handler(route->context, request, response);
+      return route->handler(route->context, &working_request, response);
     }
   }
 

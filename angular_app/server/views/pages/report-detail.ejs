@@ -1,0 +1,14 @@
+<% layout('layouts/main') %>
+<section class="stack">
+  <div class="hero-card">
+    <span class="chip">Report slug: <%= reportId %></span>
+  </div>
+  <div class="grid-3">
+    <% for (section of sections) { %>
+      <article class="panel">
+        <h2><%= section.title %></h2>
+        <p class="muted"><%= section.text %></p>
+      </article>
+    <% } %>
+  </div>
+</section>

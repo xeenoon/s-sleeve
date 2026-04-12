@@ -37,28 +37,6 @@ static int server_codegen_append_format(char *buffer, size_t buffer_size, size_t
   return 0;
 }
 
-static void server_codegen_make_safe_name(char *buffer, size_t buffer_size, const char *name) {
-  size_t index;
-  size_t cursor = 0;
-
-  if (buffer_size == 0) {
-    return;
-  }
-
-  for (index = 0; name[index] != '\0' && cursor + 1 < buffer_size; ++index) {
-    char ch = name[index];
-    if ((ch >= 'a' && ch <= 'z') ||
-        (ch >= 'A' && ch <= 'Z') ||
-        (ch >= '0' && ch <= '9') ||
-        ch == '_') {
-      buffer[cursor++] = ch;
-    } else {
-      buffer[cursor++] = '_';
-    }
-  }
-  buffer[cursor] = '\0';
-}
-
 static void server_codegen_escape_c_string(char *buffer, size_t buffer_size, const char *text) {
   size_t cursor = 0;
   size_t index = 0;
@@ -85,150 +63,103 @@ static void server_codegen_escape_c_string(char *buffer, size_t buffer_size, con
   buffer[cursor] = '\0';
 }
 
-static int server_codegen_emit_locals(const ng_server_route_ir_t *route,
-                                      char *buffer,
-                                      size_t buffer_size,
-                                      size_t *cursor) {
-  size_t index;
+static int server_codegen_emit_bindings(const ng_server_route_ir_t *route,
+                                        size_t route_index,
+                                        char *buffer,
+                                        size_t buffer_size,
+                                        size_t *cursor) {
+  size_t binding_index;
 
-  for (index = 0; index < route->local_count; ++index) {
-    const ng_server_local_ir_t *local = &route->locals[index];
-    char escaped_name[160];
-    char escaped_value[512];
-    server_codegen_escape_c_string(escaped_name, sizeof(escaped_name), local->name);
-    server_codegen_escape_c_string(escaped_value, sizeof(escaped_value), local->value);
-    switch (local->kind) {
-      case NG_LOCAL_STRING:
-        if (server_codegen_append_format(buffer,
-                                         buffer_size,
-                                         cursor,
-                                         "  angular_render_context_add_string(&locals, \"%s\", \"%s\");\n",
-                                         escaped_name,
-                                         escaped_value) != 0) {
-          return 1;
-        }
-        break;
-      case NG_LOCAL_INT:
-        if (server_codegen_append_format(buffer,
-                                         buffer_size,
-                                         cursor,
-                                         "  angular_render_context_add_int(&locals, \"%s\", %s);\n",
-                                         escaped_name,
-                                         local->value) != 0) {
-          return 1;
-        }
-        break;
-      case NG_LOCAL_DOUBLE:
-        if (server_codegen_append_format(buffer,
-                                         buffer_size,
-                                         cursor,
-                                         "  angular_render_context_add_double(&locals, \"%s\", %s);\n",
-                                         escaped_name,
-                                         local->value) != 0) {
-          return 1;
-        }
-        break;
-      case NG_LOCAL_BOOL:
-        if (server_codegen_append_format(buffer,
-                                         buffer_size,
-                                         cursor,
-                                         "  angular_render_context_add_bool(&locals, \"%s\", %s);\n",
-                                         escaped_name,
-                                         strcmp(local->value, "true") == 0 ? "1" : "0") != 0) {
-          return 1;
-        }
-        break;
-      case NG_LOCAL_NULL:
-      default:
-        break;
-    }
+  if (route->binding_count == 0) {
+    return server_codegen_append_format(buffer,
+                                        buffer_size,
+                                        cursor,
+                                        "static const ng_server_binding_t g_route_%zu_bindings[1] = {{NULL, NULL}};\n\n",
+                                        route_index);
   }
 
-  return 0;
-}
-
-static int server_codegen_emit_json_builder(const ng_server_route_ir_t *route,
-                                            char *buffer,
-                                            size_t buffer_size,
-                                            size_t *cursor) {
-  size_t index;
-
-  if (server_codegen_append(buffer,
-                            buffer_size,
-                            cursor,
-                            "  json_data *root = init_json_object();\n"
-                            "  char *json_text = NULL;\n"
-                            "  if (root == NULL) {\n"
-                            "    response->status_code = 500;\n"
-                            "    angular_http_write_error_json(response, \"json allocation failed\");\n"
-                            "    return 0;\n"
-                            "  }\n") != 0) {
+  if (server_codegen_append_format(buffer,
+                                   buffer_size,
+                                   cursor,
+                                   "static const ng_server_binding_t g_route_%zu_bindings[] = {\n",
+                                   route_index) != 0) {
     return 1;
   }
 
-  for (index = 0; index < route->local_count; ++index) {
-    const ng_server_local_ir_t *local = &route->locals[index];
+  for (binding_index = 0; binding_index < route->binding_count; ++binding_index) {
     char escaped_name[160];
-    char escaped_value[512];
-    server_codegen_escape_c_string(escaped_name, sizeof(escaped_name), local->name);
-    server_codegen_escape_c_string(escaped_value, sizeof(escaped_value), local->value);
-    switch (local->kind) {
-      case NG_LOCAL_STRING:
-        if (server_codegen_append_format(buffer,
-                                         buffer_size,
-                                         cursor,
-                                         "  json_object_add_string(root, \"%s\", \"%s\");\n",
-                                         escaped_name,
-                                         escaped_value) != 0) {
-          return 1;
-        }
-        break;
-      case NG_LOCAL_INT:
-      case NG_LOCAL_DOUBLE:
-        if (server_codegen_append_format(buffer,
-                                         buffer_size,
-                                         cursor,
-                                         "  json_object_add_number(root, \"%s\", %s);\n",
-                                         escaped_name,
-                                         local->value) != 0) {
-          return 1;
-        }
-        break;
-      case NG_LOCAL_BOOL:
-        if (server_codegen_append_format(buffer,
-                                         buffer_size,
-                                         cursor,
-                                         "  json_object_add_boolean(root, \"%s\", %s);\n",
-                                         escaped_name,
-                                         strcmp(local->value, "true") == 0 ? "true" : "false") != 0) {
-          return 1;
-        }
-        break;
-      case NG_LOCAL_NULL:
-        if (server_codegen_append_format(buffer,
-                                         buffer_size,
-                                         cursor,
-                                         "  json_object_add_null(root, \"%s\");\n",
-                                         escaped_name) != 0) {
-          return 1;
-        }
-        break;
+    char escaped_expr[8192];
+    server_codegen_escape_c_string(escaped_name, sizeof(escaped_name), route->bindings[binding_index].name);
+    server_codegen_escape_c_string(escaped_expr, sizeof(escaped_expr), route->bindings[binding_index].expr_source);
+    if (server_codegen_append_format(buffer,
+                                     buffer_size,
+                                     cursor,
+                                     "  { \"%s\", \"%s\" },\n",
+                                     escaped_name,
+                                     escaped_expr) != 0) {
+      return 1;
     }
   }
 
+  return server_codegen_append(buffer, buffer_size, cursor, "};\n\n");
+}
+
+static int server_codegen_emit_json_response(char *buffer,
+                                             size_t buffer_size,
+                                             size_t *cursor) {
   return server_codegen_append(buffer,
                                buffer_size,
                                cursor,
-                               "  json_text = json_tostring(root);\n"
-                               "  json_free(root);\n"
-                               "  if (json_text == NULL) {\n"
+                               "  response->status_code = status_code;\n"
+                               "  snprintf(response->content_type, sizeof(response->content_type), \"application/json; charset=utf-8\");\n"
+                               "  value = ng_server_eval_expr(response_expr, request, bindings, binding_count, NULL, NULL);\n"
+                               "  if (value == NULL) {\n"
+                               "    response->status_code = 500;\n"
+                               "    angular_http_write_error_json(response, \"json evaluation failed\");\n"
+                               "    return 0;\n"
+                               "  }\n"
+                               "  text = json_tostring(value);\n"
+                               "  json_free(value);\n"
+                               "  if (text == NULL) {\n"
                                "    response->status_code = 500;\n"
                                "    angular_http_write_error_json(response, \"json serialization failed\");\n"
                                "    return 0;\n"
                                "  }\n"
-                               "  snprintf(response->content_type, sizeof(response->content_type), \"application/json; charset=utf-8\");\n"
-                               "  ng_http_response_set_text(response, json_text);\n"
-                               "  free(json_text);\n"
+                               "  ng_http_response_set_text(response, text);\n"
+                               "  free(text);\n"
+                               "  return 0;\n");
+}
+
+static int server_codegen_emit_text_response(char *buffer,
+                                             size_t buffer_size,
+                                             size_t *cursor) {
+  return server_codegen_append(buffer,
+                               buffer_size,
+                               cursor,
+                               "  response->status_code = status_code;\n"
+                               "  snprintf(response->content_type, sizeof(response->content_type), \"text/plain; charset=utf-8\");\n"
+                               "  value = ng_server_eval_expr(response_expr, request, bindings, binding_count, NULL, NULL);\n"
+                               "  if (value == NULL) {\n"
+                               "    response->status_code = 500;\n"
+                               "    angular_http_write_error_json(response, \"text evaluation failed\");\n"
+                               "    return 0;\n"
+                               "  }\n"
+                               "  text = json_tostring(value);\n"
+                               "  if (text != NULL && value->type == JSON_STRING) {\n"
+                               "    free(text);\n"
+                               "    text = (char *)malloc(strlen(value->as.string.data != NULL ? value->as.string.data : \"\") + 1u);\n"
+                               "    if (text != NULL) {\n"
+                               "      strcpy(text, value->as.string.data != NULL ? value->as.string.data : \"\");\n"
+                               "    }\n"
+                               "  }\n"
+                               "  json_free(value);\n"
+                               "  if (text == NULL) {\n"
+                               "    response->status_code = 500;\n"
+                               "    angular_http_write_error_json(response, \"text serialization failed\");\n"
+                               "    return 0;\n"
+                               "  }\n"
+                               "  ng_http_response_set_text(response, text);\n"
+                               "  free(text);\n"
                                "  return 0;\n");
 }
 
@@ -238,6 +169,7 @@ int server_codegen_emit(const ng_server_route_set_t *routes,
                         ng_server_codegen_result_t *out_result) {
   size_t route_cursor = 0;
   size_t init_cursor = 0;
+  size_t support_cursor = 0;
   size_t index;
 
   if (out_result == NULL) {
@@ -250,6 +182,32 @@ int server_codegen_emit(const ng_server_route_set_t *routes,
   if (ejs_codegen_emit_source(templates, out_result->support_source, sizeof(out_result->support_source)) != 0) {
     return 1;
   }
+  support_cursor = strlen(out_result->support_source);
+
+  if (server_codegen_append(out_result->support_source,
+                            sizeof(out_result->support_source),
+                            &support_cursor,
+                            "static json_data *angular_server_model_from_expr(const char *expr,\n"
+                            "                                                const ng_http_request_t *request,\n"
+                            "                                                const ng_server_binding_t *bindings,\n"
+                            "                                                size_t binding_count) {\n"
+                            "  json_data *model = ng_server_eval_expr(expr, request, bindings, binding_count, NULL, NULL);\n"
+                            "  if (model == NULL) {\n"
+                            "    return init_json_object();\n"
+                            "  }\n"
+                            "  if (model->type != JSON_OBJECT) {\n"
+                            "    json_data *wrapped = init_json_object();\n"
+                            "    if (wrapped != NULL) {\n"
+                            "      json_object_add(wrapped, \"value\", model);\n"
+                            "      return wrapped;\n"
+                            "    }\n"
+                            "    json_free(model);\n"
+                            "    return init_json_object();\n"
+                            "  }\n"
+                            "  return model;\n"
+                            "}\n\n") != 0) {
+    return 1;
+  }
 
   if (routes == NULL || routes->route_count == 0) {
     return 0;
@@ -258,7 +216,21 @@ int server_codegen_emit(const ng_server_route_set_t *routes,
   for (index = 0; index < routes->route_count; ++index) {
     const ng_server_route_ir_t *route = &routes->routes[index];
     char escaped_path[512];
-    char escaped_text[4096];
+    char escaped_response_expr[8192];
+    char escaped_model_expr[8192];
+    char escaped_template[256];
+
+    if (server_codegen_emit_bindings(route,
+                                     index,
+                                     out_result->support_source,
+                                     sizeof(out_result->support_source),
+                                     &support_cursor) != 0) {
+      return 1;
+    }
+
+    server_codegen_escape_c_string(escaped_response_expr, sizeof(escaped_response_expr), route->response_expr);
+    server_codegen_escape_c_string(escaped_model_expr, sizeof(escaped_model_expr), route->model_expr);
+    server_codegen_escape_c_string(escaped_template, sizeof(escaped_template), route->template_name);
 
     if (server_codegen_append_format(out_result->route_source,
                                      sizeof(out_result->route_source),
@@ -266,61 +238,82 @@ int server_codegen_emit(const ng_server_route_set_t *routes,
                                      "static int angular_backend_route_%zu(void *context,\n"
                                      "                                  const ng_http_request_t *request,\n"
                                      "                                  ng_http_response_t *response) {\n"
-                                     "  (void)context;\n"
-                                     "  (void)request;\n"
-                                     "  response->status_code = %d;\n",
+                                     "  const ng_server_binding_t *bindings = g_route_%zu_bindings;\n"
+                                     "  const size_t binding_count = %zu;\n"
+                                     "  const int status_code = %d;\n"
+                                     "  (void)context;\n",
                                      index,
+                                     index,
+                                     route->binding_count,
                                      route->status_code) != 0) {
       return 1;
     }
 
     switch (route->response_kind) {
-      case NG_RESPONSE_TEXT:
-        server_codegen_escape_c_string(escaped_text, sizeof(escaped_text), route->response_text);
+      case NG_RESPONSE_JSON:
         if (server_codegen_append_format(out_result->route_source,
                                          sizeof(out_result->route_source),
                                          &route_cursor,
-                                         "  snprintf(response->content_type, sizeof(response->content_type), \"text/plain; charset=utf-8\");\n"
-                                         "  ng_http_response_set_text(response, \"%s\");\n"
-                                         "  return 0;\n",
-                                         escaped_text) != 0) {
+                                         "  const char *response_expr = \"%s\";\n"
+                                         "  json_data *value = NULL;\n"
+                                         "  char *text = NULL;\n",
+                                         escaped_response_expr) != 0) {
+          return 1;
+        }
+        if (server_codegen_emit_json_response(out_result->route_source,
+                                              sizeof(out_result->route_source),
+                                              &route_cursor) != 0) {
           return 1;
         }
         break;
-      case NG_RESPONSE_JSON:
-        if (server_codegen_emit_json_builder(route,
-                                             out_result->route_source,
-                                             sizeof(out_result->route_source),
-                                             &route_cursor) != 0) {
+      case NG_RESPONSE_TEXT:
+        if (server_codegen_append_format(out_result->route_source,
+                                         sizeof(out_result->route_source),
+                                         &route_cursor,
+                                         "  const char *response_expr = \"%s\";\n"
+                                         "  json_data *value = NULL;\n"
+                                         "  char *text = NULL;\n",
+                                         escaped_response_expr) != 0) {
+          return 1;
+        }
+        if (server_codegen_emit_text_response(out_result->route_source,
+                                              sizeof(out_result->route_source),
+                                              &route_cursor) != 0) {
           return 1;
         }
         break;
-      case NG_RESPONSE_RENDER: {
-        char safe_template[128];
-        server_codegen_make_safe_name(safe_template, sizeof(safe_template), route->template_name);
+      case NG_RESPONSE_RENDER:
+        if (server_codegen_append_format(out_result->route_source,
+                                         sizeof(out_result->route_source),
+                                         &route_cursor,
+                                         "  const char *model_expr = \"%s\";\n"
+                                         "  const char *template_name = \"%s\";\n"
+                                         "  json_data *model = NULL;\n",
+                                         escaped_model_expr,
+                                         escaped_template) != 0) {
+          return 1;
+        }
         if (server_codegen_append(out_result->route_source,
                                   sizeof(out_result->route_source),
                                   &route_cursor,
-                                  "  ng_render_context_t locals;\n"
-                                  "  angular_render_context_init(&locals);\n"
-                                  "  snprintf(response->content_type, sizeof(response->content_type), \"text/html; charset=utf-8\");\n") != 0) {
-          return 1;
-        }
-        if (server_codegen_emit_locals(route,
-                                       out_result->route_source,
-                                       sizeof(out_result->route_source),
-                                       &route_cursor) != 0) {
-          return 1;
-        }
-        if (server_codegen_append_format(out_result->route_source,
-                                         sizeof(out_result->route_source),
-                                         &route_cursor,
-                                         "  return angular_render_%s_template(&locals, response);\n",
-                                         safe_template) != 0) {
+                                  "  response->status_code = status_code;\n"
+                                  "  model = angular_server_model_from_expr(model_expr, request, bindings, binding_count);\n"
+                                  "  if (ng_server_render_template_response(g_angular_templates,\n"
+                                  "                                         g_angular_template_count,\n"
+                                  "                                         template_name,\n"
+                                  "                                         model,\n"
+                                  "                                         request,\n"
+                                  "                                         response) != 0) {\n"
+                                  "    json_free(model);\n"
+                                  "    response->status_code = 500;\n"
+                                  "    angular_http_write_error_json(response, \"template render failed\");\n"
+                                  "    return 0;\n"
+                                  "  }\n"
+                                  "  json_free(model);\n"
+                                  "  return 0;\n") != 0) {
           return 1;
         }
         break;
-      }
     }
 
     if (server_codegen_append(out_result->route_source,

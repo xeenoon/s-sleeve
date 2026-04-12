@@ -1,0 +1,9 @@
+<div class="grid-3">
+  <% for (stat of value) { %>
+    <article class="panel">
+      <div class="muted"><%= stat.label %></div>
+      <div class="stat-value"><%= stat.value %></div>
+      <div class="muted"><%= stat.detail %></div>
+    </article>
+  <% } %>
+</div>

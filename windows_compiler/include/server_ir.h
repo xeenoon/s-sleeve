@@ -18,18 +18,18 @@ typedef enum {
 
 typedef struct {
   char name[64];
-  ng_local_kind_t kind;
-  char value[256];
-} ng_server_local_ir_t;
+  char expr_source[4096];
+} ng_server_binding_ir_t;
 
 typedef struct {
   ng_server_method_t method;
   char path[256];
   ng_server_response_kind_t response_kind;
-  char response_text[2048];
+  char response_expr[4096];
   char template_name[128];
-  ng_server_local_ir_t locals[32];
-  size_t local_count;
+  char model_expr[4096];
+  ng_server_binding_ir_t bindings[32];
+  size_t binding_count;
   int status_code;
 } ng_server_route_ir_t;
 

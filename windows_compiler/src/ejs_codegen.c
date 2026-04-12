@@ -79,78 +79,26 @@ static void ejs_codegen_make_safe_name(char *buffer, size_t buffer_size, const c
   buffer[cursor] = '\0';
 }
 
-static int ejs_codegen_is_string_literal(const char *text) {
-  size_t length = strlen(text);
-  return length >= 2 &&
-         ((text[0] == '\'' && text[length - 1] == '\'') || (text[0] == '"' && text[length - 1] == '"'));
-}
-
-static void ejs_codegen_unquote(char *buffer) {
-  size_t length = strlen(buffer);
-  if (length >= 2 && ((buffer[0] == '\'' && buffer[length - 1] == '\'') || (buffer[0] == '"' && buffer[length - 1] == '"'))) {
-    memmove(buffer, buffer + 1, length - 2);
-    buffer[length - 2] = '\0';
+static const char *ejs_codegen_node_kind_name(ng_ejs_node_kind_t kind) {
+  switch (kind) {
+    case NG_EJS_NODE_TEXT:
+      return "NG_TEMPLATE_NODE_TEXT";
+    case NG_EJS_NODE_EXPR:
+      return "NG_TEMPLATE_NODE_EXPR";
+    case NG_EJS_NODE_RAW_EXPR:
+      return "NG_TEMPLATE_NODE_RAW_EXPR";
+    case NG_EJS_NODE_IF_OPEN:
+      return "NG_TEMPLATE_NODE_IF_OPEN";
+    case NG_EJS_NODE_ELSE:
+      return "NG_TEMPLATE_NODE_ELSE";
+    case NG_EJS_NODE_END:
+      return "NG_TEMPLATE_NODE_END";
+    case NG_EJS_NODE_FOR_OPEN:
+      return "NG_TEMPLATE_NODE_FOR_OPEN";
+    case NG_EJS_NODE_INCLUDE:
+      return "NG_TEMPLATE_NODE_INCLUDE";
   }
-}
-
-static int ejs_codegen_emit_expr_append(char *buffer,
-                                        size_t buffer_size,
-                                        size_t *cursor,
-                                        const char *expr,
-                                        int escape_html) {
-  char escaped[1024];
-  char literal[512];
-
-  if (ejs_codegen_is_string_literal(expr)) {
-    snprintf(literal, sizeof(literal), "%s", expr);
-    ejs_codegen_unquote(literal);
-    ejs_codegen_escape_c_string(escaped, sizeof(escaped), literal);
-    return ejs_codegen_append_format(buffer,
-                                     buffer_size,
-                                     cursor,
-                                     "  angular_sb_append_text(builder, \"%s\");\n",
-                                     escaped);
-  }
-
-  if (strcmp(expr, "true") == 0 || strcmp(expr, "false") == 0) {
-    return ejs_codegen_append_format(buffer,
-                                     buffer_size,
-                                     cursor,
-                                     "  angular_sb_append_text(builder, \"%s\");\n",
-                                     expr);
-  }
-
-  if ((expr[0] >= '0' && expr[0] <= '9') || expr[0] == '-') {
-    return ejs_codegen_append_format(buffer,
-                                     buffer_size,
-                                     cursor,
-                                     "  angular_sb_append_text(builder, \"%s\");\n",
-                                     expr);
-  }
-
-  return ejs_codegen_append_format(buffer,
-                                   buffer_size,
-                                   cursor,
-                                   "  angular_sb_append_%sslot(builder, locals, \"%s\");\n",
-                                   escape_html ? "escaped_" : "raw_",
-                                   expr);
-}
-
-static int ejs_codegen_emit_if_open(char *buffer, size_t buffer_size, size_t *cursor, const char *expr) {
-  if (strcmp(expr, "true") == 0) {
-    return ejs_codegen_append(buffer, buffer_size, cursor, "  if (1) {\n");
-  }
-  if (strcmp(expr, "false") == 0) {
-    return ejs_codegen_append(buffer, buffer_size, cursor, "  if (0) {\n");
-  }
-  if ((expr[0] >= '0' && expr[0] <= '9') || expr[0] == '-') {
-    return ejs_codegen_append_format(buffer, buffer_size, cursor, "  if ((%s) != 0) {\n", expr);
-  }
-  return ejs_codegen_append_format(buffer,
-                                   buffer_size,
-                                   cursor,
-                                   "  if (angular_render_context_is_truthy(locals, \"%s\")) {\n",
-                                   expr);
+  return "NG_TEMPLATE_NODE_TEXT";
 }
 
 int ejs_codegen_emit_source(const ng_ejs_template_set_t *templates, char *buffer, size_t buffer_size) {
@@ -164,187 +112,11 @@ int ejs_codegen_emit_source(const ng_ejs_template_set_t *templates, char *buffer
   buffer[0] = '\0';
 
   if (templates == NULL || templates->template_count == 0) {
-    return 0;
-  }
-
-  if (ejs_codegen_append(
-          buffer,
-          buffer_size,
-          &cursor,
-          "typedef enum {\n"
-          "  NG_LOCAL_NULL = 0,\n"
-          "  NG_LOCAL_BOOL,\n"
-          "  NG_LOCAL_INT,\n"
-          "  NG_LOCAL_DOUBLE,\n"
-          "  NG_LOCAL_STRING\n"
-          "} ng_local_kind_t;\n\n"
-          "typedef struct {\n"
-          "  const char *name;\n"
-          "  ng_local_kind_t kind;\n"
-          "  union {\n"
-          "    int int_value;\n"
-          "    double double_value;\n"
-          "    int bool_value;\n"
-          "    const char *string_value;\n"
-          "  } data;\n"
-          "} ng_local_slot_t;\n\n"
-          "typedef struct {\n"
-          "  ng_local_slot_t slots[64];\n"
-          "  size_t slot_count;\n"
-          "} ng_render_context_t;\n\n"
-          "typedef int (*angular_template_render_fn_t)(const ng_render_context_t *locals,\n"
-          "                                           ng_http_response_t *response);\n\n"
-          "static void angular_render_context_init(ng_render_context_t *context) {\n"
-          "  memset(context, 0, sizeof(*context));\n"
-          "}\n\n"
-          "static int __attribute__((unused)) angular_render_context_add_string(ng_render_context_t *context, const char *name, const char *value) {\n"
-          "  ng_local_slot_t *slot;\n"
-          "  if (context->slot_count >= sizeof(context->slots) / sizeof(context->slots[0])) {\n"
-          "    return 1;\n"
-          "  }\n"
-          "  slot = &context->slots[context->slot_count++];\n"
-          "  slot->name = name;\n"
-          "  slot->kind = NG_LOCAL_STRING;\n"
-          "  slot->data.string_value = value;\n"
-          "  return 0;\n"
-          "}\n\n"
-          "static int __attribute__((unused)) angular_render_context_add_int(ng_render_context_t *context, const char *name, int value) {\n"
-          "  ng_local_slot_t *slot;\n"
-          "  if (context->slot_count >= sizeof(context->slots) / sizeof(context->slots[0])) {\n"
-          "    return 1;\n"
-          "  }\n"
-          "  slot = &context->slots[context->slot_count++];\n"
-          "  slot->name = name;\n"
-          "  slot->kind = NG_LOCAL_INT;\n"
-          "  slot->data.int_value = value;\n"
-          "  return 0;\n"
-          "}\n\n"
-          "static int __attribute__((unused)) angular_render_context_add_double(ng_render_context_t *context, const char *name, double value) {\n"
-          "  ng_local_slot_t *slot;\n"
-          "  if (context->slot_count >= sizeof(context->slots) / sizeof(context->slots[0])) {\n"
-          "    return 1;\n"
-          "  }\n"
-          "  slot = &context->slots[context->slot_count++];\n"
-          "  slot->name = name;\n"
-          "  slot->kind = NG_LOCAL_DOUBLE;\n"
-          "  slot->data.double_value = value;\n"
-          "  return 0;\n"
-          "}\n\n"
-          "static int __attribute__((unused)) angular_render_context_add_bool(ng_render_context_t *context, const char *name, int value) {\n"
-          "  ng_local_slot_t *slot;\n"
-          "  if (context->slot_count >= sizeof(context->slots) / sizeof(context->slots[0])) {\n"
-          "    return 1;\n"
-          "  }\n"
-          "  slot = &context->slots[context->slot_count++];\n"
-          "  slot->name = name;\n"
-          "  slot->kind = NG_LOCAL_BOOL;\n"
-          "  slot->data.bool_value = value;\n"
-          "  return 0;\n"
-          "}\n\n"
-          "static const ng_local_slot_t *__attribute__((unused)) angular_render_context_find(const ng_render_context_t *context, const char *name) {\n"
-          "  size_t index;\n"
-          "  for (index = 0; index < context->slot_count; ++index) {\n"
-          "    if (context->slots[index].name != NULL && strcmp(context->slots[index].name, name) == 0) {\n"
-          "      return &context->slots[index];\n"
-          "    }\n"
-          "  }\n"
-          "  return NULL;\n"
-          "}\n\n"
-          "static int __attribute__((unused)) angular_render_context_is_truthy(const ng_render_context_t *context, const char *name) {\n"
-          "  const ng_local_slot_t *slot = angular_render_context_find(context, name);\n"
-          "  if (slot == NULL) {\n"
-          "    return 0;\n"
-          "  }\n"
-          "  switch (slot->kind) {\n"
-          "    case NG_LOCAL_BOOL:\n"
-          "      return slot->data.bool_value != 0;\n"
-          "    case NG_LOCAL_INT:\n"
-          "      return slot->data.int_value != 0;\n"
-          "    case NG_LOCAL_DOUBLE:\n"
-          "      return slot->data.double_value != 0.0;\n"
-          "    case NG_LOCAL_STRING:\n"
-          "      return slot->data.string_value != NULL && slot->data.string_value[0] != '\\0';\n"
-          "    case NG_LOCAL_NULL:\n"
-          "    default:\n"
-          "      return 0;\n"
-          "  }\n"
-          "}\n\n"
-          "static void angular_sb_append_text(stringbuilder *builder, const char *text) {\n"
-          "  append(builder, text != NULL ? text : \"\");\n"
-          "}\n\n"
-          "static void __attribute__((unused)) angular_sb_append_html_escaped(stringbuilder *builder, const char *text) {\n"
-          "  size_t index;\n"
-          "  if (text == NULL) {\n"
-          "    return;\n"
-          "  }\n"
-          "  for (index = 0; text[index] != '\\0'; ++index) {\n"
-          "    switch (text[index]) {\n"
-          "      case '&': append(builder, \"&amp;\"); break;\n"
-          "      case '<': append(builder, \"&lt;\"); break;\n"
-          "      case '>': append(builder, \"&gt;\"); break;\n"
-          "      case '\"': append(builder, \"&quot;\"); break;\n"
-          "      case '\\'': append(builder, \"&#39;\"); break;\n"
-          "      default: append_byte(builder, text[index]); break;\n"
-          "    }\n"
-          "  }\n"
-          "}\n\n"
-          "static void __attribute__((unused)) angular_sb_append_slot_value(stringbuilder *builder, const ng_local_slot_t *slot) {\n"
-          "  char number_buffer[64];\n"
-          "  if (slot == NULL) {\n"
-          "    return;\n"
-          "  }\n"
-          "  switch (slot->kind) {\n"
-          "    case NG_LOCAL_STRING:\n"
-          "      angular_sb_append_text(builder, slot->data.string_value);\n"
-          "      return;\n"
-          "    case NG_LOCAL_BOOL:\n"
-          "      angular_sb_append_text(builder, slot->data.bool_value ? \"true\" : \"false\");\n"
-          "      return;\n"
-          "    case NG_LOCAL_INT:\n"
-          "      snprintf(number_buffer, sizeof(number_buffer), \"%d\", slot->data.int_value);\n"
-          "      angular_sb_append_text(builder, number_buffer);\n"
-          "      return;\n"
-          "    case NG_LOCAL_DOUBLE:\n"
-          "      snprintf(number_buffer, sizeof(number_buffer), \"%.6g\", slot->data.double_value);\n"
-          "      angular_sb_append_text(builder, number_buffer);\n"
-          "      return;\n"
-          "    case NG_LOCAL_NULL:\n"
-          "    default:\n"
-          "      return;\n"
-          "  }\n"
-          "}\n\n"
-          "static void __attribute__((unused)) angular_sb_append_escaped_slot(stringbuilder *builder, const ng_render_context_t *context, const char *name) {\n"
-          "  const ng_local_slot_t *slot = angular_render_context_find(context, name);\n"
-          "  char number_buffer[64];\n"
-          "  if (slot == NULL) {\n"
-          "    return;\n"
-          "  }\n"
-          "  if (slot->kind == NG_LOCAL_STRING) {\n"
-          "    angular_sb_append_html_escaped(builder, slot->data.string_value);\n"
-          "    return;\n"
-          "  }\n"
-          "  switch (slot->kind) {\n"
-          "    case NG_LOCAL_BOOL:\n"
-          "      angular_sb_append_text(builder, slot->data.bool_value ? \"true\" : \"false\");\n"
-          "      return;\n"
-          "    case NG_LOCAL_INT:\n"
-          "      snprintf(number_buffer, sizeof(number_buffer), \"%d\", slot->data.int_value);\n"
-          "      angular_sb_append_text(builder, number_buffer);\n"
-          "      return;\n"
-          "    case NG_LOCAL_DOUBLE:\n"
-          "      snprintf(number_buffer, sizeof(number_buffer), \"%.6g\", slot->data.double_value);\n"
-          "      angular_sb_append_text(builder, number_buffer);\n"
-          "      return;\n"
-          "    case NG_LOCAL_NULL:\n"
-          "    case NG_LOCAL_STRING:\n"
-          "    default:\n"
-          "      return;\n"
-          "  }\n"
-          "}\n\n"
-          "static void __attribute__((unused)) angular_sb_append_raw_slot(stringbuilder *builder, const ng_render_context_t *context, const char *name) {\n"
-          "  angular_sb_append_slot_value(builder, angular_render_context_find(context, name));\n"
-          "}\n\n") != 0) {
-    return 1;
+    return ejs_codegen_append(buffer,
+                              buffer_size,
+                              &cursor,
+                              "static const ng_template_def_t g_angular_templates[1] = {{0}};\n"
+                              "static const size_t g_angular_template_count = 0;\n\n");
   }
 
   for (template_index = 0; template_index < templates->template_count; ++template_index) {
@@ -356,79 +128,66 @@ int ejs_codegen_emit_source(const ng_ejs_template_set_t *templates, char *buffer
     if (ejs_codegen_append_format(buffer,
                                   buffer_size,
                                   &cursor,
-                                  "static int angular_render_%s_template(const ng_render_context_t *locals,\n"
-                                  "                                        ng_http_response_t *response) {\n"
-                                  "  stringbuilder *builder = init_builder();\n"
-                                  "  char *rendered;\n"
-                                  "  int set_result;\n"
-                                  "  if (builder == NULL) {\n"
-                                  "    response->status_code = 500;\n"
-                                  "    return 0;\n"
-                                  "  }\n",
+                                  "static const ng_template_node_t g_template_nodes_%s[] = {\n",
                                   safe_name) != 0) {
       return 1;
     }
 
     for (node_index = 0; node_index < template_file->node_count; ++node_index) {
-      const ng_ejs_node_t *node = &template_file->nodes[node_index];
       char escaped_text[2048];
+      const ng_ejs_node_t *node = &template_file->nodes[node_index];
 
-      switch (node->kind) {
-        case NG_EJS_NODE_TEXT:
-          ejs_codegen_escape_c_string(escaped_text, sizeof(escaped_text), node->text);
-          if (ejs_codegen_append_format(buffer,
-                                        buffer_size,
-                                        &cursor,
-                                        "  angular_sb_append_text(builder, \"%s\");\n",
-                                        escaped_text) != 0) {
-            return 1;
-          }
-          break;
-        case NG_EJS_NODE_EXPR:
-          if (ejs_codegen_emit_expr_append(buffer, buffer_size, &cursor, node->text, 1) != 0) {
-            return 1;
-          }
-          break;
-        case NG_EJS_NODE_RAW_EXPR:
-          if (ejs_codegen_emit_expr_append(buffer, buffer_size, &cursor, node->text, 0) != 0) {
-            return 1;
-          }
-          break;
-        case NG_EJS_NODE_IF_OPEN:
-          if (ejs_codegen_emit_if_open(buffer, buffer_size, &cursor, node->text) != 0) {
-            return 1;
-          }
-          break;
-        case NG_EJS_NODE_IF_CLOSE:
-          if (ejs_codegen_append(buffer, buffer_size, &cursor, "  }\n") != 0) {
-            return 1;
-          }
-          break;
+      ejs_codegen_escape_c_string(escaped_text, sizeof(escaped_text), node->text);
+      if (ejs_codegen_append_format(buffer,
+                                    buffer_size,
+                                    &cursor,
+                                    "  { %s, \"%s\" },\n",
+                                    ejs_codegen_node_kind_name(node->kind),
+                                    escaped_text) != 0) {
+        return 1;
       }
     }
 
-    if (ejs_codegen_append(
-            buffer,
-            buffer_size,
-            &cursor,
-            "  rendered = (char *)malloc((size_t)builder->writtenlen + 1u);\n"
-            "  if (rendered == NULL) {\n"
-            "    free_builder(builder);\n"
-            "    response->status_code = 500;\n"
-            "    return 0;\n"
-            "  }\n"
-            "  memcpy(rendered, builder->data, (size_t)builder->writtenlen);\n"
-            "  rendered[builder->writtenlen] = '\\0';\n"
-            "  set_result = ng_http_response_set_text(response, rendered);\n"
-            "  free(rendered);\n"
-            "  free_builder(builder);\n"
-            "  if (set_result != 0) {\n"
-            "    response->status_code = 500;\n"
-            "  }\n"
-            "  return 0;\n"
-            "}\n\n") != 0) {
+    if (ejs_codegen_append(buffer, buffer_size, &cursor, "};\n\n") != 0) {
       return 1;
     }
+  }
+
+  if (ejs_codegen_append(buffer,
+                         buffer_size,
+                         &cursor,
+                         "static const ng_template_def_t g_angular_templates[] = {\n") != 0) {
+    return 1;
+  }
+
+  for (template_index = 0; template_index < templates->template_count; ++template_index) {
+    const ng_ejs_template_t *template_file = &templates->templates[template_index];
+    char safe_name[128];
+    char escaped_name[256];
+    char escaped_layout[256];
+
+    ejs_codegen_make_safe_name(safe_name, sizeof(safe_name), template_file->name);
+    ejs_codegen_escape_c_string(escaped_name, sizeof(escaped_name), template_file->name);
+    ejs_codegen_escape_c_string(escaped_layout, sizeof(escaped_layout), template_file->layout_name);
+    if (ejs_codegen_append_format(buffer,
+                                  buffer_size,
+                                  &cursor,
+                                  "  { \"%s\", \"%s\", g_template_nodes_%s, sizeof(g_template_nodes_%s) / sizeof(g_template_nodes_%s[0]) },\n",
+                                  escaped_name,
+                                  escaped_layout,
+                                  safe_name,
+                                  safe_name,
+                                  safe_name) != 0) {
+      return 1;
+    }
+  }
+
+  if (ejs_codegen_append_format(buffer,
+                                buffer_size,
+                                &cursor,
+                                "};\n"
+                                "static const size_t g_angular_template_count = sizeof(g_angular_templates) / sizeof(g_angular_templates[0]);\n\n") != 0) {
+    return 1;
   }
 
   return 0;

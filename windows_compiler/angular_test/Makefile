@@ -52,6 +52,7 @@ SOURCES := \
 	helpers/src/net/http_service.c \
 	helpers/src/runtime/app_runtime.c \
 	helpers/src/runtime/observable.c \
+	helpers/src/runtime/server_runtime.c \
 	helpers/src/support/stringbuilder.c
 
 .PHONY: all clean run
