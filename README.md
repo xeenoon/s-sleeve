@@ -6,11 +6,11 @@ This project starts an ESP32 access point and serves a web page that shows the c
 
 - Potentiometer `VCC` -> `3V3`
 - Potentiometer `GND` -> `GND`
-- Potentiometer signal -> `GPIO34`
+- Potentiometer signal -> `GPIO35`
 
 ## Important
 
-On a standard ESP32, `GPIO23` is **not** an analog input pin, so `analogRead(23)` will not work properly. Move the potentiometer signal wire to an ADC pin such as `34`, `35`, `32`, or `33`.
+On a standard ESP32, `GPIO23` is **not** an analog input pin, so `analogRead(23)` will not work properly. Move the potentiometer signal wire to an ADC pin such as `35`, `34`, `33`, or `32`.
 
 ## Upload
 

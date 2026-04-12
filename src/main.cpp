@@ -15,7 +15,7 @@
 
 namespace {
 
-constexpr int POT_PIN = 34;
+constexpr int POT_PIN = 35;
 constexpr char AP_SSID[] = "s-sleeve";
 constexpr char SITE_HOSTNAME[] = "s-sleeve.com";
 constexpr char PREF_NAMESPACE[] = "rehab";
