@@ -8,10 +8,13 @@ BIN_DIR := bin
 SRC_DIR := src
 OBJ_DIR := build
 TARGET := $(BIN_DIR)/main.exe
+TEST_TARGET := $(BIN_DIR)/tests.exe
 
 SOURCES := \
 	$(SRC_DIR)/main.c \
 	$(SRC_DIR)/cli.c \
+	$(SRC_DIR)/component_compose.c \
+	$(SRC_DIR)/component_registry.c \
 	$(SRC_DIR)/file_io.c \
 	$(SRC_DIR)/generator.c \
 	$(SRC_DIR)/js_codegen.c \
@@ -29,6 +32,8 @@ SOURCES := \
 OBJECTS := \
 	$(OBJ_DIR)/main.o \
 	$(OBJ_DIR)/cli.o \
+	$(OBJ_DIR)/component_compose.o \
+	$(OBJ_DIR)/component_registry.o \
 	$(OBJ_DIR)/file_io.o \
 	$(OBJ_DIR)/generator.o \
 	$(OBJ_DIR)/js_codegen.o \
@@ -45,12 +50,38 @@ OBJECTS := \
 
 DEPENDENCIES := $(OBJECTS:.o=.d)
 
-.PHONY: all clean run
+TEST_SOURCES := \
+	tests/test_main.c \
+	tests/test_component_registry.c \
+	tests/test_component_compose.c
+
+TEST_OBJECTS := \
+	$(OBJ_DIR)/test_main.o \
+	$(OBJ_DIR)/test_component_registry.o \
+	$(OBJ_DIR)/test_component_compose.o \
+	$(OBJ_DIR)/component_compose.o \
+	$(OBJ_DIR)/component_registry.o \
+	$(OBJ_DIR)/file_io.o \
+	$(OBJ_DIR)/log.o \
+	$(OBJ_DIR)/token.o \
+	$(OBJ_DIR)/tokenizer.o \
+	$(OBJ_DIR)/ast.o \
+	$(OBJ_DIR)/parser.o \
+	$(OBJ_DIR)/parser_component.o \
+	$(OBJ_DIR)/parser_template.o \
+	$(OBJ_DIR)/parser_style.o
+
+TEST_DEPENDENCIES := $(TEST_OBJECTS:.o=.d)
+
+.PHONY: all clean run test
 
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $@ $(OBJECTS)
+
+$(TEST_TARGET): $(TEST_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $(TEST_OBJECTS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
@@ -61,6 +92,9 @@ $(OBJ_DIR)/%.o: src/tokenizer/src/%.c | $(OBJ_DIR)
 $(OBJ_DIR)/%.o: src/parser/src/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
+$(OBJ_DIR)/%.o: tests/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
+
 $(BIN_DIR):
 	if not exist $(BIN_DIR) mkdir $(BIN_DIR)
 
@@ -68,10 +102,14 @@ $(OBJ_DIR):
 	if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
 
 run: $(TARGET)
-	./$(TARGET) ../angular_app
+	bin\main.exe ..\angular_app
+
+test: $(TEST_TARGET)
+	bin\tests.exe
 
 clean:
 	if exist $(OBJ_DIR) rmdir /S /Q $(OBJ_DIR)
 	if exist $(BIN_DIR) rmdir /S /Q $(BIN_DIR)
 
 -include $(DEPENDENCIES)
+-include $(TEST_DEPENDENCIES)

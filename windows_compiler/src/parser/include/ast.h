@@ -29,6 +29,10 @@ typedef struct {
 typedef struct {
   int has_component_decorator;
   char class_name[128];
+  char selector[128];
+  char template_url[260];
+  char style_urls[8][260];
+  size_t style_url_count;
   ast_member_t members[AST_MAX_MEMBERS];
   size_t member_count;
 } ast_component_file_t;

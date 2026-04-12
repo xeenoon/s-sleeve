@@ -1,0 +1,6 @@
+@Component({
+  selector: 'dashboard-shell',
+  templateUrl: './dashboard-shell.component.html',
+  styleUrls: ['./dashboard-shell.component.css']
+})
+export class DashboardShellComponent {}

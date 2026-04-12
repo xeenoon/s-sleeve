@@ -14,9 +14,12 @@ void ast_file_print(const ast_file_t *file) {
 
   switch (file->kind) {
     case PARSER_FILE_COMPONENT:
-      log_printf("AST component decorator=%s class=%s members=%zu",
+      log_printf("AST component decorator=%s class=%s selector=%s template=%s styles=%zu members=%zu",
                  file->data.component.has_component_decorator ? "yes" : "no",
                  file->data.component.class_name[0] != '\0' ? file->data.component.class_name : "<none>",
+                 file->data.component.selector[0] != '\0' ? file->data.component.selector : "<none>",
+                 file->data.component.template_url[0] != '\0' ? file->data.component.template_url : "<none>",
+                 file->data.component.style_url_count,
                  file->data.component.member_count);
       if (file->data.component.member_count > 0) {
         log_printf(" [");

@@ -1,0 +1,47 @@
+<section class="hero">
+  <div class="panel hero-panel">
+    <p class="eyebrow">s-sleeve</p>
+    <h1 class="headline"><span id="today-average">0.0</span>/100</h1>
+    <p class="subline">s-sleeve live mobility tracking with a goal of <strong id="goal-inline">85</strong>.</p>
+    <div class="hero-ribbon">
+      <span class="signal-dot" id="hero-signal-dot"></span>
+      <span id="hero-signal-copy">Observable live telemetry active</span>
+    </div>
+  </div>
+  <div class="panel control-panel">
+    <div class="status-row">
+      <div class="tabs" id="tabs">
+        <button data-view="live" class="active" type="button">Live</button>
+        <button data-view="history" type="button">History</button>
+        <button data-view="variables" type="button">Variables</button>
+      </div>
+      <div id="sync-pill" class="status-pill">Phone time synced for daily tracking</div>
+    </div>
+    <div class="card-grid">
+      <div class="metric-card telemetry-card" data-telemetry-card>
+        <div class="metric-label">Current Reading</div>
+        <div class="metric-value" id="reading">0</div>
+        <div class="metric-detail">Raw potentiometer value</div>
+        <div class="metric-trace"><span></span></div>
+      </div>
+      <div class="metric-card telemetry-card" data-telemetry-card>
+        <div class="metric-label">Straightness</div>
+        <div class="metric-value" id="percent-straight">0%</div>
+        <div class="metric-detail">Mapped knee position</div>
+        <div class="metric-trace"><span></span></div>
+      </div>
+      <div class="metric-card telemetry-card" data-telemetry-card>
+        <div class="metric-label">Step Score</div>
+        <div class="metric-value" id="last-score">0.0</div>
+        <div class="metric-detail">Most recent completed step</div>
+        <div class="metric-trace"><span></span></div>
+      </div>
+      <div class="metric-card telemetry-card" data-telemetry-card>
+        <div class="metric-label">Steps Logged</div>
+        <div class="metric-value" id="step-count">0</div>
+        <div class="metric-detail">Stored in device history</div>
+        <div class="metric-trace"><span></span></div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,10 +1,13 @@
 #include "cli.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "file_io.h"
 #include "ast.h"
+#include "component_compose.h"
+#include "component_registry.h"
 #include "generator.h"
 #include "log.h"
 #include "parser.h"
@@ -20,29 +23,23 @@ typedef struct {
   const char *output_dir;
   const char *runtime_header_path;
   const char *helpers_root_path;
-  int has_component_file;
-  int has_html_file;
-  int has_css_file;
-  ast_component_file_t component_ast;
-  file_buffer_t component_buffer;
-  file_buffer_t html_buffer;
-  file_buffer_t css_buffer;
+  component_registry_t *registry;
 } cli_context_t;
 
 static int validate_ast(const char *path, const ast_file_t *ast) {
-  if (strstr(path, "app.component.ng") != NULL) {
+  if (strstr(path, ".component.ng") != NULL) {
     return ast->kind == PARSER_FILE_COMPONENT &&
            ast->data.component.has_component_decorator &&
-           strcmp(ast->data.component.class_name, "AppComponent") == 0 &&
-           ast->data.component.member_count > 0;
+           ast->data.component.class_name[0] != '\0' &&
+           ast->data.component.selector[0] != '\0';
   }
 
-  if (strstr(path, "app.component.html") != NULL) {
+  if (strstr(path, ".component.html") != NULL) {
     return ast->kind == PARSER_FILE_TEMPLATE &&
            ast->data.template_file.element_count > 0;
   }
 
-  if (strstr(path, "app.component.css") != NULL) {
+  if (strstr(path, ".component.css") != NULL) {
     return ast->kind == PARSER_FILE_STYLE &&
            ast->data.style.has_balanced_blocks &&
            ast->data.style.rule_count > 0;
@@ -58,10 +55,9 @@ static int tokenize_file(const char *path, void *context) {
   parse_summary_t summary;
   ast_file_t ast;
   int is_valid;
+  component_unit_t *unit;
 
-  if (strstr(path, "app.component.ng") == NULL &&
-      strstr(path, "app.component.html") == NULL &&
-      strstr(path, "app.component.css") == NULL) {
+  if (!component_registry_is_component_path(path)) {
     LOG_TRACE("tokenize_file skip non-ast asset path=%s\n", path);
     return 0;
   }
@@ -107,21 +103,33 @@ static int tokenize_file(const char *path, void *context) {
     return 1;
   }
 
+  unit = component_registry_get_or_create(cli_context->registry, path);
+  if (unit == NULL) {
+    log_errorf("failed to register component file: %s\n", path);
+    file_buffer_free(&buffer);
+    return 1;
+  }
+
   if (ast.kind == PARSER_FILE_COMPONENT) {
     LOG_TRACE("tokenize_file capture component path=%s bytes=%zu\n", path, buffer.size);
-    cli_context->component_ast = ast.data.component;
-    cli_context->component_buffer = buffer;
-    cli_context->has_component_file = 1;
+    unit->component_ast = ast.data.component;
+    unit->has_component_ast = 1;
+    strcpy(unit->selector, ast.data.component.selector);
+    strncpy(unit->ng_path, path, sizeof(unit->ng_path) - 1);
     memset(&buffer, 0, sizeof(buffer));
-  } else if (strstr(path, "app.component.html") != NULL) {
+  } else if (strstr(path, ".component.html") != NULL) {
     LOG_TRACE("tokenize_file capture html path=%s bytes=%zu\n", path, buffer.size);
-    cli_context->html_buffer = buffer;
-    cli_context->has_html_file = 1;
+    file_buffer_free(&unit->html_buffer);
+    unit->html_buffer = buffer;
+    unit->has_html = 1;
+    strncpy(unit->html_path, path, sizeof(unit->html_path) - 1);
     memset(&buffer, 0, sizeof(buffer));
-  } else if (strstr(path, "app.component.css") != NULL) {
+  } else if (strstr(path, ".component.css") != NULL) {
     LOG_TRACE("tokenize_file capture css path=%s bytes=%zu\n", path, buffer.size);
-    cli_context->css_buffer = buffer;
-    cli_context->has_css_file = 1;
+    file_buffer_free(&unit->css_buffer);
+    unit->css_buffer = buffer;
+    unit->has_css = 1;
+    strncpy(unit->css_path, path, sizeof(unit->css_path) - 1);
     memset(&buffer, 0, sizeof(buffer));
   }
 
@@ -135,48 +143,66 @@ static int tokenize_file(const char *path, void *context) {
 }
 
 static int cli_generate_outputs(cli_context_t *context) {
-  if (!context->has_component_file || !context->has_html_file || !context->has_css_file) {
-    log_errorf("missing required app.component source files component=%d html=%d css=%d\n",
-               context->has_component_file,
-               context->has_html_file,
-               context->has_css_file);
+  char composed_html[65536];
+  char composed_css[65536];
+  const component_unit_t *root;
+
+  if (component_registry_validate(context->registry) != 0) {
+    log_errorf("component registry validation failed\n");
     return 1;
   }
 
-  LOG_TRACE("cli_generate_outputs output_dir=%s component_class=%s html_bytes=%zu css_bytes=%zu\n",
+  root = component_registry_root(context->registry);
+  if (root == NULL) {
+    log_errorf("missing root component\n");
+    return 1;
+  }
+
+  if (component_compose_html(context->registry, root, composed_html, sizeof(composed_html)) != 0) {
+    log_errorf("failed to compose component html\n");
+    return 1;
+  }
+
+  if (component_compose_css(context->registry, root, composed_css, sizeof(composed_css)) != 0) {
+    log_errorf("failed to compose component css\n");
+    return 1;
+  }
+
+  LOG_TRACE("cli_generate_outputs output_dir=%s component_class=%s html_bytes=%zu css_bytes=%zu components=%zu\n",
             context->output_dir,
-            context->component_ast.class_name,
-            context->html_buffer.size,
-            context->css_buffer.size);
+            root->component_ast.class_name,
+            strlen(composed_html),
+            strlen(composed_css),
+            context->registry->component_count);
 
   if (generator_copy_runtime_header(context->runtime_header_path, context->output_dir) != 0) {
     log_errorf("failed to copy runtime header into %s\n", context->output_dir);
     return 1;
   }
 
-  if (generator_generate_component_headers(context->output_dir, &context->component_ast) != 0) {
+  if (generator_generate_component_headers(context->output_dir, &root->component_ast) != 0) {
     log_errorf("failed to generate component headers into %s\n", context->output_dir);
     return 1;
   }
 
-  if (generator_validate_component_headers(context->output_dir, &context->component_ast) != 0) {
+  if (generator_validate_component_headers(context->output_dir, &root->component_ast) != 0) {
     return 1;
   }
 
-  if (generator_generate_component_sources(context->output_dir, &context->component_ast) != 0) {
+  if (generator_generate_component_sources(context->output_dir, &root->component_ast) != 0) {
     log_errorf("failed to generate component sources into %s\n", context->output_dir);
     return 1;
   }
 
-  if (generator_validate_component_sources(context->output_dir, &context->component_ast) != 0) {
+  if (generator_validate_component_sources(context->output_dir, &root->component_ast) != 0) {
     return 1;
   }
 
   if (generator_generate_demo_files(context->output_dir,
                                     context->input_dir,
-                                    &context->component_ast,
-                                    context->html_buffer.data,
-                                    context->css_buffer.data) != 0) {
+                                    &root->component_ast,
+                                    composed_html,
+                                    composed_css) != 0) {
     log_errorf("failed to generate demo files into %s\n", context->output_dir);
     return 1;
   }
@@ -198,9 +224,11 @@ static int cli_generate_outputs(cli_context_t *context) {
 }
 
 static void cli_free_context_buffers(cli_context_t *context) {
-  file_buffer_free(&context->component_buffer);
-  file_buffer_free(&context->html_buffer);
-  file_buffer_free(&context->css_buffer);
+  if (context->registry != NULL) {
+    component_registry_free(context->registry);
+    free(context->registry);
+    context->registry = NULL;
+  }
 }
 
 int cli_run(int argc, char **argv) {
@@ -210,6 +238,12 @@ int cli_run(int argc, char **argv) {
   context.output_dir = "angular_test";
   context.runtime_header_path = "angular_runtime.h";
   context.helpers_root_path = "helpers";
+  context.registry = (component_registry_t *)malloc(sizeof(*context.registry));
+  if (context.registry == NULL) {
+    fprintf(stderr, "failed to allocate component registry\n");
+    return 1;
+  }
+  component_registry_init(context.registry);
 
   if (log_init("log.txt") != 0) {
     fprintf(stderr, "failed to open log.txt\n");

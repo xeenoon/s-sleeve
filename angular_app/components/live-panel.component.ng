@@ -1,0 +1,6 @@
+@Component({
+  selector: 'live-panel',
+  templateUrl: './live-panel.component.html',
+  styleUrls: ['./live-panel.component.css']
+})
+export class LivePanelComponent {}

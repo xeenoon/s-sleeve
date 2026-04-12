@@ -4,7 +4,7 @@
 #include "helpers/include/runtime/app_runtime.h"
 #include "helpers/include/net/http_service.h"
 
-#define ANGULAR_GENERATED_ROUTE_COUNT 8
+#define ANGULAR_GENERATED_ROUTE_COUNT 9
 
 typedef struct {
   const char *method;

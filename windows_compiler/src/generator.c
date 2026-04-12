@@ -1826,8 +1826,8 @@ static int generator_emit_demo_file(const char *output_dir) {
 static int generator_emit_index_html(const char *output_dir,
                                      const ast_component_file_t *component,
                                      const char *html_source) {
-  char compiled_html[32768];
-  char document_html[49152];
+  char compiled_html[65536];
+  char document_html[98304];
   LOG_TRACE("generator_emit_index_html start html_bytes=%zu class=%s\n",
             html_source != NULL ? strlen(html_source) : 0u,
             component != NULL ? component->class_name : "<null>");

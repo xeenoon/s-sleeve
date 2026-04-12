@@ -1,0 +1,6 @@
+@Component({
+  selector: 'history-panel',
+  templateUrl: './history-panel.component.html',
+  styleUrls: ['./history-panel.component.css']
+})
+export class HistoryPanelComponent {}

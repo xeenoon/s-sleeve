@@ -1,0 +1,388 @@
+Multi-Component Compiler Refactor Plan
+
+Goal
+
+Support a real multi-component Angular-like app structure without breaking the current single-root flow during migration.
+
+Current Fail Points
+
+1. File discovery is hardcoded to one root component trio.
+
+Windows:
+- windows_compiler/src/cli.c
+  - `strstr(path, "app.component.ng")`
+  - `strstr(path, "app.component.html")`
+  - `strstr(path, "app.component.css")`
+  - non-matching files are skipped from AST parsing
+  - generation requires exactly one captured component/html/css set
+
+Embedded:
+- embedded_compiler/src/cli.c
+  - same hardcoded `app.component.*` discovery and validation logic
+
+Impact:
+- child components are never discovered
+- child component files are ignored entirely
+- there is no registry of components
+
+2. Component AST only models one class with members.
+
+Files:
+- windows_compiler/src/parser/include/ast.h
+- embedded_compiler/src/parser/include/ast.h
+
+Current `ast_component_file_t` only stores:
+- `has_component_decorator`
+- `class_name`
+- `members`
+- `member_count`
+
+Missing:
+- `selector`
+- `templateUrl`
+- `styleUrls`
+- declared inputs
+- declared outputs
+- companion script path metadata
+
+Impact:
+- even if child component files were found, there is nowhere to represent selector identity or composition metadata
+
+3. Template AST is only a summary, not a tree.
+
+Files:
+- windows_compiler/src/parser/include/ast.h
+- embedded_compiler/src/parser/include/ast.h
+
+Current `ast_template_file_t` only stores:
+- `element_count`
+- `interpolation_count`
+- `attribute_binding_count`
+
+Missing:
+- actual nodes
+- tag names
+- parent/child hierarchy
+- attributes per node
+- custom selector detection
+
+Impact:
+- compiler cannot resolve `<history-panel>` or any other custom element
+- compiler cannot detect parent-to-child bindings
+
+4. Generator assumes one root component and one global asset set.
+
+Windows:
+- windows_compiler/src/generator.c
+  - generation functions take a single `ast_component_file_t *component`
+  - always read one root `app.js`
+  - emit one `index.html`, one `styles.css`, one `app.js`
+
+Embedded:
+- embedded_compiler/src/generator.c
+  - same single-component contract
+  - same single root app JS pipeline
+
+Impact:
+- no component composition
+- no per-component script/style handling
+- no render tree assembly
+
+5. Runtime model is app-global.
+
+Current generated JS flow:
+- runtime JS asset
+- source app JS
+- observable registrations from one component AST
+
+Impact:
+- no component-local scope
+- no child component lifecycle
+- no isolated hook ownership
+
+Design Principles
+
+1. Keep the current single-component app working during migration.
+2. Add component support incrementally rather than trying to rebuild Angular all at once.
+3. Keep helpers generic.
+4. Keep one root component, but allow composition of child components.
+5. Support one-way inputs first. Do not implement outputs/events until required.
+
+Target Architecture
+
+1. Component discovery phase
+
+Scan the app directory for component groups such as:
+- `*.component.ng`
+- `*.component.html`
+- `*.component.css`
+- optional companion `*.component.js`
+
+Also keep support for root-level:
+- `app.js`
+- static route files
+
+Introduce a registry structure:
+
+```c
+typedef struct {
+  char base_name[128];
+  char ng_path[260];
+  char html_path[260];
+  char css_path[260];
+  char js_path[260];
+  int has_ng;
+  int has_html;
+  int has_css;
+  int has_js;
+  ast_component_file_t component_ast;
+  ast_template_file_t template_ast;
+  ast_style_file_t style_ast;
+  file_buffer_t ng_buffer;
+  file_buffer_t html_buffer;
+  file_buffer_t css_buffer;
+  file_buffer_t js_buffer;
+} ng_component_unit_t;
+
+typedef struct {
+  ng_component_unit_t components[64];
+  size_t component_count;
+  size_t root_component_index;
+} ng_component_registry_t;
+```
+
+2. Extend component AST metadata
+
+Update `ast_component_file_t` to include:
+
+```c
+typedef struct {
+  int has_component_decorator;
+  char class_name[128];
+  char selector[128];
+  char template_url[260];
+  char style_urls[8][260];
+  size_t style_url_count;
+  char inputs[32][128];
+  size_t input_count;
+  char outputs[32][128];
+  size_t output_count;
+  ast_member_t members[AST_MAX_MEMBERS];
+  size_t member_count;
+} ast_component_file_t;
+```
+
+Parser changes:
+- read `selector`
+- read `templateUrl`
+- read `styleUrls`
+- detect simple declared inputs
+- preserve current member parsing behavior
+
+3. Replace template summary with template tree
+
+Introduce node-level template AST:
+
+```c
+typedef struct {
+  char name[128];
+  char value[256];
+  int is_binding;
+} ast_template_attr_t;
+
+typedef struct ast_template_node_t {
+  char tag_name[64];
+  int is_text;
+  char text[512];
+  ast_template_attr_t attrs[32];
+  size_t attr_count;
+  struct ast_template_node_t *children[64];
+  size_t child_count;
+} ast_template_node_t;
+
+typedef struct {
+  ast_template_node_t *root;
+  size_t element_count;
+  size_t interpolation_count;
+  size_t attribute_binding_count;
+} ast_template_file_t;
+```
+
+Migration note:
+- keep the summary counters for existing logging/validation
+- add the tree alongside them
+
+4. Add component selector resolution
+
+Build a selector map from discovered components:
+- `selector -> ng_component_unit_t`
+
+Walk the root template tree:
+- for each node
+- if tag name matches a known selector
+- create a child component instance entry
+
+Introduce a render/component instance IR:
+
+```c
+typedef struct {
+  size_t component_index;
+  ast_template_node_t *mount_node;
+  char bound_input_names[32][128];
+  char bound_input_exprs[32][256];
+  size_t bound_input_count;
+} ng_component_instance_t;
+
+typedef struct {
+  ng_component_instance_t instances[128];
+  size_t instance_count;
+} ng_component_graph_t;
+```
+
+5. Add one-way input binding support
+
+First supported pattern:
+- `<history-panel [rows]="historyRows"></history-panel>`
+
+Compiler behavior:
+- parse binding attributes on custom selector nodes
+- connect them to child input names
+- generate child initialization code from parent expressions
+
+Do not implement yet:
+- outputs
+- event emitters
+- two-way binding
+
+6. Move script handling from one root file to component-aware aggregation
+
+Current problem:
+- generator always reads one root `app.js`
+
+Change:
+- root `app.js` remains optional global app runtime glue
+- each component may have optional companion JS
+- final generated JS is assembled from:
+  - runtime asset
+  - global app JS if present
+  - component JS blocks in dependency order
+  - observable registrations per component
+
+This keeps existing behavior while allowing child-specific hooks.
+
+7. Add component style scoping
+
+Current problem:
+- all CSS is effectively global
+
+Minimal fix:
+- namespace each component style block using a generated scope marker
+- when rendering/mounting a component root, stamp it with a component scope class or attribute
+
+Example strategy:
+- component `history-panel`
+- generated scope marker: `data-ng-scope="history-panel"`
+- rewrite selectors to target that scope
+
+This is enough to prevent collisions without full Angular encapsulation.
+
+8. Keep root assembly simple
+
+Do not implement Angular module semantics.
+
+Target model:
+- exactly one root component: `AppComponent`
+- zero or more child components
+- selector-based composition
+- one-way inputs
+- shared app/global runtime where needed
+
+Implementation Order
+
+Phase 1. Discovery and registry
+- update both `cli.c` files
+- replace single captured buffers with component registry
+- continue requiring `app.component.*` as root
+
+Phase 2. AST metadata
+- extend `ast_component_file_t`
+- update component parser to fill:
+  - selector
+  - templateUrl
+  - styleUrls
+  - inputs
+
+Phase 3. Template tree
+- add node-based template AST
+- keep current summary fields intact for logging
+- update parser to build the tree
+
+Phase 4. Selector resolution
+- build component registry map
+- detect custom selector usage in root and child templates
+- build component graph
+
+Phase 5. Generator contract change
+- change generator APIs to accept registry + component graph
+- stop taking only one `ast_component_file_t *component`
+- keep single-component fast path until the graph path is stable
+
+Phase 6. Input binding compilation
+- support `[input]="expr"` on child selectors
+- generate one-way data flow into child render/state
+
+Phase 7. Script/style aggregation
+- gather component JS
+- gather and scope component CSS
+- emit final assembled assets
+
+Phase 8. Validation and migration
+- add validation that:
+  - every custom selector resolves to a known component
+  - every component has required source files
+  - every bound input exists on the child component
+
+Files To Change First
+
+Windows:
+- windows_compiler/src/cli.c
+- windows_compiler/src/parser/include/ast.h
+- windows_compiler/src/parser/src/parser_component.c
+- windows_compiler/src/parser/src/parser_template.c
+- windows_compiler/src/generator.c
+
+Embedded:
+- embedded_compiler/src/cli.c
+- embedded_compiler/src/parser/include/ast.h
+- embedded_compiler/src/parser/src/parser_component.c
+- embedded_compiler/src/parser/src/parser_template.c
+- embedded_compiler/src/generator.c
+
+New Likely Files
+
+Shared shape in each compiler tree:
+- `src/component_registry.c`
+- `include/component_registry.h`
+- `src/component_resolver.c`
+- `include/component_resolver.h`
+- maybe `src/template_tree.c`
+
+Non-Goals For First Pass
+
+- Angular modules
+- dependency injection
+- outputs/event emitters
+- content projection
+- structural directives in child components beyond what already exists
+- full style encapsulation
+
+Expected Result
+
+After this refactor, the compiler should be able to support:
+- one root `AppComponent`
+- multiple child components
+- selector-based composition
+- per-component template/style/script assets
+- one-way parent-to-child bindings
+
+That is the minimum architecture needed to split the current `angular_app` monolith into maintainable parts without pretending the compiler already supports a true Angular component system.

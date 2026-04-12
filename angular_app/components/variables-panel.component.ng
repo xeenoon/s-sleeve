@@ -1,0 +1,6 @@
+@Component({
+  selector: 'variables-panel',
+  templateUrl: './variables-panel.component.html',
+  styleUrls: ['./variables-panel.component.css']
+})
+export class VariablesPanelComponent {}

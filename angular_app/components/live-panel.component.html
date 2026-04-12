@@ -1,0 +1,59 @@
+<section id="live-view" class="view-surface">
+  <div class="live-layout">
+    <div class="panel meter-card">
+      <p class="eyebrow">Knee Position</p>
+      <svg viewBox="0 0 280 320" aria-label="Knee joint animation" id="knee-meter">
+        <line class="guide" x1="140" y1="64" x2="140" y2="174"></line>
+        <line class="limb limb-shadow" x1="140" y1="64" x2="140" y2="174"></line>
+        <line class="limb limb-shadow" id="lower-leg-shadow" x1="140" y1="174" x2="140.0" y2="274.0"></line>
+        <line class="limb" x1="140" y1="64" x2="140" y2="174"></line>
+        <line class="limb" id="lower-leg" x1="140" y1="174" x2="140.0" y2="274.0"></line>
+        <line class="limb-highlight" x1="140" y1="64" x2="140" y2="174"></line>
+        <line class="limb-highlight" id="lower-leg-highlight" x1="140" y1="174" x2="140.0" y2="274.0"></line>
+        <line class="stride-echo" id="stride-echo" x1="140" y1="174" x2="140.0" y2="274.0"></line>
+        <circle class="joint joint-glow" cx="140" cy="64" r="18"></circle>
+        <circle class="joint joint-glow" cx="140" cy="174" r="20"></circle>
+        <circle class="joint joint-core" cx="140" cy="64" r="14"></circle>
+        <circle class="joint joint-core" cx="140" cy="174" r="16"></circle>
+        <circle class="joint joint-glow" id="ankle-glow" cx="140.0" cy="274.0" r="18"></circle>
+        <circle class="joint joint-core" id="ankle" cx="140.0" cy="274.0" r="14"></circle>
+        <circle class="pulse-ring" id="ankle-ring" cx="140.0" cy="274.0" r="22"></circle>
+      </svg>
+      <div class="joint-labels">
+        <span id="bent-label" class="joint-label">Bent</span>
+        <span id="straight-label" class="joint-label">Straight</span>
+      </div>
+      <div class="meter-demo-copy" id="meter-demo-copy">Waiting for live knee movement</div>
+    </div>
+    <div class="panel">
+      <div class="status-row">
+        <div>
+          <p class="eyebrow">Live Movement Quality</p>
+          <div id="step-status" class="status-pill warn">Waiting for a full movement cycle</div>
+        </div>
+        <div>
+          <div class="metric-label">Speed</div>
+          <div class="metric-value" id="speed">0.0</div>
+          <div class="metric-detail">% straight per second</div>
+        </div>
+      </div>
+      <div class="quality-grid">
+        <div class="quality-card" data-quality-card>
+          <div class="metric-label">Shaky Movement</div>
+          <strong id="live-shaky">0.0</strong>
+          <span>From reversals and extra path during a step</span>
+        </div>
+        <div class="quality-card" data-quality-card>
+          <div class="metric-label">Uncontrolled Descent</div>
+          <strong id="live-descent">0.0</strong>
+          <span>Penalizes overly fast or spiky lowering</span>
+        </div>
+        <div class="quality-card" data-quality-card>
+          <div class="metric-label">Compensation</div>
+          <strong id="live-compensation">0.0</strong>
+          <span>Flags phase imbalance and incomplete return</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

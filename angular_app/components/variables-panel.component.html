@@ -1,0 +1,29 @@
+<section id="variables-view" class="hidden view-surface">
+  <div class="panel">
+    <p class="eyebrow">Calibration Variables</p>
+    <div class="hint">Open this directly at <strong>/variables</strong>. Saving applies immediately to live tracking.</div>
+    <div id="variables-status" class="status-pill warn" style="margin-top:14px;">Variables not loaded yet</div>
+    <div class="variables-grid">
+      <div>
+        <div class="field" data-variable-field><label for="minReading">Min Reading</label><input id="minReading" name="minReading" type="number"></div>
+        <div class="field" data-variable-field><label for="maxReading">Max Reading</label><input id="maxReading" name="maxReading" type="number"></div>
+        <div class="field" data-variable-field><label for="bentAngle">Bent Angle</label><input id="bentAngle" name="bentAngle" type="number" step="0.1"></div>
+        <div class="field" data-variable-field><label for="straightAngle">Straight Angle</label><input id="straightAngle" name="straightAngle" type="number" step="0.1"></div>
+        <div class="field" data-variable-field><label for="sampleIntervalMs">Sample Interval Ms</label><input id="sampleIntervalMs" name="sampleIntervalMs" type="number"></div>
+        <div class="field" data-variable-field><label for="filterAlpha">Filter Alpha</label><input id="filterAlpha" name="filterAlpha" type="number" step="0.001"></div>
+      </div>
+      <div>
+        <div class="field" data-variable-field><label for="motionThreshold">Motion Threshold</label><input id="motionThreshold" name="motionThreshold" type="number" step="0.001"></div>
+        <div class="field" data-variable-field><label for="stepRangeThreshold">Step Range Threshold</label><input id="stepRangeThreshold" name="stepRangeThreshold" type="number" step="0.001"></div>
+        <div class="field" data-variable-field><label for="startReadyThreshold">Start Ready Threshold</label><input id="startReadyThreshold" name="startReadyThreshold" type="number" step="0.001"></div>
+        <div class="field" data-variable-field><label for="returnMargin">Return Margin</label><input id="returnMargin" name="returnMargin" type="number" step="0.001"></div>
+        <div class="field" data-variable-field><label for="maxStepDurationMs">Max Step Duration Ms</label><input id="maxStepDurationMs" name="maxStepDurationMs" type="number"></div>
+        <div class="field" data-variable-field><label for="sampleHistoryEnabled">Sample History</label><input id="sampleHistoryEnabled" name="sampleHistoryEnabled" type="text"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="save-variables" type="button">Save Variables</button>
+      <button id="reload-variables" class="secondary" type="button">Reload</button>
+    </div>
+  </div>
+</section>

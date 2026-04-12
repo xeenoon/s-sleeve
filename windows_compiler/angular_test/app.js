@@ -299,15 +299,6 @@ function setHtml(id, value) {
   }
 }
 
-var demoState = {
-  lastMotionAt: 0,
-  timerId: null,
-  phase: 0,
-  active: false,
-  lastPercent: null,
-  lastLivePercent: null
-};
-
 function setDemoCopy(text) {
   setText('meter-demo-copy', text);
 }
@@ -386,44 +377,18 @@ function updateKnee(percentStraight) {
   if (meter) {
     meter.style.transform = 'translate3d(' + ((normalized - 0.5) * 8).toFixed(1) + 'px, ' + (5 - normalized * 9).toFixed(1) + 'px, 0)';
   }
-}
-
-function simulateGaitFrame() {
-  var secondsSinceMotion = (Date.now() - demoState.lastMotionAt) / 1000;
-  var primary;
-  var secondary;
-  var tertiary;
-  var percent;
-
-  if (secondsSinceMotion < 1.0) {
-    if (demoState.active) {
-      demoState.active = false;
-      demoState.lastPercent = null;
-      setDemoCopy('Live reading active');
-    }
-    return;
+  var bentLabel = document.getElementById('bent-label');
+  var straightLabel = document.getElementById('straight-label');
+  var bentActive = normalized <= 0.3;
+  var straightActive = normalized >= 0.7;
+  if (bentLabel) {
+    bentLabel.classList.toggle('is-active', bentActive);
+    bentLabel.classList.toggle('is-bent', bentActive);
   }
-
-  demoState.active = true;
-  demoState.phase += 0.22;
-  primary = (Math.sin(demoState.phase) * 0.5) + 0.5;
-  secondary = (Math.sin((demoState.phase * 2) - 0.8) * 0.5) + 0.5;
-  tertiary = (Math.sin((demoState.phase * 3) + 0.6) * 0.5) + 0.5;
-  percent = 14 + (Math.pow(primary, 0.86) * 50) + (secondary * 18) - (tertiary * 6);
-  percent = Math.max(10, Math.min(92, percent));
-  updateKnee(percent);
-  setText('percent-straight', percent.toFixed(1) + '%');
-  if (demoState.lastPercent === null || Math.abs(demoState.lastPercent - percent) > 0.4) {
-    setDemoCopy('Demo gait running while live reading is static');
+  if (straightLabel) {
+    straightLabel.classList.toggle('is-active', straightActive);
+    straightLabel.classList.toggle('is-straight', straightActive);
   }
-  demoState.lastPercent = percent;
-}
-
-function ensureDemoGaitLoop() {
-  if (demoState.timerId !== null) {
-    return;
-  }
-  demoState.timerId = window.setInterval(simulateGaitFrame, 90);
 }
 
 function scoreChip(score) {
@@ -536,26 +501,15 @@ function applyHistoryGoal(goal, app) {
   }
 }
 
-function applyLivePayload(payload, app) {
+function applyMotionPayload(payload, app) {
   var nextPercent = Number(payload.percentStraight || 0);
-  console.log('[app] applyLivePayload reading=' + payload.reading + ' percent=' + payload.percentStraight);
-  if (demoState.lastLivePercent === null || Math.abs(demoState.lastLivePercent - nextPercent) > 0.35) {
-    demoState.lastMotionAt = Date.now();
-  }
-  demoState.lastLivePercent = nextPercent;
+  console.log('[app] applyMotionPayload reading=' + payload.reading + ' percent=' + payload.percentStraight);
   if (app && typeof app.setValue === 'function') {
     app.setValue('goal', payload.goal || 0);
   }
   setText('reading', String(payload.reading));
   setText('percent-straight', Number(payload.percentStraight || 0).toFixed(1) + '%');
-  setText('last-score', Number(payload.lastScore || 0).toFixed(1));
-  setText('step-count', String(payload.stepCount || 0));
-  setText('today-average', Number(payload.todayAverage || 0).toFixed(1));
-  setText('goal-inline', String(payload.goal || 0));
   setText('speed', Number(payload.speed || 0).toFixed(1));
-  setText('live-shaky', Number(payload.shaky || 0).toFixed(1));
-  setText('live-descent', Number(payload.uncontrolledDescent || 0).toFixed(1));
-  setText('live-compensation', Number(payload.compensation || 0).toFixed(1));
   updateKnee(nextPercent);
   var syncPill = document.getElementById('sync-pill');
   if (syncPill) {
@@ -571,7 +525,21 @@ function applyLivePayload(payload, app) {
   if (signalCopy) {
     signalCopy.textContent = payload.inStep ? 'Live observable pulse detecting active movement' : 'Observable live telemetry active';
   }
-  setDemoCopy('Live reading active');
+  setDemoCopy(payload.inStep ? 'Tracking real movement from the live sensor' : 'Waiting for live knee movement');
+}
+
+function applyLivePayload(payload, app) {
+  console.log('[app] applyLivePayload lastScore=' + payload.lastScore + ' steps=' + payload.stepCount);
+  if (app && typeof app.setValue === 'function') {
+    app.setValue('goal', payload.goal || 0);
+  }
+  setText('last-score', Number(payload.lastScore || 0).toFixed(1));
+  setText('step-count', String(payload.stepCount || 0));
+  setText('today-average', Number(payload.todayAverage || 0).toFixed(1));
+  setText('goal-inline', String(payload.goal || 0));
+  setText('live-shaky', Number(payload.shaky || 0).toFixed(1));
+  setText('live-descent', Number(payload.uncontrolledDescent || 0).toFixed(1));
+  setText('live-compensation', Number(payload.compensation || 0).toFixed(1));
 }
 
 function applyVariablesPayload(payload) {
@@ -625,8 +593,7 @@ function ngInitializeApp(app) {
   }
 
   app.setObservable('selectedView$', window.location.pathname === '/variables' ? 'variables' : 'live');
-  demoState.lastMotionAt = 0;
-  ensureDemoGaitLoop();
+  setDemoCopy('Waiting for live knee movement');
 }
 
 window.setText = setText;
@@ -644,6 +611,7 @@ window.summarizeDailyAverages = summarizeDailyAverages;
 window.renderHistoryDiagnostics = renderHistoryDiagnostics;
 window.renderDailyDiagnostics = renderDailyDiagnostics;
 window.applyHistoryGoal = applyHistoryGoal;
+window.applyMotionPayload = applyMotionPayload;
 window.applyLivePayload = applyLivePayload;
 window.applyVariablesPayload = applyVariablesPayload;
 window.applyVariablesSaveResponse = applyVariablesSaveResponse;
@@ -654,7 +622,8 @@ window.ngInitializeApp = ngInitializeApp;
   var ngApp = ngCreateApp();
   window.ngApp = ngApp;
   ngApp.registerObservable({ name: 'selectedView$', alias: 'selectedView', kind: 'state', path: '', seed: 'live', intervalMs: 0, steps: [{ kind: 'tap', argument: 'showView', args: ['showView'] }, { kind: 'effect-class', argument: 'is-transitioning', args: ['#{{value}}-view', 'is-transitioning', '460'] }] });
-  ngApp.registerObservable({ name: 'liveState$', alias: 'liveState', kind: 'poll', path: '/api/live', seed: null, intervalMs: 500, steps: [{ kind: 'tap', argument: 'applyLivePayload', args: ['applyLivePayload'] }, { kind: 'effect-class-at', argument: '0', args: ['[data-telemetry-card]', '0', 'is-live', '1000', 'changed', 'reading'] }, { kind: 'effect-class-at', argument: '1', args: ['[data-telemetry-card]', '1', 'is-live', '1000', 'changed', 'percentStraight'] }, { kind: 'effect-class-at', argument: '2', args: ['[data-telemetry-card]', '2', 'is-live', '1000', 'changed', 'lastScore'] }, { kind: 'effect-class-at', argument: '3', args: ['[data-telemetry-card]', '3', 'is-live', '1000', 'changed', 'stepCount'] }, { kind: 'effect-class', argument: 'is-energized', args: ['.meter-card', 'is-energized', '360', 'changed', 'percentStraight'] }, { kind: 'effect-style-var', argument: '--surface-shift', args: [':root', '--surface-shift', 'ternary-bool', 'inStep', '-2px', '0px'] }] });
+  ngApp.registerObservable({ name: 'motionState$', alias: 'motionState', kind: 'poll', path: '/api/motion', seed: null, intervalMs: 33, steps: [{ kind: 'tap', argument: 'applyMotionPayload', args: ['applyMotionPayload'] }, { kind: 'effect-class-at', argument: '0', args: ['[data-telemetry-card]', '0', 'is-live', '1000', 'changed', 'reading'] }, { kind: 'effect-class-at', argument: '1', args: ['[data-telemetry-card]', '1', 'is-live', '1000', 'changed', 'percentStraight'] }, { kind: 'effect-class', argument: 'is-energized', args: ['.meter-card', 'is-energized', '360', 'changed', 'percentStraight'] }, { kind: 'effect-style-var', argument: '--surface-shift', args: [':root', '--surface-shift', 'ternary-bool', 'inStep', '-2px', '0px'] }] });
+  ngApp.registerObservable({ name: 'liveState$', alias: 'liveState', kind: 'poll', path: '/api/live', seed: null, intervalMs: 250, steps: [{ kind: 'tap', argument: 'applyLivePayload', args: ['applyLivePayload'] }, { kind: 'effect-class-at', argument: '2', args: ['[data-telemetry-card]', '2', 'is-live', '1000', 'changed', 'lastScore'] }, { kind: 'effect-class-at', argument: '3', args: ['[data-telemetry-card]', '3', 'is-live', '1000', 'changed', 'stepCount'] }] });
   ngApp.registerObservable({ name: 'historyRows$', alias: 'historyRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'history', args: ['history'] }, { kind: 'map', argument: 'formatHistoryRow', args: ['formatHistoryRow'] }, { kind: 'tap', argument: 'renderHistoryRows', args: ['renderHistoryRows'] }, { kind: 'effect-stagger-class', argument: 'table-row-enter', args: ['#history-body tr', 'table-row-enter', '420', '16'] }] });
   ngApp.registerObservable({ name: 'dailyAverageRows$', alias: 'dailyAverageRows', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'dailyAverages', args: ['dailyAverages'] }, { kind: 'map', argument: 'formatDailyAverageRow', args: ['formatDailyAverageRow'] }, { kind: 'tap', argument: 'renderDailyAverageRows', args: ['renderDailyAverageRows'] }, { kind: 'effect-stagger-class', argument: 'table-row-enter', args: ['#daily-average-body tr', 'table-row-enter', '420', '24'] }] });
   ngApp.registerObservable({ name: 'historyGoal$', alias: 'historyGoal', kind: 'poll', path: '/api/history', seed: null, intervalMs: 3000, steps: [{ kind: 'prop', argument: 'goal', args: ['goal'] }, { kind: 'tap', argument: 'applyHistoryGoal', args: ['applyHistoryGoal'] }] });

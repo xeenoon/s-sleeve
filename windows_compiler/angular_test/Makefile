@@ -9,6 +9,7 @@ TARGET := $(BIN_DIR)/generated_demo.exe
 
 SOURCES := \
 	angular_selectedView_.c \
+	angular_motionState_.c \
 	angular_liveState_.c \
 	angular_historyRows_.c \
 	angular_dailyAverageRows_.c \

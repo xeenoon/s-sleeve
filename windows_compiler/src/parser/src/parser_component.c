@@ -7,6 +7,109 @@ static int token_matches_text(const token_t *token, const char *text) {
   return token->length == length && strncmp(token->start, text, length) == 0;
 }
 
+static void copy_token_text(char *buffer, size_t buffer_size, const token_t *token);
+
+static void parser_extract_metadata_string(const char *source,
+                                           const char *key,
+                                           char *buffer,
+                                           size_t buffer_size) {
+  const char *match = strstr(source, key);
+  const char *quote_start;
+  const char *quote_end;
+
+  if (buffer_size == 0) {
+    return;
+  }
+  buffer[0] = '\0';
+  if (match == NULL) {
+    return;
+  }
+
+  quote_start = strchr(match, '\'');
+  if (quote_start == NULL) {
+    quote_start = strchr(match, '"');
+  }
+  if (quote_start == NULL) {
+    return;
+  }
+
+  quote_end = strchr(quote_start + 1, *quote_start);
+  if (quote_end == NULL) {
+    return;
+  }
+
+  copy_token_text(buffer, buffer_size, &(token_t){.start = quote_start + 1, .length = (size_t)(quote_end - quote_start - 1)});
+}
+
+static void parser_extract_style_urls(const char *source, ast_component_file_t *component) {
+  const char *styles = strstr(source, "styleUrls");
+  const char *cursor;
+  const char *list_end;
+
+  component->style_url_count = 0;
+  if (styles == NULL) {
+    return;
+  }
+
+  cursor = strchr(styles, '[');
+  if (cursor == NULL) {
+    return;
+  }
+  list_end = strchr(cursor, ']');
+  if (list_end == NULL) {
+    return;
+  }
+  cursor += 1;
+
+  while (cursor < list_end && component->style_url_count < 8) {
+    const char *quote_start = strchr(cursor, '\'');
+    const char *quote_end;
+    if (quote_start == NULL || quote_start >= list_end) {
+      quote_start = strchr(cursor, '"');
+    }
+    if (quote_start == NULL || quote_start >= list_end) {
+      break;
+    }
+    quote_end = strchr(quote_start + 1, *quote_start);
+    if (quote_end == NULL) {
+      break;
+    }
+    copy_token_text(component->style_urls[component->style_url_count],
+                    sizeof(component->style_urls[component->style_url_count]),
+                    &(token_t){.start = quote_start + 1, .length = (size_t)(quote_end - quote_start - 1)});
+    component->style_url_count += 1;
+    cursor = quote_end + 1;
+  }
+}
+
+static void parser_extract_component_metadata(const parser_state_t *state, ast_component_file_t *component) {
+  const char *source_start;
+  const char *source_end;
+  size_t length;
+  char source_copy[4096];
+
+  if (state->count == 0) {
+    return;
+  }
+
+  source_start = state->tokens[0].start;
+  source_end = state->tokens[state->count - 1].start;
+  if (source_end <= source_start) {
+    return;
+  }
+
+  length = (size_t)(source_end - source_start);
+  if (length >= sizeof(source_copy)) {
+    length = sizeof(source_copy) - 1;
+  }
+  memcpy(source_copy, source_start, length);
+  source_copy[length] = '\0';
+
+  parser_extract_metadata_string(source_copy, "selector", component->selector, sizeof(component->selector));
+  parser_extract_metadata_string(source_copy, "templateUrl", component->template_url, sizeof(component->template_url));
+  parser_extract_style_urls(source_copy, component);
+}
+
 static int token_is_significant(const token_t *token) {
   return token->kind != TOKEN_WHITESPACE && token->kind != TOKEN_COMMENT && token->kind != TOKEN_EOF;
 }
@@ -219,6 +322,7 @@ int parser_parse_component(parser_state_t *state, ast_file_t *out_file) {
   int seen_class_keyword = 0;
 
   ast_file_init(out_file, PARSER_FILE_COMPONENT);
+  parser_extract_component_metadata(state, &out_file->data.component);
 
   for (index = 0; index < state->count; ++index) {
     const token_t *token = &state->tokens[index];

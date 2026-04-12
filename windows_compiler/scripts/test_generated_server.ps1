@@ -33,6 +33,7 @@ try {
   $state1b = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$port/state"
   $value1 = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$port/value"
   $live = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$port/api/live"
+  $motion = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$port/api/motion"
   $history = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$port/api/history"
   $variables1 = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$port/api/variables"
   $variablesPost = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$port/api/variables" `
@@ -43,6 +44,7 @@ try {
   $generatedJsBytes = (Get-Item $generatedJsPath).Length
   $servedJsBytes = [System.Text.Encoding]::UTF8.GetByteCount($js.Content)
   $rootHasRawTemplate = $root.Content -match '\{\{' -or $root.Content -match '\[attr\.' -or $root.Content -match '\[class\.' -or $root.Content -match '\(click\)'
+  $rootHasRawComponentTags = $root.Content -match '<dashboard-shell' -or $root.Content -match '<live-panel' -or $root.Content -match '<history-panel' -or $root.Content -match '<variables-panel'
   $rootHasExpectedTabs = $root.Content -match 'id="tabs"' -and $root.Content -match 'data-view="live"' -and $root.Content -match 'data-view="history"' -and $root.Content -match 'data-view="variables"'
   $rootHasExpectedViews = $root.Content -match 'id="live-view"' -and $root.Content -match 'id="history-view"' -and $root.Content -match 'id="variables-view"'
   $rootHasAssets = $root.Content -match '<link rel="stylesheet" href="/styles\.css">' -and $root.Content -match '<script src="/app\.js"></script>'
@@ -55,12 +57,14 @@ try {
   $jsHasRawObservableSyntax = $js.Content -match 'rx\.poll\(' -or $js.Content -match 'rx\.post\(' -or $js.Content -match 'rx\.state\(' -or $js.Content -match '\.pipe\('
 
   [pscustomobject]@{
-    root_ok = ($root.StatusCode -eq 200 -and -not $rootHasRawTemplate -and $rootHasExpectedTabs -and $rootHasExpectedViews -and $rootHasAssets -and $rootHasDiagnostics)
+    root_ok = ($root.StatusCode -eq 200 -and -not $rootHasRawTemplate -and -not $rootHasRawComponentTags -and $rootHasExpectedTabs -and $rootHasExpectedViews -and $rootHasAssets -and $rootHasDiagnostics)
     variables_page_ok = ($variablesPage.StatusCode -eq 200 -and $variablesPage.Content -match 'data-view="variables"')
     css_ok = ($css.StatusCode -eq 200 -and $css.Content -match 'background')
     js_ok = ($js.StatusCode -eq 200 -and $jsHasCompiledObservableRuntime -and $jsHasPipeHooks -and $jsHasReducePipeline -and $jsHasEffectRuntime -and $jsDroppedSourceAnimationHooks -and -not $jsHasRawObservableSyntax -and $js.Content -match "window\.history\.replaceState" -and $servedJsBytes -eq $generatedJsBytes)
     history_ok = (@($historyJson.history).Count -eq 50 -and @($historyJson.dailyAverages).Count -gt 0)
+    motion_ok = ($motion.StatusCode -eq 200 -and $motion.Content -match '"percentStraight"' -and $motion.Content -match '"reading"')
     root_has_raw_template = $rootHasRawTemplate
+    root_has_raw_component_tags = $rootHasRawComponentTags
     root_has_expected_tabs = $rootHasExpectedTabs
     root_has_expected_views = $rootHasExpectedViews
     root_has_assets = $rootHasAssets
@@ -78,6 +82,7 @@ try {
     state1 = $state1.Content
     state1b = $state1b.Content
     value1 = $value1.Content.Trim()
+    motion = $motion.Content
     live = $live.Content
     history = $history.Content
     variables1 = $variables1.Content

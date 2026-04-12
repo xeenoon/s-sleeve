@@ -1,0 +1,68 @@
+<section id="history-view" class="hidden view-surface">
+  <div class="history-layout">
+    <div class="panel diagnostics-panel">
+      <p class="eyebrow">History Diagnostics</p>
+      <div class="diagnostics-grid">
+        <div class="diagnostic-card" data-diagnostic-card>
+          <div class="metric-label">Best Step</div>
+          <strong id="best-step-score">0.0</strong>
+          <span id="best-step-detail">No steps yet</span>
+        </div>
+        <div class="diagnostic-card" data-diagnostic-card>
+          <div class="metric-label">Worst Step</div>
+          <strong id="worst-step-score">0.0</strong>
+          <span id="worst-step-detail">No steps yet</span>
+        </div>
+        <div class="diagnostic-card" data-diagnostic-card>
+          <div class="metric-label">Best Day</div>
+          <strong id="best-day-score">0.0</strong>
+          <span id="best-day-detail">No days yet</span>
+        </div>
+        <div class="diagnostic-card" data-diagnostic-card>
+          <div class="metric-label">Worst Day</div>
+          <strong id="worst-day-score">0.0</strong>
+          <span id="worst-day-detail">No days yet</span>
+        </div>
+        <div class="diagnostic-card" data-diagnostic-card>
+          <div class="metric-label">Average Step Score</div>
+          <strong id="average-step-score">0.0</strong>
+          <span id="average-step-detail">Across all logged steps</span>
+        </div>
+        <div class="diagnostic-card" data-diagnostic-card>
+          <div class="metric-label">Average Step Duration</div>
+          <strong id="average-step-duration">0 ms</strong>
+          <span id="average-step-duration-detail">Across all logged steps</span>
+        </div>
+      </div>
+    </div>
+    <div class="table-panel">
+      <p class="eyebrow">Daily Averages</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Day</th><th>Average Score</th><th>Steps</th><th>Goal</th></tr>
+          </thead>
+          <tbody id="daily-average-body">
+            <tr><td class="empty" colspan="4">No synced history yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="table-panel table-panel-history">
+      <p class="eyebrow">Step History</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Score</th><th>Shaky</th><th>Descent</th><th>Compensation</th>
+              <th>Duration</th><th>Range</th><th>Down Speed</th><th>Up Speed</th><th>Oscillations</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <tr><td class="empty" colspan="10">No steps recorded yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
