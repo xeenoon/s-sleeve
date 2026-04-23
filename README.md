@@ -102,10 +102,7 @@ We solved this by iterating on mechanical design and shifting complexity from ru
 ## Compiler instructions
   You too can you our custom minimal ejs and angular compiler!
 
-  write that, give instructions for compiling for both windows and embedded
-
-
-• ## Compiler instructions
+  ## Compiler instructions
 
   You can also use our custom minimal Angular and EJS compiler.
 
